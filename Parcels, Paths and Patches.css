@@ -1,0 +1,101 @@
+@font-face {
+	font-family: 'Book Antiqua';
+	font-style: normal;
+	font-weight: normal;
+	src: url(Book%20Antiqua.ttf);
+}
+@font-face {
+	font-family: 'Book Antiqua';
+	font-style: normal;
+	font-weight: bold;
+	src: url(Book%20Antiqua%20Bold.ttf);
+}
+@font-face {
+	font-family: 'Book Antiqua';
+	font-style: italic;
+	font-weight: normal;
+	src: url(Book%20Antiqua%20Italics.ttf);
+}
+@font-face {
+	font-family: 'Book Antiqua';
+	font-style: italic;
+	font-weight: bold;
+	src: url(Book%20Antiqua%20Bold%20Italics.ttf);
+}
+
+@font-face { font-family: 'Work Sans'; font-weight: 100; font-style: normal; src: url(WorkSans-Thin.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 100; font-style: italic; src: url(WorkSans-ThinItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 200; font-style: normal; src: url(WorkSans-ExtraLight.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 200; font-style: italic; src: url(WorkSans-ExtraLightItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 300; font-style: normal; src: url(WorkSans-Light.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 300; font-style: italic; src: url(WorkSans-LightItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 400; font-style: normal; src: url(WorkSans-Regular.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 400; font-style: italic; src: url(WorkSans-RegularItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 500; font-style: normal; src: url(WorkSans-Medium.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 500; font-style: italic; src: url(WorkSans-MediumItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 600; font-style: normal; src: url(WorkSans-SemiBold.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 600; font-style: italic; src: url(WorkSans-SemiBoldItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 700; font-style: normal; src: url(WorkSans-Bold.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 700; font-style: italic; src: url(WorkSans-BoldItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 800; font-style: normal; src: url(WorkSans-ExtraBold.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 800; font-style: italic; src: url(WorkSans-ExtraBoldItalic.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 900; font-style: normal; src: url(WorkSans-Black.ttf); }
+@font-face { font-family: 'Work Sans'; font-weight: 900; font-style: italic; src: url(WorkSans-BlackItalic.ttf); }
+
+* { pointer-events: none; }
+#input { user-select: none; }
+#input *, #div *, #ui * { pointer-events: all; }
+
+body, svg {
+	font-family: 'Book Antiqua';
+	background: hsl(220, 10%, 30%);
+	color: #dbdee1;
+	pointer-events: none;
+}
+#main {
+	position: absolute;
+	inset: 0 0 0 0;
+	width: 100vw;
+	height: 100vh;
+}
+#div {
+	font-family: 'Work Sans';
+	font-size: 24pt;
+	background: hsl(220, 10%, 20%);
+	position: absolute;
+	inset: 0 0 0 0;
+	overflow: auto;
+	padding: .5cm;
+}
+.fl { font-style: italic; font-weight: 300; margin-top: 2cm; }
+
+.cw-s {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+.cw-s > div { padding: .2cm; }
+.cw-s > div.cw-h {
+	font-size: 48pt;
+	font-weight: 600;
+}
+.cw-c { display: flex; }
+.cw-c:hover { background: hsla(220, 10%, 100%, .2); }
+.cw-c > div { flex-grow: 1; }
+.cw-c > div:first-child { width: 2cm; flex-grow: 0; flex-shrink: 0; text-align: right; padding-right: .5cm; font-weight: 700; }
+.cw-c.hl { background: hsl(220, 10%, 50%); color: white; }
+.cw-c .e { opacity: .7; font-size: 14pt; }
+
+ul { margin: 1cm 0; }
+li { margin: .5cm 0; }
+
+#input path { fill: transparent; }
+#input path:hover { fill: hsla(220, 10%, 100%, .2); }
+
+.btn { cursor: pointer; }
+.btn .btn-text { transform: translate(1300px, 1300px) rotate(-10deg) scale(.75); transition: transform .1s; }
+.btn:hover .btn-text { transform: translate(1300px, 1300px) rotate(-10deg); }
+
+#copy:hover { filter: url(#shadow); transform: scale(1.2); }
+
+.thumbnail * { pointer-events: all; user-select: none; cursor: pointer; }

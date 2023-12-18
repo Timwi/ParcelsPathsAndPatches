@@ -1,0 +1,48 @@
+{
+	"type": 0,
+	"v": {
+		"b": "    _        _        _             ___   ___             _        _        _    ",
+		"i": 0,
+		"v": false
+	}
+}
+#
+<div style='display: flex'>
+	<div class='cw-s'>
+		<div class='cw-h'>	Across	</div>
+		<div class='cw-c' data-cell='→0'><div>1.	</div><div>Ado&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→5'><div>5.	</div><div>Animal young&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→9'><div>9.	</div><div>Stringed instrument&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→14'><div>10.	</div><div>Type of exam&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→18'><div>11.	</div><div>Gelatin substitute&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→23'><div>12.	</div><div>High-____ (tall)&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→27'><div>13.	</div><div>Mild&nbsp;<span class='e'>(9)</span>	</div></div>
+		<div class='cw-c' data-cell='→39'><div>15.	</div><div>Bread ingredient, at times&nbsp;<span class='e'>(3)</span>	</div></div>
+		<div class='cw-c' data-cell='→45'><div>16.	</div><div>Baseball player&nbsp;<span class='e'>(9)</span>	</div></div>
+		<div class='cw-c' data-cell='→54'><div>22.	</div><div>Notices&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→59'><div>23.	</div><div>Violinist’s instruction&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→63'><div>24.	</div><div>Not in time&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→68'><div>25.	</div><div>Moment to shine&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→72'><div>26.	</div><div>Periods&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→77'><div>27.	</div><div>1932 belligerents&nbsp;<span class='e'>(4)</span>	</div></div>
+	</div>
+	<div class='cw-s'>
+		<div class='cw-h'>	Down	</div>
+		<div class='cw-c' data-cell='↓0'><div>1.	</div><div>Accomplishment&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓1'><div>2.	</div><div>Push&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓2'><div>3.	</div><div>Hoax&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓3'><div>4.	</div><div>Unexpected revelations&nbsp;<span class='e'>(9)</span>	</div></div>
+		<div class='cw-c' data-cell='↓5'><div>5.	</div><div>Compare, statistically&nbsp;<span class='e'>(9)</span>	</div></div>
+		<div class='cw-c' data-cell='↓6'><div>6.	</div><div>Performance&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓7'><div>7.	</div><div>Endure&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓8'><div>8.	</div><div>Bolt&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓31'><div>14.	</div><div>Survey&nbsp;<span class='e'>(3)</span>	</div></div>
+		<div class='cw-c' data-cell='↓45'><div>16.	</div><div>Menorca, for example&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓46'><div>17.	</div><div>Close&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓47'><div>18.	</div><div>Cheese&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓51'><div>19.	</div><div>Thump&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓52'><div>20.	</div><div>Crosswords’ favorite color beside tan&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓53'><div>21.	</div><div>Howard and Weasley, etc.&nbsp;<span class='e'>(4)</span>	</div></div>
+	</div>
+</div>
+<p class='fl'>None of the nuns is wearing a cross. Word on the street is they lost it.</p>

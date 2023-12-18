@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel='stylesheet' type='text/css' href='Parcels,%20Paths%20and%20Patches.css'>
+	<script>
+		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false;
+
+		let Easing = {
+			InQuad:	t => t * t,
+			OutQuad:	t => -t * (t - 2),
+			InOutQuad:	t => 2 * (t < .5 ? t * t : (2 - t) * t - 1),
+			InCubic:	t => t * t * t,
+			OutCubic:	t => ((t - 3) * t + 3) * t,
+			InOutCubic:	t => t < .5 ? 4 * t * t * t : ((4 * t - 12) * t + 12) * t - 3,
+			InQuart:	t => t * t * t * t,
+			OutQuart:	t => (((4 - t) * t - 6) * t + 4) * t,
+			InOutQuart:	t => t < .5 ? 8 * t * t * t * t : (((32 - 8 * t) * t - 48) * t + 32) * t - 7,
+			InQuint:	t => t * t * t * t * t,
+			OutQuint:	t => ((((t - 5) * t + 10) * t - 10) * t + 5) * t,
+			InOutQuint:	t => t < .5 ? 16 * t * t * t * t * t : ((((16 * t - 80) * t + 160) * t - 160) * t + 80) * t - 15,
+			InSine:	t => -Math.cos(t * Math.PI / 2) + 1,
+			OutSine:	t => Math.sin(t * Math.PI / 2),
+			InOutSine:	t => .5 - Math.cos(Math.PI * t) / 2,
+			InExpo:	t => Math.pow(2, 10 * (t - 1)),
+			OutExpo:	t => 1 - Math.pow(2, -10 * t),
+			InOutExpo:	t => t < .5 ? Math.pow(2, 10 * (2*t - 1))/2 : 1 - Math.pow(2, -10 * (2*t - 1))/2,
+			InCirc:	t => 1 - Math.sqrt(1 - t * t),
+			OutCirc:	t => Math.sqrt((2 - t)*t),
+			InOutCirc:	t => t < .5 ? (1 - Math.sqrt(1 - 4*t*t))/2 : (Math.sqrt((8 - 4*t) * t - 3) + 1)/2
+		};
+
+		async function coroutine(id, data, fnc)
+		{
+			let val = coroutines[id] = counter++;
+			counter %= 2147483647;
+			for (let ix = 0; ix < data.length; ix++)
+			{
+				if (typeof data[ix] === 'function')
+				{
+					await data[ix]();
+					continue;
+				}
+				let startTime = await new Promise(requestAnimationFrame), elapsed = 0, dur = data[ix].d * 1000, ea = data[ix].e ?? (t => t);
+				if (coroutines[id] !== val)
+					return;
+				while (elapsed < dur)
+				{
+					let obj = data[ix].v ? Object.fromEntries(Object.entries(data[ix].v).map(([k, [s, e]]) => [k, (e-s)*ea(elapsed/dur) + s])) : null;
+					if (fnc)
+						fnc(obj, ix, false);
+					if (data[ix].fn)
+						data[ix].fn(obj, ix, false);
+					elapsed = (await new Promise(requestAnimationFrame)) - startTime;
+					if (coroutines[id] !== val)
+						return;
+				}
+				if (fnc)
+					fnc(data[ix].v ? Object.fromEntries(Object.entries(data[ix].v).map(([k, v]) => [k, v[1]])) : null, ix, true);
+			}
+		}
+
+		let fetchCache = {};
+		async function doFetch(url, fn)
+		{
+			if (url in fetchCache)
+				return fn ? fn(fetchCache[url]) : fetchCache[url];
+			let response = await fetch(url);
+			return	response.status === 403 ? false :
+				response.status === 200 ? (r => fn ? fn(r) : r)(fetchCache[url] = await response.text()) :
+				alert('Data could not be loaded. Contact your santa!') ?? null;
+		}
+
+		function joinSegments(segs, fn)
+		{
+			let svg = [];
+			while (segs.length > 0)
+			{
+				let seg = segs.pop();
+				while (true)
+				{
+					let extIx = segs.findIndex(sg =>
+						((sg.d1 ^ 2) === seg.d1 && sg.c[0] === seg.c[0]) ||
+						((sg.d1 ^ 2) === seg.d2 && sg.c[0] === seg.c[seg.c.length - 1]) ||
+						((sg.d2 ^ 2) === seg.d1 && sg.c[sg.c.length - 1] === seg.c[0]) ||
+						((sg.d2 ^ 2) === seg.d2 && sg.c[sg.c.length - 1] === seg.c[seg.c.length - 1]));
+					if (extIx === -1)
+					{
+						extIx = segs.findIndex(sg =>
+							((sg.c[0] === seg.c[0] || sg.c[0] === seg.c[seg.c.length - 1]) &&
+								!segs.some(s => (s.c[0] === sg.c[0] && (s.d1 ^ 2) === sg.d1) || (s.c[s.c.length - 1] === sg.c[0] && (s.d2 ^ 2) === sg.d1))) ||
+							((sg.c[sg.c.length - 1] === seg.c[0] || sg.c[sg.c.length - 1] === seg.c[seg.c.length - 1]) &&
+								!segs.some(s => (s.c[0] === sg.c[sg.c.length - 1] && (s.d1 ^ 2) === sg.d2) ||
+								(s.c[s.c.length - 1] === sg.c[sg.c.length - 1] && (s.d2 ^ 2) === sg.d2)))
+						);
+					}
+					if (extIx === -1)
+						break;
+					let ext = segs[extIx];
+					segs.splice(extIx, 1);
+					if (seg.c[0] === ext.c[0])
+					{
+						seg.c.reverse();
+						seg.c.pop();
+						if (seg.d1 === (ext.d1 ^ 2))
+							ext.c.shift();
+						seg.c.push(...ext.c);
+						seg.d1 = seg.d2;
+						seg.d2 = ext.d2;
+					}
+					else if (seg.c[0] === ext.c[ext.c.length - 1])
+					{
+						ext.c.pop();
+						if (seg.d1 === (ext.d2 ^ 2))
+							seg.c.shift();
+						ext.c.push(...seg.c);
+						ext.d2 = seg.d2;
+						seg = ext;
+					}
+					else if (seg.c[seg.c.length - 1] === ext.c[0])
+					{
+						seg.c.pop();
+						if (ext.d1 === (seg.d2 ^ 2))
+							ext.c.shift();
+						seg.c.push(...ext.c);
+						seg.d2 = ext.d2;
+					}
+					else if (seg.c[seg.c.length - 1] === ext.c[ext.c.length - 1])
+					{
+						ext.c.reverse();
+						seg.c.pop();
+						if (seg.d2 === (ext.d2 ^ 2))
+							ext.c.shift();
+						seg.c.push(...ext.c);
+						seg.d2 = ext.d1;
+					}
+				}
+				let isClosed = seg.c[0] === seg.c[seg.c.length - 1];
+				svg.push(`M${seg.c.slice(isClosed ? 1 : 0).map(fn).join(' ')}${isClosed ? 'z' : ''}`);
+			}
+			return svg.join('');
+		}
+
+		function make(id, elemName, attrs, content, parent)
+		{
+			let elem = document.getElementById(id) ?? (function() {
+				let e = document.createElementNS('http://www.w3.org/2000/svg', elemName);
+				e.id = id;
+				(parent ?? vis).appendChild(e);
+				return e;
+			})();
+			for (let key in attrs)
+				if (attrs.hasOwnProperty(key))
+					if (typeof attrs[key] === 'function')
+						elem[key] = attrs[key];
+					else
+						elem.setAttribute(key, attrs[key]);
+			if (content !== undefined)
+			{
+				if (Array.isArray(content))
+					elem.textContent = content[0];
+				else
+					elem.innerHTML = content;
+			}
+			return elem;
+		}
+
+		document.addEventListener('DOMContentLoaded', async function()
+		{
+			if (!localStorage || !localStorage.getItem || !localStorage.setItem)
+				return alert('This page requires access to local storage.');
+
+			let lights = [[0, 1, 2, 3], [5, 6, 7, 8], [9, 10, 11, 12], [14, 15, 16, 17], [18, 19, 20, 21], [23, 24, 25, 26], [27, 28, 29, 30, 31, 32, 33, 34, 35], [39, 40, 41], [45, 46, 47, 48, 49, 50, 51, 52, 53], [54, 55, 56, 57], [59, 60, 61, 62], [63, 64, 65, 66], [68, 69, 70, 71], [72, 73, 74, 75], [77, 78, 79, 80], [0, 9, 18, 27], [1, 10, 19, 28], [2, 11, 20, 29], [3, 12, 21, 30, 39, 48, 57, 66, 75], [5, 14, 23, 32, 41, 50, 59, 68, 77], [6, 15, 24, 33], [7, 16, 25, 34], [8, 17, 26, 35], [31, 40, 49], [45, 54, 63, 72], [46, 55, 64, 73], [47, 56, 65, 74], [51, 60, 69, 78], [52, 61, 70, 79], [53, 62, 71, 80]];
+			function findLightIx(sv) { return lights.findIndex(lg => (lg[0] % w === lg[1] % w) === sv.v && lg.includes(sv.i)); }
+			function findLight(sv) { return lights[findLightIx(sv)]; }
+
+			let main = document.getElementById('main'), input = document.getElementById('input'), vis = document.getElementById('vis'), div = document.getElementById('div');
+			let state, stateRaw = localStorage.getItem('ppp-state');
+			try { state = JSON.parse(stateRaw); } catch { }
+			if (Object.prototype.toString.call(state) !== "[object Object]")
+				state = {};
+			if (!('steps' in state)) state.steps = [];
+
+			let last = JSON.stringify(state.steps[state.step]);
+
+			async function updateView(changes)
+			{
+				let updated = new Set(), sc = state.steps[state.step], s = sc.v;
+				function mk(id, elemName, attrs, content, parent)
+				{
+					updated.add(id);
+					return make(id, elemName, attrs, content, parent);
+				}
+
+				function sqxx(x) { return 400 + 100*x; }
+				function sqx(i) { return sqxx(i%w); }
+				function sqyy(y) { return 150 + 100*y; }
+				function sqy(i) { return sqyy((i/w)|0); }
+
+				// Grid
+				for (let i = 0; i < w*h; i++)
+				{
+					let gf = 'hsl(220, 10%, 20%)';
+					switch (sc.type)
+					{
+						case 0:
+							if (i === s.i)
+								gf = 'hsl(220, 15%, 60%)';
+							else if (!lights.some(lg => lg.includes(i)))
+								gf = 'black';
+							break;
+					}
+					mk(`sq-${i}`, 'path', { fill: gf, d: `M${sqx(i)+2} ${sqy(i)+2}h96v96h-96z` });
+				}
+
+				function setupGridInput(fnc)
+				{
+					for (let y = -1; y <= 10; y++)
+						for (let x = -1; x <= 10; x++)
+							if (fnc(x, y))
+								mk(`inp-${x}-${y}`, 'path', { d: `M${sqxx(x)} ${sqyy(y)}h100v100h-100z`, 'data-x': x, 'data-y': y }, null, input);
+				}
+
+				switch (sc.type)
+				{
+					case 0:
+						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h && s.b[x+w*y] !== '_');
+						let ns = [...new Set(lights.map(lg => lg[0]))];
+						ns.sort((a, b) => a-b);
+						for (let n = 0; n < ns.length; n++)
+							mk(`cw-n-${n}`, 'text', { x: sqx(ns[n])+7, y: sqy(ns[n])+25, fill: 'hsl(220, 10%, 100%)', 'fill-opacity': '.8', 'font-size': '24' }, [n + 1]);
+						for (let i = 0; i < w*h; i++)
+							if (s.b[i] !== ' ' && s.b[i] !== '_')
+								mk(`cw-s-${i}`, 'text', { x: sqx(i)+50, y: sqy(i)+75, fill: 'hsl(220, 10%, 100%)', 'font-size': '64', 'text-anchor': 'middle' }, [s.b[i]]);
+						let l = findLight(s);
+						mk('cw-hl', 'path', { fill: 'none', stroke: 'hsl(60, 80%, 45%)', 'stroke-width': 4, d: `M${sqx(l[0])} ${sqy(l[0])}H${sqx(l[l.length-1])+100}V${sqy(l[l.length-1])+100}H${sqx(l[0])}z` });
+						Array.from(document.querySelectorAll('.cw-c')).forEach(c => {
+							if (c.dataset.cell === `${s.v ? '↓' : '→'}${l[0]}`)
+								c.classList.add('hl');
+							else
+								c.classList.remove('hl');
+						});
+						if (!s.b.includes(' '))
+							mk('cw-check', 'g', { 'class': 'btn', onclick: checkBtnPress }, `
+								<circle fill='url(#btn-check-1)' cx='1300' cy='1300' r='150' />
+								<circle fill='url(#btn-check-2)' cx='1300' cy='1300' r='130' />
+								<text class='btn-text' fill='white' x='0' y='42' filter='url(#shadow)'
+									text-anchor='middle' font-size='128' font-family='Work Sans' font-weight='700'>CHECK<${''}/text>
+								<text fill='black' x='0' y='70' transform='translate(1300, 1300) rotate(-10)'
+									text-anchor='middle' font-size='32' font-family='Work Sans' font-weight='300'>(Enter)<${''}/text>
+							`, input);
+						break;
+
+					case 1:
+						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h);
+						mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
+						let sgm = [], W = w+1;
+						for (let x = 0; x < w; x++)
+							for (let y = 0; y < h; y++)
+							{
+								if (x < w-1 && sc.b[x + w*y] !== sc.b[x + 1 + w*y])
+									sgm.push({ c: [x + 1 + W*y, x + 1 + W*(y+1)], d1: 0, d2: 2 });
+								if (y < h-1 && sc.b[x + w*y] !== sc.b[x + w*(y+1)])
+									sgm.push({ c: [x + W*(y+1), x + 1 + W*(y+1)], d1: 3, d2: 1 });
+							}
+						mk('frame2', 'path', { d: joinSegments(sgm, c => `${400+100*(c%W)} ${150+100*((c/W)|0)}`), fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4 });
+						for (let i = 0; i < w*h; i++)
+							if (s.b[i] === '•')
+								mk(`cl-${i}-1`, 'image', { href: 'nun.svg', x: sqx(i), y: sqy(i), width: 100, height: 100 });
+							else if (s.b[i] === '·')
+								mk(`cl-${i}-0`, 'path', { stroke: 'white', 'stroke-width': 10, opacity: .25, fill: 'none', d: `m${sqx(i)+20} ${sqy(i)+20} 60 60m0-60-60 60` });
+						break;
+				}
+
+				let thumbnails = [1];
+				for (let thIx = 0; thIx < thumbnails.length; thIx++)
+					if (state.step >= thumbnails[thIx])
+						mk(`thumbnail-${thumbnails[thIx]}`, 'g',
+							{ 'class': 'thumbnail', transform: `translate(1500, ${200 + 250*thIx}) scale(${2/9}) translate(-400, -150)` },
+							await doFetch(thumbnailUrl(thumbnails[thIx])));
+
+				if (state.thumbnailshown)
+					mk('thumbnail-show', 'use', { 'href': `#${state.thumbnailshown}`, transform: 'scale(2)' });
+
+				for (let obj of Array.from(document.querySelectorAll('#vis>*,#input>*')))
+					if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
+						obj.remove();
+
+				if (changes)
+				{
+					localStorage.removeItem(`ppp-${state.step}-redo`);
+					let undo = localStorage.getItem(`ppp-${state.step}-undo`);
+					localStorage.setItem(`ppp-${state.step}-undo`, undo ? `${last}\b${undo}` : last);
+					last = JSON.stringify(s);
+					localStorage.setItem('ppp-state', JSON.stringify(state));
+				}
+			}
+
+			function setupStep(step, json, html)
+			{
+				state.step = step;
+				div.innerHTML = html ?? '';
+				if (!state.steps[step])
+					state.steps[step] = JSON.parse(json);
+				let sc = state.steps[step], s = sc.v;
+				last = JSON.stringify(s);
+				switch (sc.type)
+				{
+					case 0:
+						for (let e of Array.from(document.querySelectorAll('div.cw-c')))
+							e.onclick = function()
+							{
+								if (inputBlocked)
+									return false;
+								let m = /^([→↓])(\d+)$/.exec(e.dataset.cell);
+								s.i = m[2]|0;
+								s.v = m[1] === '↓';
+								updateView();
+								return false;
+							};
+						break;
+				}
+				localStorage.setItem('ppp-state', JSON.stringify(state));
+				updateView();
+			}
+
+			async function loadStep(step)
+			{
+				return await doFetch(`Step${step}/data.txt${step > 0 ? `?answer=${state.steps[step-1].v.b}` : ''}`,
+					r => [step, ...r.split(/\r?\n#\r?\n/)]);
+			}
+
+			function thumbnailUrl(step)
+			{
+				return `Step${step}/thumbnail.svg?answer=${state.steps[step-1].v.b}`;
+			}
+
+			async function checkBtnPress()
+			{
+				if (inputBlocked)
+					return false;
+				let sc = state.steps[state.step], s = sc.v;
+				if (s.b.includes(' '))
+					return false;
+				let stops = Array.from(document.querySelectorAll('#btn-check-1>stop, #btn-check-2>stop'));
+				let arr = [95, 45, 55, 75];
+				for (let i = 0; i < stops.length; i++)
+					stops[i].setAttribute('stop-color', `hsl(0, 0%, ${arr[i]}%)`);
+				let result = await loadStep(state.step + 1);
+				let btnText = document.querySelector('#cw-check>text.btn-text');
+				if (result === false)
+				{
+					btnText.textContent = 'WRONG';
+					for (let i = 0; i < stops.length; i++)
+						stops[i].setAttribute('stop-color', `hsl(0, 100%, ${arr[i]}%)`);
+					coroutine('check-btn', [
+						{ d: 2.47 },
+						() => { btnText.textContent = 'CHECK'; },
+						{ d: 1.47, v: { h: [0, 38], s: [100, 83] }, fn: t => {
+							for (let i = 0; i < stops.length; i++)
+								stops[i].setAttribute('stop-color', `hsl(${t.h}, ${t.s}%, ${arr[i]}%)`);
+						} }
+					]);
+				}
+				else
+				{
+					inputBlocked = true;
+					btnText.textContent = 'GOOD!';
+					for (let i = 0; i < stops.length; i++)
+						stops[i].setAttribute('stop-color', `hsl(100, 100%, ${arr[i]}%)`);
+
+					let svg = await doFetch(thumbnailUrl(state.step + 1));
+					let tt = make('temp-thumbnail', 'g', { opacity: 0 }, svg);
+					await coroutine('check-btn', [
+						{ d: 1 },
+						() => { tt.removeAttribute('opacity', 1); },
+						{ d: .47 },
+						{ d: .87, v: { x: [400, 1500], y: [150, 200], s: [1, 2/9] }, e: Easing.OutQuart,
+							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-400, -150)`); } }
+					]);
+					inputBlocked = false;
+					setupStep(...result);
+				}
+			}
+
+			setupStep(...await loadStep(state.step ?? 0));
+
+			document.body.addEventListener('keydown', function(e)
+			{
+				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`;
+
+				if (	keycombo === 'Ctrl+KeyZ'	|| keycombo === 'Alt+Backspace'	||	// Undo
+					keycombo === 'Ctrl+KeyY'	|| keycombo === 'Ctrl+Shift+KeyZ'	|| keycombo === 'Alt+Shift+Backspace')	// Redo
+				{
+					if (!inputBlocked)
+					{
+						let [un, re] = keycombo === 'Ctrl+KeyZ' || keycombo === 'Alt+Backspace' ? ['undo', 'redo'] : ['redo', 'undo'];
+						let undo = localStorage.getItem(`ppp-${state.step}-${un}`);
+						if (undo !== null)
+						{
+							let split = undo.split('\b'), redo = localStorage.getItem(`ppp-${state.step}-${re}`), cur = JSON.stringify(state.steps[state.step].v);
+							localStorage.setItem(`ppp-${state.step}-${re}`, redo === null ? cur : `${cur}\b${redo}`);
+							state.steps[state.step].v = JSON.parse(last = split[0]);
+							if (split.length === 1)
+								localStorage.removeItem(`ppp-${state.step}-${un}`);
+							else
+								localStorage.setItem(`ppp-${state.step}-${un}`, split.slice(1).join('\b'));
+							localStorage.setItem('ppp-state', JSON.stringify(state));
+						}
+						updateView();
+					}
+					e.preventDefault();
+					return false;
+				}
+
+				if (e.ctrlKey || e.altKey || /^F\d+$/.test(e.key))
+					return true;
+
+				if (!inputBlocked)
+				{
+					let sc = state.steps[state.step], s = sc.v, changes = false;
+
+					switch (sc.type)
+					{
+						case 0:
+							function nextLight()
+							{
+								for (let ol = findLightIx(s), oi = lights[ol].indexOf(s.i),
+									l = (ol+1) % lights.length, i = 0;
+									l != ol || i != oi;
+									i === lights[l].length - 1 ? (i = 0, l = (l+1) % lights.length) : i++)
+									if (s.b[lights[l][i]] === ' ')
+									{
+										s.i = lights[l][i];
+										s.v = lights[l][0] % w === lights[l][1] % w;
+										break;
+									}
+							}
+
+							function cursorMovement(dx, dy)
+							{
+								for (let x = s.i % w + dx, y = ((s.i / w)|0) + dy;
+									x >= 0 && x < w && y >= 0 && y < h;
+									x += dx, y += dy)
+									if (s.b[x + w*y] !== '_') { s.i = x + w*y; return; }
+							}
+
+							switch (keycombo)
+							{
+								case 'ArrowUp':	cursorMovement(0, -1);	break;
+								case 'ArrowRight':	cursorMovement(1, 0);	break;
+								case 'ArrowDown':	cursorMovement(0, 1);	break;
+								case 'ArrowLeft':	cursorMovement(-1, 0);	break;
+								case 'Enter':	if (!s.b.includes(' ')) checkBtnPress();	break;
+								case 'Space':	s.v = !s.v;	break;
+								case 'Tab':	nextLight();	break;
+								case 'Delete':	s.b = `${s.b.substring(0, s.i)} ${s.b.substring(s.i+1, s.b.length)}`; changes = true; break;
+								case 'Shift+Tab':
+									for (let ol = findLightIx(s), oi = lights[ol].indexOf(s.i),
+										l = (ol+lights.length-1) % lights.length, i = lights[l].length - 1;
+										l != ol || i != oi;
+										i === 0 ? (l = (l+lights.length-1) % lights.length, i = lights[l].length - 1) : i--)
+										if (s.b[lights[l][i]] === ' ') { s.i = lights[l][lights[l].findIndex(c => s.b[c] === ' ')]; s.v = lights[l][0] % w === lights[l][1] % w; break; }
+									break;
+								case 'Backspace':
+									if (s.b[s.i] === ' ')
+									{
+										let l = findLightIx(s), i = lights[l].indexOf(s.i),
+											nl = lights[i === 0 ? (l+lights.length-1) % lights.length : l];
+										s.i = nl[i === 0 ? nl.length - 1 : i-1];
+										s.v = nl[0] % w === nl[1] % w;
+									}
+									s.b = `${s.b.substring(0, s.i)} ${s.b.substring(s.i+1, s.b.length)}`;
+									changes = true;
+									break;
+
+								default:
+									let m = /^Key([A-Z])$/.exec(keycombo);
+									if (m)
+									{
+										s.b = `${s.b.substring(0, s.i)}${m[1]}${s.b.substring(s.i+1, s.b.length)}`;
+										changes = true;
+										for (let ol = findLightIx(s), oi = lights[ol].indexOf(s.i),
+											i = (oi+1) % lights[ol].length, l = i === 0 ? (ol + 1) % lights.length : ol;
+											l != ol || i != oi;
+											i === lights[l].length - 1 ? (i = 0, l = (l+1) % lights.length) : i++)
+											if (s.b[lights[l][i]] === ' ')
+											{
+												s.i = lights[l][i];
+												s.v = lights[l][0] % w === lights[l][1] % w;
+												break;
+											}
+									}
+									break;
+							}
+							break;
+					}
+
+					updateView(changes);
+				}
+				console.log(keycombo);
+				e.preventDefault();
+				return false;
+			});
+
+			let mouseX = null, mouseY = null, mouseStartX = null, mouseStartY = null;
+
+			function click(x, y, rc)
+			{
+				let sc = state.steps[state.step], s = sc.v, changes = false, i = x + w*y;
+				switch (sc.type)
+				{
+					case 0: s.v = s.i === (s.i = i) !== s.v; break;
+					case 1: let wa = rc ? '·' : '•'; s.b = `${s.b.substring(0, i)}${s.b[i] === wa ? ' ' : wa}${s.b.substring(i+1, s.b.length)}`; changes = true; break;
+				}
+				updateView(changes);
+			}
+			function drag(origX, origY, fromX, fromY, x, y, rc)
+			{
+				let sc = state.steps[state.step], s = sc.v, changes = false, i = x + w*y, fi = fromX + w*fromY, oi = origX + w*origY;
+				if ([0].includes(sc.type))
+					return click(x, y, rc);
+
+				switch (sc.type)
+				{
+					case 1: changes = s.b[i] !== s.b[fi]; s.b = `${s.b.substring(0, i)}${s.b[fi]}${s.b.substring(i+1, s.b.length)}`; break;
+				}
+				updateView(changes);
+			}
+
+			document.body.addEventListener('mousedown', function(e)
+			{
+				if (!('x' in e.target.dataset))
+					return true;
+				mouseStartX = mouseX = e.target.dataset.x|0;
+				mouseStartY = mouseY = e.target.dataset.y|0;
+				click(mouseX, mouseY, e.buttons === 2);
+				e.preventDefault();
+				return false;
+			});
+			document.body.addEventListener('mouseup',	function(e) { mouseX = mouseStartX = mouseY = mouseStartY = null;	});
+			document.body.addEventListener('click',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
+			document.body.addEventListener('contextmenu',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
+
+			document.body.addEventListener('mouseover', function(e)
+			{
+				console.log(e);
+				for (let tn of document.querySelectorAll('.thumbnail'))
+					if (tn.contains(e.target)) { state.thumbnailshown = tn.id; updateView(); return false; }
+				if (mouseX === null || !('x' in e.target.dataset))
+					return;
+				let x = e.target.dataset.x|0, y = e.target.dataset.y|0;
+				drag(mouseStartX, mouseStartY, mouseX, mouseY, x, y, e.buttons === 2);
+				mouseX = x;
+				mouseY = y;
+			});
+			document.body.addEventListener('mouseout', function(e)
+			{
+				console.log(e);
+				for (let tn of document.querySelectorAll('.thumbnail'))
+					if (tn.contains(e.target)) { delete state.thumbnailshown; updateView(); return false; }
+			});
+
+			document.getElementById('copy').onclick = function()
+			{
+				let text = JSON.stringify(state, null, 4);
+				if (navigator.clipboard)
+					navigator.clipboard.writeText(text);
+				else
+				{
+					let textArea = document.createElement('textarea');
+					textArea.value = text;
+					document.body.appendChild(textArea);
+					textArea.focus();
+					textArea.select();
+					try {
+						document.execCommand('copy');
+					} catch (err) {
+						console.error('Unable to copy to clipboard', err);
+					}
+					document.body.removeChild(textArea);
+				}
+			};
+
+			document.addEventListener('paste', async function(e)
+			{
+				try
+				{
+					let j = JSON.parse((e.clipboardData || window.clipboardData).getData("text"));
+					if ('steps' in j && 'step' in j)
+					{
+						state = { steps: j.steps, step: j.step };
+						setupStep(...await loadStep(state.step));
+					}
+				}
+				catch {}
+			});
+		});
+	</script>
+</head>
+<body>
+	<svg id='main' viewBox='0 0 2672 1503'>
+		<defs>
+			<linearGradient id='btn-check-1' gradientTransform="rotate(70)">
+				<stop offset="0%" stop-color="hsl(38, 83%, 95%)" />
+				<stop offset="100%" stop-color="hsl(38, 83%, 45%)" />
+			</linearGradient>
+			<linearGradient id='btn-check-2' gradientTransform="rotate(70)">
+				<stop offset="0%" stop-color="hsl(38, 83%, 55%)" />
+				<stop offset="100%" stop-color="hsl(38, 83%, 75%)" />
+			</linearGradient>
+			<filter id="shadow" x="-100%" y="-100%" width='200%' height='200%' filterUnits="userSpaceOnUse">
+				<feDropShadow stdDeviation="10" />
+			</filter>
+		</defs>
+		<g id='ui'>
+			<g id='copy' transform-origin='100 100'>
+				<circle cx='100' cy='100' r='40' fill='hsl(220, 5%, 50%)' />
+				<path fill='hsl(220, 5%, 90%)' d='m 95,73.5 c -3.575047,0 -6.5,2.924953 -6.5,6.5 v 30 c 0,3.57505 2.924953,6.5 6.5,6.5 h 20 c 3.57505,0 6.5,-2.92495 6.5,-6.5 V 80 c 0,-3.575047 -2.92495,-6.5 -6.5,-6.5 z m 0,3 h 20 c 1.96494,0 3.5,1.535058 3.5,3.5 v 30 c 0,1.96494 -1.53506,3.5 -3.5,3.5 H 95 c -1.964942,0 -3.5,-1.53506 -3.5,-3.5 V 80 c 0,-1.964942 1.535058,-3.5 3.5,-3.5 z m -10,7 c -3.575043,0 -6.5,2.924957 -6.5,6.5 v 30 c 0,3.57504 2.924957,6.5 6.5,6.5 h 20 c 3.57504,0 6.5,-2.92496 6.5,-6.5 v -2 h -3 v 2 c 0,1.96494 -1.53506,3.5 -3.5,3.5 H 85 c -1.96494,0 -3.5,-1.53506 -3.5,-3.5 V 90 c 0,-1.96494 1.53506,-3.5 3.5,-3.5 h 2 v -3 z m 10,0 v 3 h 15 v -3 z m 0,5 v 3 h 20 v -3 z m 0,5 v 3 h 17.5 v -3 z m 0,5 v 3 h 12.5 v -3 z m 0,5 v 3 h 20 v -3 z' />
+			</g>
+		</g>
+		<g id='vis'></g>
+		<foreignObject x='1750' y='150' width='922' height='1353'>
+			<div xmlns="http://www.w3.org/1999/xhtml" id='div'></div>
+		</foreignObject>
+		<g id='input'></g>
+	</svg>
+</body>
+</html>

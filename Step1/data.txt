@@ -1,0 +1,15 @@
+{
+	"type": 1,
+	"b": "acbbdddddaccbbbeddaacceeeediccfeeeddiiifeeeddifffeeeddiffhhegggifghhhhggiiggggggg",
+	"v": {
+		"b": "                                                                                 "
+	}
+}
+#
+<p>The groundskeeper has subdivided the plot into parcels.</p>
+<ul>
+	<li>There are 9 nuns, one in each row, each column, and each parcel.</li>
+	<li>No two nuns are orthogonally or diagonally adjacent.</li>
+	<li>Each nun picks up a letter from the crossword.</li>
+</ul>
+<p class='fl'>Who’s the superstar? Battle it out!</p>
