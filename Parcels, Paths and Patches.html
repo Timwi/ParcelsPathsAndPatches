@@ -3,7 +3,7 @@
 <head>
 	<link rel='stylesheet' type='text/css' href='Parcels,%20Paths%20and%20Patches.css'>
 	<script>
-		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false;
+		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3];
 
 		let Easing = {
 			InQuad:	t => t * t,
@@ -142,18 +142,36 @@
 
 		function make(id, elemName, attrs, content, parent)
 		{
-			let elem = document.getElementById(id) ?? (function() {
+			let force = elemName.startsWith('*');
+			if (force) elemName = elemName.substring(1);
+			let elem = document.getElementById(id) ?? (function()
+			{
 				let e = document.createElementNS('http://www.w3.org/2000/svg', elemName);
 				e.id = id;
-				(parent ?? vis).appendChild(e);
+				if (!force)
+					for (let key in attrs)
+						if (attrs.hasOwnProperty(key) && !key.startsWith('*'))
+						{
+							if (typeof attrs[key] === 'function' && key.startsWith('on'))
+								e[key] = attrs[key];
+							else if (typeof attrs[key] === 'function')
+								e.setAttribute(key, attrs[key]());
+							else
+								e.setAttribute(key, attrs[key]);
+						}
 				return e;
 			})();
 			for (let key in attrs)
-				if (attrs.hasOwnProperty(key))
-					if (typeof attrs[key] === 'function')
-						elem[key] = attrs[key];
+				if (attrs.hasOwnProperty(key) && (key.startsWith('*') || force))
+				{
+					if (typeof attrs[key] === 'function' && /^\*?on/.test(key))
+						elem[key.replace(/^\*/, '')] = attrs[key];
+					else if (typeof attrs[key] === 'function')
+						elem.setAttribute(key.replace(/^\*/, ''), attrs[key]());
 					else
-						elem.setAttribute(key, attrs[key]);
+						elem.setAttribute(key.replace(/^\*/, ''), attrs[key]);
+				}
+			(parent ?? vis).appendChild(elem);
 			if (content !== undefined)
 			{
 				if (Array.isArray(content))
@@ -209,7 +227,7 @@
 								gf = 'black';
 							break;
 					}
-					mk(`sq-${i}`, 'path', { fill: gf, d: `M${sqx(i)+2} ${sqy(i)+2}h96v96h-96z` });
+					mk(`sq-${i}`, 'path', { '*fill': gf, d: `M${sqx(i)+2} ${sqy(i)+2}h96v96h-96z` });
 				}
 
 				function setupGridInput(fnc)
@@ -220,66 +238,126 @@
 								mk(`inp-${x}-${y}`, 'path', { d: `M${sqxx(x)} ${sqyy(y)}h100v100h-100z`, 'data-x': x, 'data-y': y }, null, input);
 				}
 
+				async function render(step)
+				{
+					let sc = state.steps[step], s = sc.v;
+					switch (sc.type)
+					{
+						case 0:
+							let ns = [...new Set(lights.map(lg => lg[0]))];
+							ns.sort((a, b) => a-b);
+							for (let n = 0; n < ns.length; n++)
+								mk(`cw-n-${n}`, 'text', { x: sqx(ns[n])+7, y: sqy(ns[n])+25, fill: 'hsl(220, 10%, 100%)', 'fill-opacity': '.8', 'font-size': '24' }, [n + 1]);
+							for (let i = 0; i < w*h; i++)
+								if (s.b[i] !== ' ' && s.b[i] !== '_')
+									mk(`cw-s-${i}`, 'text', { x: sqx(i)+50, y: sqy(i)+75, fill: 'hsl(220, 10%, 100%)', 'font-size': '64', 'text-anchor': 'middle' }, [s.b[i]]);
+							let l = findLight(s);
+							mk('cw-hl', 'path', { fill: 'none', stroke: 'hsl(60, 80%, 45%)', 'stroke-width': 4, '*d': `M${sqx(l[0])} ${sqy(l[0])}H${sqx(l[l.length-1])+100}V${sqy(l[l.length-1])+100}H${sqx(l[0])}z` });
+							Array.from(document.querySelectorAll('.cw-c')).forEach(c => {
+								if (c.dataset.cell === `${s.v ? '↓' : '→'}${l[0]}`)
+									c.classList.add('hl');
+								else
+									c.classList.remove('hl');
+							});
+							break;
+
+						case 1:
+							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
+							mk('frame2', 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => {
+								let sgm = [], W = w+1;
+								for (let x = 0; x < w; x++)
+									for (let y = 0; y < h; y++)
+									{
+										if (x < w-1 && sc.b[x + w*y] !== sc.b[x + 1 + w*y])
+											sgm.push({ c: [x + 1 + W*y, x + 1 + W*(y+1)], d1: 0, d2: 2 });
+										if (y < h-1 && sc.b[x + w*y] !== sc.b[x + w*(y+1)])
+											sgm.push({ c: [x + W*(y+1), x + 1 + W*(y+1)], d1: 3, d2: 1 });
+									}
+								return joinSegments(sgm, c => `${400+100*(c%W)} ${150+100*((c/W)|0)}`);
+							} });
+							for (let i = 0; i < w*h; i++)
+								if (s.b[i] === 'X')
+									mk(`cl-${i}-1`, 'image', { href: 'nun.svg', x: sqx(i), y: sqy(i), width: 100, height: 100 });
+								else if (s.b[i] === '_')
+									mk(`cl-${i}-0`, 'path', { stroke: 'hsl(0, 100%, 75%)', 'stroke-width': 10, opacity: .25, fill: 'none', d: `m${sqx(i)+20} ${sqy(i)+20} 60 60m0-60-60 60` });
+							break;
+
+						case 47:
+							await render(step - 1);
+							let mIx = state.steps.slice(0, step).filter(sp => sp.type === 47).length;
+							mk(`mom-${mIx}-r`, '*path', { d: `M${350 + 250*mIx} 1225h250v250h-250z`, fill: 'hsl(38, 100%, 40%)', 'fill-opacity': .5, stroke: 'hsl(38, 85%, 70%)', 'stroke-width': 10, 'paint-order': 'stroke' });
+							mk(`mom-${mIx}-t`, '*text', { x: 475 + 250*mIx, y: 1441, fill: 'hsl(38, 100%, 90%)', 'font-family': 'Proxima', 'font-size': 271, 'text-anchor': 'middle' }, [s.b]);
+							await document.fonts.ready;
+							let cursorX = s.b.length > 0 ? (bb => bb.x+bb.width+20)(document.getElementById(`mom-${mIx}-t`).getBBox()) : 475;
+							mk('mom-l', 'path', { '*d': `M${cursorX} 1250v200`, stroke: 'hsl(38, 100%, 90%)', 'stroke-width': 10, 'style': 'animation: .74s infinite blinking-cursor;' });
+							break;
+					}
+				}
+				await render(state.step);
+
+				// Previous momentous occasions
+				for (let sIx = 0, mIx = 0; sIx < state.steps.length-1; sIx++)
+					if (state.steps[sIx].type === 47)
+					{
+						mk(`mom-${mIx}-r`, '*path', { d: `M${375 + 250*mIx} 1250h200v200h-200z`, fill: 'none', stroke: 'hsl(120, 20%, 80%)', 'stroke-width': 10 });
+						mk(`mom-${mIx}-t`, '*text', { x: 475 + 250*mIx, y: 1419, fill: 'hsl(120, 20%, 80%)', 'font-family': 'Proxima', 'font-size': 200, 'text-anchor': 'middle' }, [state.steps[sIx].v.b]);
+						mIx++;
+					}
+
+				let showCheckBtn = false;
 				switch (sc.type)
 				{
 					case 0:
 						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h && s.b[x+w*y] !== '_');
-						let ns = [...new Set(lights.map(lg => lg[0]))];
-						ns.sort((a, b) => a-b);
-						for (let n = 0; n < ns.length; n++)
-							mk(`cw-n-${n}`, 'text', { x: sqx(ns[n])+7, y: sqy(ns[n])+25, fill: 'hsl(220, 10%, 100%)', 'fill-opacity': '.8', 'font-size': '24' }, [n + 1]);
-						for (let i = 0; i < w*h; i++)
-							if (s.b[i] !== ' ' && s.b[i] !== '_')
-								mk(`cw-s-${i}`, 'text', { x: sqx(i)+50, y: sqy(i)+75, fill: 'hsl(220, 10%, 100%)', 'font-size': '64', 'text-anchor': 'middle' }, [s.b[i]]);
-						let l = findLight(s);
-						mk('cw-hl', 'path', { fill: 'none', stroke: 'hsl(60, 80%, 45%)', 'stroke-width': 4, d: `M${sqx(l[0])} ${sqy(l[0])}H${sqx(l[l.length-1])+100}V${sqy(l[l.length-1])+100}H${sqx(l[0])}z` });
-						Array.from(document.querySelectorAll('.cw-c')).forEach(c => {
-							if (c.dataset.cell === `${s.v ? '↓' : '→'}${l[0]}`)
-								c.classList.add('hl');
-							else
-								c.classList.remove('hl');
-						});
-						if (!s.b.includes(' '))
-							mk('cw-check', 'g', { 'class': 'btn', onclick: checkBtnPress }, `
-								<circle fill='url(#btn-check-1)' cx='1300' cy='1300' r='150' />
-								<circle fill='url(#btn-check-2)' cx='1300' cy='1300' r='130' />
-								<text class='btn-text' fill='white' x='0' y='42' filter='url(#shadow)'
-									text-anchor='middle' font-size='128' font-family='Work Sans' font-weight='700'>CHECK<${''}/text>
-								<text fill='black' x='0' y='70' transform='translate(1300, 1300) rotate(-10)'
-									text-anchor='middle' font-size='32' font-family='Work Sans' font-weight='300'>(Enter)<${''}/text>
-							`, input);
+						showCheckBtn = !s.b.includes(' ');
 						break;
 
 					case 1:
 						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h);
-						mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
-						let sgm = [], W = w+1;
-						for (let x = 0; x < w; x++)
-							for (let y = 0; y < h; y++)
-							{
-								if (x < w-1 && sc.b[x + w*y] !== sc.b[x + 1 + w*y])
-									sgm.push({ c: [x + 1 + W*y, x + 1 + W*(y+1)], d1: 0, d2: 2 });
-								if (y < h-1 && sc.b[x + w*y] !== sc.b[x + w*(y+1)])
-									sgm.push({ c: [x + W*(y+1), x + 1 + W*(y+1)], d1: 3, d2: 1 });
-							}
-						mk('frame2', 'path', { d: joinSegments(sgm, c => `${400+100*(c%W)} ${150+100*((c/W)|0)}`), fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4 });
-						for (let i = 0; i < w*h; i++)
-							if (s.b[i] === '•')
-								mk(`cl-${i}-1`, 'image', { href: 'nun.svg', x: sqx(i), y: sqy(i), width: 100, height: 100 });
-							else if (s.b[i] === '·')
-								mk(`cl-${i}-0`, 'path', { stroke: 'white', 'stroke-width': 10, opacity: .25, fill: 'none', d: `m${sqx(i)+20} ${sqy(i)+20} 60 60m0-60-60 60` });
+						showCheckBtn = s.b.replace(/[^X]/g, '').length === 9;
 						break;
 				}
 
-				let thumbnails = [1];
-				for (let thIx = 0; thIx < thumbnails.length; thIx++)
-					if (state.step >= thumbnails[thIx])
-						mk(`thumbnail-${thumbnails[thIx]}`, 'g',
-							{ 'class': 'thumbnail', transform: `translate(1500, ${200 + 250*thIx}) scale(${2/9}) translate(-400, -150)` },
-							await doFetch(thumbnailUrl(thumbnails[thIx])));
+				if (showCheckBtn && state.step === state.steps.length - 1)
+					mk('check-btn', 'g', { 'class': 'btn', onclick: checkBtnPress }, `
+						<circle fill='url(#btn-check-1)' cx='1300' cy='1300' r='150' />
+						<circle fill='url(#btn-check-2)' cx='1300' cy='1300' r='130' />
+						<text class='btn-text' fill='white' x='0' y='42' filter='url(#shadow)'
+							text-anchor='middle' font-size='128' font-family='Work Sans' font-weight='700'>CHECK<${''}/text>
+						<text fill='black' x='0' y='70' transform='translate(1300, 1300) rotate(-10)'
+							text-anchor='middle' font-size='32' font-family='Work Sans' font-weight='300'>(Enter)<${''}/text>
+					`, input);
 
-				if (state.thumbnailshown)
-					mk('thumbnail-show', 'use', { 'href': `#${state.thumbnailshown}`, transform: 'scale(2)' });
+				// Steps bar
+				if (state.steps.length > 1)
+				{
+					mk('steps-bar', 'path', { fill: 'hsl(222, 10%, 20%)', d: 'M1450 0h1222v150H1450z' });
+					for (let i = 0; i < state.steps.length; i++)
+					{
+						mk(`step-${i}-btn`, 'g', { '*class': `step-btn${i === state.step ? ' sel' : ''}`, 'transform-origin': `${1525 + 80*i} 75` }, `
+							<circle cx='${1525 + 80*i}' cy='75' r='40' style='fill: hsl(var(--hue), 50%, 40%)' />
+							<circle cx='${1525 + 80*i}' cy='75' r='27' style='fill: hsl(var(--hue), 60%, 80%)' />
+							<circle cx='${1525 + 80*i}' cy='75' r='15' style='fill: hsl(var(--hue), 50%, 30%)' />`, input);
+						document.getElementById(`step-${i}-btn`).onclick = (st => async () => { state.step = st; setupStep(...await loadStep(st)); })(i);
+					}
+				}
+
+				for (let thIx = 0; thIx < stepsWithThumbnails.length; thIx++)
+					if (state.steps.length > stepsWithThumbnails[thIx])
+					{
+						let	th = stepsWithThumbnails[thIx], mx = 400, my = 150, tx = 1500, ty = 200 + 250*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950,
+							x3 = (x1-400)*2/9+1500, y3 = (y1-150)*2/9+200+250*thIx, x4 = (x2-400)*2/9+1500, y4 = (y2-150)*2/9+200+250*thIx;
+						mk(`thumbnail-${th}`, 'g',
+							{ 'class': 'thumbnail', transform: `translate(${tx}, ${ty}) scale(${2/9}) translate(${-mx}, ${-my})` },
+							await doFetch(thumbnailUrl(th)));
+						mk(`show-thumbnail-${th}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)` }, `
+							<use	opacity='.5'	href='#thumbnail-${th}' transform='translate(${mx}, ${my}) scale(${9/2}) translate(${-tx}, ${-ty})' />
+							<path	opacity='.2'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
+							<path	opacity='.2'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
+							<path	opacity='.3'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
+							<path	opacity='.3'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
+						`);
+					}
 
 				for (let obj of Array.from(document.querySelectorAll('#vis>*,#input>*')))
 					if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
@@ -323,70 +401,146 @@
 				updateView();
 			}
 
+			function getAnswer(step)
+			{
+				let inf = state.steps[step-1];
+				switch (inf.type)
+				{
+					case 0:	return inf.v.b;
+					case 1:	return inf.v.b.replace(/ /g, '_');
+					case 47:	return inf.v.b;
+				}
+			}
+
 			async function loadStep(step)
 			{
-				return await doFetch(`Step${step}/data.txt${step > 0 ? `?answer=${state.steps[step-1].v.b}` : ''}`,
-					r => [step, ...r.split(/\r?\n#\r?\n/)]);
+				return await doFetch(`Step${step}/data.txt${step > 0 ? `?answer=${getAnswer(step)}` : ''}`, r => [step, ...r.split(/\r?\n#\r?\n/)]);
 			}
 
 			function thumbnailUrl(step)
 			{
-				return `Step${step}/thumbnail.svg?answer=${state.steps[step-1].v.b}`;
+				return `Step${step}/thumbnail.svg?answer=${getAnswer(step)}`;
 			}
 
 			async function checkBtnPress()
 			{
+				if (state.step < state.steps.length-1)
+					return await setupStep(...await loadStep(state.step + 1));
+
 				if (inputBlocked)
 					return false;
-				let sc = state.steps[state.step], s = sc.v;
-				if (s.b.includes(' '))
-					return false;
-				let stops = Array.from(document.querySelectorAll('#btn-check-1>stop, #btn-check-2>stop'));
-				let arr = [95, 45, 55, 75];
-				for (let i = 0; i < stops.length; i++)
-					stops[i].setAttribute('stop-color', `hsl(0, 0%, ${arr[i]}%)`);
-				let result = await loadStep(state.step + 1);
-				let btnText = document.querySelector('#cw-check>text.btn-text');
-				if (result === false)
-				{
-					btnText.textContent = 'WRONG';
-					for (let i = 0; i < stops.length; i++)
-						stops[i].setAttribute('stop-color', `hsl(0, 100%, ${arr[i]}%)`);
-					coroutine('check-btn', [
-						{ d: 2.47 },
-						() => { btnText.textContent = 'CHECK'; },
-						{ d: 1.47, v: { h: [0, 38], s: [100, 83] }, fn: t => {
-							for (let i = 0; i < stops.length; i++)
-								stops[i].setAttribute('stop-color', `hsl(${t.h}, ${t.s}%, ${arr[i]}%)`);
-						} }
-					]);
-				}
-				else
-				{
-					inputBlocked = true;
-					btnText.textContent = 'GOOD!';
-					for (let i = 0; i < stops.length; i++)
-						stops[i].setAttribute('stop-color', `hsl(100, 100%, ${arr[i]}%)`);
+				let sc = state.steps[state.step], s = sc.v, ifGood, ifWrong;
+				let mode = sc.type === 47
+					? 1 /* momentous occasion */
+					: 0 /* check button */;
 
+				switch (mode)
+				{
+					case 0:  // check button
+						if (document.getElementById('check-btn') === null)
+							return false;
+
+						let stops = Array.from(document.querySelectorAll('#btn-check-1>stop, #btn-check-2>stop'));
+						let arr = [95, 45, 55, 75];
+						for (let i = 0; i < stops.length; i++)
+							stops[i].setAttribute('stop-color', `hsl(0, 0%, ${arr[i]}%)`);
+						let btnText = document.querySelector('#check-btn>text.btn-text');
+						ifGood = async function()
+						{
+							btnText.textContent = 'GOOD!';
+							for (let i = 0; i < stops.length; i++)
+								stops[i].setAttribute('stop-color', `hsl(100, 100%, ${arr[i]}%)`);
+							await coroutine('check-btn', [{ d: 1.47 }]);
+						};
+						ifWrong = async function()
+						{
+							btnText.textContent = 'WRONG';
+							for (let i = 0; i < stops.length; i++)
+								stops[i].setAttribute('stop-color', `hsl(0, 100%, ${arr[i]}%)`);
+							coroutine('check-btn', [
+								{ d: 2.47 },
+								() => { btnText.textContent = 'CHECK'; },
+								{ d: 1.47, v: { h: [0, 38], s: [100, 83] }, fn: t => {
+									for (let i = 0; i < stops.length; i++)
+										stops[i].setAttribute('stop-color', `hsl(${t.h}, ${t.s}%, ${arr[i]}%)`);
+								} }
+							]);
+						};
+						break;
+
+					case 1:  // momentous occasion
+						let mIx = state.steps.slice(0, state.step).filter(sp => sp.type === 47).length;
+						let r = document.getElementById(`mom-${mIx}-r`), tx = document.getElementById(`mom-${mIx}-t`);
+						r.setAttribute('fill',	'hsl(0, 0%, 40%)');
+						r.setAttribute('stroke',	'hsl(0, 0%, 70%)');
+						tx.setAttribute('fill',	'hsl(0, 0%, 90%)');
+						let msg = make(null, 'text', { x: 475 + 250*mIx, y: 1245, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle' });
+						ifGood = async function()
+						{
+							msg.textContent = 'GOOD!';
+							msg.setAttribute('fill', 'hsl(120, 100%, 90%)');
+							document.getElementById('mom-l').remove();
+							r.setAttribute('fill',	'hsl(120, 100%, 40%)');
+							r.setAttribute('stroke',	'hsl(120, 100%, 70%)');
+							tx.setAttribute('fill',	'hsl(120, 100%, 90%)');
+							await coroutine('check-btn', [
+								{ d: 1.47 },
+								{ d: .47, v: { s: [100, 0], o: [1, 0], rss: [100, 20], rsl: [70, 80], tl: [90, 80], s: [50, 0], fs: [271, 200], fy: [1441, 1419] }, e: Easing.OutQuad, fn: t => {
+									r.setAttribute('d',	`M${(375-t.s/2) + 250*mIx} ${1250-t.s/2}h${200+t.s}v${200+t.s}h${-200-t.s}z`);
+									r.setAttribute('fill-opacity',	t.o/2);
+									r.setAttribute('stroke',	`hsl(120, ${t.rss}%, ${t.rsl}%)`);
+									tx.setAttribute('fill',	`hsl(120, ${t.rss}%, ${t.tl}%)`);
+									tx.setAttribute('font-size',	t.fs);
+									tx.setAttribute('y',	t.fy);
+									msg.setAttribute('opacity',	t.o);
+								} }
+							]);
+						};
+						ifWrong = async function()
+						{
+							msg.textContent = 'TRY AGAIN';
+							r.setAttribute('fill',	'hsl(0, 100%, 40%)');
+							r.setAttribute('stroke',	'hsl(0, 100%, 70%)');
+							tx.setAttribute('fill',	'hsl(0, 100%, 90%)');
+							coroutine('check-btn', [
+								{ d: .47 },
+								{ d: 1.47, v: { o: [1, 0] }, fn: t => { msg.setAttribute('opacity', t.o); } },
+								{ d: 1.47, v: { h: [0, 38], s: [100, 83] }, fn: t => {
+									r.setAttribute('fill',	`hsl(${t.h}, 100%, 40%)`);
+									r.setAttribute('stroke',	`hsl(${t.h}, ${t.s}%, 70%)`);
+									tx.setAttribute('fill',	`hsl(${t.h}, 100%, 90%)`);
+								} },
+								() => { msg.remove(); }
+							]);
+						}
+						break;
+				}
+
+				let result = await loadStep(state.step + 1);
+				if (result === false)
+					return ifWrong();
+				inputBlocked = true;
+				await ifGood();
+				let thIx = stepsWithThumbnails.indexOf(state.step + 1);
+				if (thIx >= 0)
+				{
 					let svg = await doFetch(thumbnailUrl(state.step + 1));
-					let tt = make('temp-thumbnail', 'g', { opacity: 0 }, svg);
-					await coroutine('check-btn', [
-						{ d: 1 },
-						() => { tt.removeAttribute('opacity', 1); },
+					let tt = make('temp-thumbnail', 'g', {}, svg);
+					await coroutine('swoop-thumbnail', [
 						{ d: .47 },
-						{ d: .87, v: { x: [400, 1500], y: [150, 200], s: [1, 2/9] }, e: Easing.OutQuart,
+						{ d: .87, v: { x: [400, 1500], y: [150, 200 + 250*thIx], s: [1, 2/9] }, e: Easing.OutQuart,
 							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-400, -150)`); } }
 					]);
-					inputBlocked = false;
-					setupStep(...result);
 				}
+				inputBlocked = false;
+				setupStep(...result);
 			}
 
 			setupStep(...await loadStep(state.step ?? 0));
 
 			document.body.addEventListener('keydown', function(e)
 			{
-				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`;
+				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`, m;
 
 				if (	keycombo === 'Ctrl+KeyZ'	|| keycombo === 'Alt+Backspace'	||	// Undo
 					keycombo === 'Ctrl+KeyY'	|| keycombo === 'Ctrl+Shift+KeyZ'	|| keycombo === 'Alt+Shift+Backspace')	// Redo
@@ -419,6 +573,9 @@
 				{
 					let sc = state.steps[state.step], s = sc.v, changes = false;
 
+					if ((keycombo === 'Enter' || keycombo === 'NumpadEnter') && document.getElementById('check-btn') !== null)
+						return checkBtnPress();
+
 					switch (sc.type)
 					{
 						case 0:
@@ -450,7 +607,6 @@
 								case 'ArrowRight':	cursorMovement(1, 0);	break;
 								case 'ArrowDown':	cursorMovement(0, 1);	break;
 								case 'ArrowLeft':	cursorMovement(-1, 0);	break;
-								case 'Enter':	if (!s.b.includes(' ')) checkBtnPress();	break;
 								case 'Space':	s.v = !s.v;	break;
 								case 'Tab':	nextLight();	break;
 								case 'Delete':	s.b = `${s.b.substring(0, s.i)} ${s.b.substring(s.i+1, s.b.length)}`; changes = true; break;
@@ -474,8 +630,7 @@
 									break;
 
 								default:
-									let m = /^Key([A-Z])$/.exec(keycombo);
-									if (m)
+									if (m = /^Key([A-Z])$/.exec(keycombo))
 									{
 										s.b = `${s.b.substring(0, s.i)}${m[1]}${s.b.substring(s.i+1, s.b.length)}`;
 										changes = true;
@@ -491,6 +646,21 @@
 											}
 									}
 									break;
+							}
+							break;
+
+						case 47:
+							if (s.b.length > 0 && (keycombo === 'Enter' || keycombo === 'NumpadEnter'))
+								return checkBtnPress();
+							else if (s.b.length < 2 && (m = /^(?:Digit|Numpad)([0-9])$/.exec(keycombo)))
+							{
+								s.b += m[1];
+								changes = true;
+							}
+							else if (s.b.length > 0 && keycombo === 'Backspace')
+							{
+								s.b = s.b.substring(0, s.b.length-1);
+								changes = true;
 							}
 							break;
 					}
@@ -510,7 +680,7 @@
 				switch (sc.type)
 				{
 					case 0: s.v = s.i === (s.i = i) !== s.v; break;
-					case 1: let wa = rc ? '·' : '•'; s.b = `${s.b.substring(0, i)}${s.b[i] === wa ? ' ' : wa}${s.b.substring(i+1, s.b.length)}`; changes = true; break;
+					case 1: let wa = rc ? '_' : 'X'; s.b = `${s.b.substring(0, i)}${s.b[i] === wa ? ' ' : wa}${s.b.substring(i+1, s.b.length)}`; changes = true; break;
 				}
 				updateView(changes);
 			}
@@ -541,13 +711,21 @@
 			document.body.addEventListener('click',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
 			document.body.addEventListener('contextmenu',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
 
+			function setThumbnailOverlay(id, on)
+			{
+				let el = document.getElementById(`show-${id}`);
+				el.style.opacity = on ? 1 : 0;
+				el.style.transform = on ? 'none' : el.dataset.transform;
+				return true;
+			}
+
 			document.body.addEventListener('mouseover', function(e)
 			{
-				console.log(e);
 				for (let tn of document.querySelectorAll('.thumbnail'))
-					if (tn.contains(e.target)) { state.thumbnailshown = tn.id; updateView(); return false; }
+					if (tn.contains(e.target))
+						return setThumbnailOverlay(tn.id, true);
 				if (mouseX === null || !('x' in e.target.dataset))
-					return;
+					return true;
 				let x = e.target.dataset.x|0, y = e.target.dataset.y|0;
 				drag(mouseStartX, mouseStartY, mouseX, mouseY, x, y, e.buttons === 2);
 				mouseX = x;
@@ -555,9 +733,9 @@
 			});
 			document.body.addEventListener('mouseout', function(e)
 			{
-				console.log(e);
 				for (let tn of document.querySelectorAll('.thumbnail'))
-					if (tn.contains(e.target)) { delete state.thumbnailshown; updateView(); return false; }
+					if (tn.contains(e.target))
+						return setThumbnailOverlay(tn.id, false);
 			});
 
 			document.getElementById('copy').onclick = function()

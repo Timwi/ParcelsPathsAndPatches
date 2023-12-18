@@ -1,0 +1,26 @@
+{
+    "steps": [
+        {
+            "type": 0,
+            "v": {
+                "b": "FUSS_CALFERHU_ORALAGAR_RISETEMPERATE___RYE___INFIELDERSEES_ARCOLATE_TURNERAS_EMUS",
+                "i": 80,
+                "v": false
+            }
+        },
+        {
+            "type": 1,
+            "b": "acbbdddddaccbbbeddaacceeeediccfeeeddiiifeeeddifffeeeddiffhhegggifghhhhggiiggggggg",
+            "v": {
+                "b": "X_____________X______X____________X_____X______X______________X______X___X_______"
+            }
+        },
+        {
+            "type": 47,
+            "v": {
+                "b": "44"
+            }
+        }
+    ],
+    "step": 2
+}

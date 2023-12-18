@@ -1,46 +1,39 @@
-@font-face {
-	font-family: 'Book Antiqua';
-	font-style: normal;
-	font-weight: normal;
-	src: url(Book%20Antiqua.ttf);
-}
-@font-face {
-	font-family: 'Book Antiqua';
-	font-style: normal;
-	font-weight: bold;
-	src: url(Book%20Antiqua%20Bold.ttf);
-}
-@font-face {
-	font-family: 'Book Antiqua';
-	font-style: italic;
-	font-weight: normal;
-	src: url(Book%20Antiqua%20Italics.ttf);
-}
-@font-face {
-	font-family: 'Book Antiqua';
-	font-style: italic;
-	font-weight: bold;
-	src: url(Book%20Antiqua%20Bold%20Italics.ttf);
-}
-
-@font-face { font-family: 'Work Sans'; font-weight: 100; font-style: normal; src: url(WorkSans-Thin.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 100; font-style: italic; src: url(WorkSans-ThinItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 200; font-style: normal; src: url(WorkSans-ExtraLight.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 200; font-style: italic; src: url(WorkSans-ExtraLightItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 300; font-style: normal; src: url(WorkSans-Light.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 300; font-style: italic; src: url(WorkSans-LightItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 400; font-style: normal; src: url(WorkSans-Regular.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 400; font-style: italic; src: url(WorkSans-RegularItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 500; font-style: normal; src: url(WorkSans-Medium.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 500; font-style: italic; src: url(WorkSans-MediumItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 600; font-style: normal; src: url(WorkSans-SemiBold.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 600; font-style: italic; src: url(WorkSans-SemiBoldItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 700; font-style: normal; src: url(WorkSans-Bold.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 700; font-style: italic; src: url(WorkSans-BoldItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 800; font-style: normal; src: url(WorkSans-ExtraBold.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 800; font-style: italic; src: url(WorkSans-ExtraBoldItalic.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 900; font-style: normal; src: url(WorkSans-Black.ttf); }
-@font-face { font-family: 'Work Sans'; font-weight: 900; font-style: italic; src: url(WorkSans-BlackItalic.ttf); }
+@font-face { font-family: 'Book Antiqua';	font-weight: normal;	font-style: normal;	src: url(Book%20Antiqua.ttf);	}
+@font-face { font-family: 'Book Antiqua';	font-weight: normal;	font-style: italic;	src: url(Book%20Antiqua%20Italics.ttf);	}
+@font-face { font-family: 'Book Antiqua';	font-weight: bold;	font-style: normal;	src: url(Book%20Antiqua%20Bold.ttf);	}
+@font-face { font-family: 'Book Antiqua';	font-weight: bold;	font-style: italic;	src: url(Book%20Antiqua%20Bold%20Italics.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 100;	font-style: normal;	src: url(WorkSans-Thin.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 100;	font-style: italic;	src: url(WorkSans-ThinItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 200;	font-style: normal;	src: url(WorkSans-ExtraLight.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 200;	font-style: italic;	src: url(WorkSans-ExtraLightItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 300;	font-style: normal;	src: url(WorkSans-Light.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 300;	font-style: italic;	src: url(WorkSans-LightItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 400;	font-style: normal;	src: url(WorkSans-Regular.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 400;	font-style: italic;	src: url(WorkSans-RegularItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 500;	font-style: normal;	src: url(WorkSans-Medium.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 500;	font-style: italic;	src: url(WorkSans-MediumItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 600;	font-style: normal;	src: url(WorkSans-SemiBold.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 600;	font-style: italic;	src: url(WorkSans-SemiBoldItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 700;	font-style: normal;	src: url(WorkSans-Bold.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 700;	font-style: italic;	src: url(WorkSans-BoldItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 800;	font-style: normal;	src: url(WorkSans-ExtraBold.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 800;	font-style: italic;	src: url(WorkSans-ExtraBoldItalic.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 900;	font-style: normal;	src: url(WorkSans-Black.ttf);	}
+@font-face { font-family: 'Work Sans';	font-weight: 900;	font-style: italic;	src: url(WorkSans-BlackItalic.ttf);	}
+@font-face { font-family: 'Proxima';	font-weight: 100;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20Thin.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 100;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20Thin%20Italic.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 300;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20Light.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 300;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20Light%20Italic.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 400;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20Regular.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 400;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20Regular%20Italic.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 600;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20SemiBold.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 600;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20SemiBold%20Italic.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 700;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20Bold.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 700;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20Bold%20Italic.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 800;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20Extrabold.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 800;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20Extrabold%20Italic.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 900;	font-style: normal;	src: url(Proxima%20Nova%20Extra%20Condensed%20Black.otf);	}
+@font-face { font-family: 'Proxima';	font-weight: 900;	font-style: italic;	src: url(Proxima%20Nova%20Extra%20Condensed%20Black%20Italic.otf);	}
 
 * { pointer-events: none; }
 #input { user-select: none; }
@@ -98,4 +91,14 @@ li { margin: .5cm 0; }
 
 #copy:hover { filter: url(#shadow); transform: scale(1.2); }
 
-.thumbnail * { pointer-events: all; user-select: none; cursor: pointer; }
+#vis>.thumbnail * { pointer-events: all; user-select: none; cursor: pointer; }
+.step-btn { transform: scale(.8); transition: transform .147s, opacity .147s; cursor: pointer; --hue: 220; }
+.step-btn:hover { transform: none; --hue: 210; }
+.step-btn.sel { --hue: 70; }
+
+@keyframes blinking-cursor {
+	0%	{ opacity: 1; }
+	45%	{ opacity: 1; }
+	55%	{ opacity: 0; }
+	100%	{ opacity: 0; }
+}
