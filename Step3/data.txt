@@ -2,7 +2,8 @@
 	"type": 2,
 	"n": [0, 14, 21, 34, 40, 47, 62, 69, 73, -1],
 	"v": {
-		"n": [0, 14, 21, 34, 40, 47, 62, 69, 73, -1]
+		"n": [0, 14, 21, 34, 40, 47, 62, 69, 73, -1],
+		"l": "FORTYFOUR "
 	}
 }
 #
@@ -14,3 +15,8 @@
 	<li>A tenth nun walks onto the land from the left in a row that has not seen any nun movement yet and where she is not adjacent to another nun and picks up a letter from the crossword.</li>
 	<li>Contrary to what I said earlier, the new nun crosses a parcel boundary by walking one space in an orthogonal direction.</li>
 </ul>
+<p class='kbd'>
+	<span><kbd>left-drag</kbd> <span>move nun</span></span>
+	<span><kbd>right-click</kbd> <span>move back</span></span>
+	<span><kbd>middle-click</kbd> <span>change letter</span></span>
+</p>

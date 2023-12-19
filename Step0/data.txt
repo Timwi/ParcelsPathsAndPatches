@@ -17,7 +17,7 @@
 		<div class='cw-c' data-cell='→18'><div>11.	</div><div>Gelatin substitute&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='→23'><div>12.	</div><div>High-____ (tall)&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='→27'><div>13.	</div><div>Mild&nbsp;<span class='e'>(9)</span>	</div></div>
-		<div class='cw-c' data-cell='→39'><div>15.	</div><div>Bread ingredient, at times&nbsp;<span class='e'>(3)</span>	</div></div>
+		<div class='cw-c' data-cell='→39'><div>15.	</div><div>Bread ingredient, at&nbsp;times&nbsp;<span class='e'>(3)</span>	</div></div>
 		<div class='cw-c' data-cell='→45'><div>16.	</div><div>Baseball player&nbsp;<span class='e'>(9)</span>	</div></div>
 		<div class='cw-c' data-cell='→54'><div>22.	</div><div>Notices&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='→59'><div>23.	</div><div>Violinist’s instruction&nbsp;<span class='e'>(4)</span>	</div></div>
@@ -46,3 +46,7 @@
 	</div>
 </div>
 <p class='fl'>None of the nuns is wearing a cross. Word on the street is they lost it.</p>
+<p class='kbd'>
+	<span><kbd>Space</kbd> <span>toggle direction</span></span>
+	<span><kbd>Tab</kbd><kbd>Shift+Tab</kbd> <span>prev/next unsolved entry</span></span>
+</p>

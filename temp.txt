@@ -12,9 +12,65 @@
             "type": 1,
             "b": "acbbdddddaccbbbeddaacceeeediccfeeeddiiifeeeddifffeeeddiffhhegggifghhhhggiiggggggg",
             "v": {
-                "b": "X_____________X______X____________X_____X______X______________X______X___X_______"
+                "b": "X             X      X            X     X      X              X      X   X       "
+            }
+        },
+        {
+            "type": 47,
+            "v": {
+                "b": "44"
+            }
+        },
+        {
+            "type": 2,
+            "n": [
+                0,
+                14,
+                21,
+                34,
+                40,
+                47,
+                62,
+                69,
+                73,
+                -1
+            ],
+            "v": {
+                "n": [
+                    0,
+                    14,
+                    21,
+                    43,
+                    40,
+                    56,
+                    62,
+                    66,
+                    73,
+                    27
+                ],
+                "l": "FORTYFOURA"
+            }
+        },
+        {
+            "type": 42,
+            "n": [
+                0,
+                14,
+                21,
+                43,
+                40,
+                56,
+                62,
+                66,
+                73,
+                27
+            ],
+            "l": "FORTYFOURA",
+            "v": {
+                "b": "CDBBBBBBCCCDBCBBCCCCCCBBCCCACCBBCCCCDABBACCACCDBBBACDACCBBBBACCCBCBBBBACBABBBBBBA"
             }
         }
+
     ],
-    "step": 1
+    "step": 4
 }

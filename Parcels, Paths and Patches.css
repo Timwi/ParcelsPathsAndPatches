@@ -60,7 +60,6 @@ body, svg {
 	overflow: auto;
 	padding: .5cm;
 }
-.fl { font-style: italic; font-weight: 300; margin-top: 2cm; }
 
 .cw-s {
 	display: flex;
@@ -105,3 +104,22 @@ li { margin: .5cm 0; }
 
 .nun { transition: transform .1s; }
 .nun.sel { transform: scale(1.25); filter: url(#shadow); }
+.nun text.q { animation: .47s ease-in-out alternate infinite pulsate-q; }
+
+@keyframes pulsate-q {
+	0%	{ transform: scale(.7); }
+	100%	{ transform: scale(1.1); }
+}
+
+.fl { font-style: italic; font-weight: 300; margin: 1.5cm 0 1.5cm; }
+
+p.kbd { font-size: 18pt; font-weight: 300; margin: 0; line-height: 2; }
+p.kbd kbd { background: hsl(220, 50%, 30%); padding: .1cm .15cm; margin: 0 .1cm; font-family: inherit; font-weight: 600; }
+p.kbd kbd:first-child { margin-left: 0; }
+p.kbd kbd+span { margin-right: .4cm; }
+p.kbd > span { white-space: nowrap; }
+
+.cs { text-align: center; width: 100%; border-collapse: collapse; }
+.cs td { height: 2cm; min-width: 1.5cm; }
+.cs td.h { background-color: hsl(222, 10%, 15%); }
+.cs td.up>span { text-orientation: mixed; writing-mode: vertical-rl; transform: rotate(180deg); }

@@ -6,3 +6,6 @@
 }
 #
 <p>This is a momentous occasion. Let’s keep a record of it.</p>
+<p class='kbd'>
+	<span><kbd>0</kbd>–<kbd>9</kbd> <span>type</span></span>
+</p>

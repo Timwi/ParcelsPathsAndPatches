@@ -13,3 +13,7 @@
 	<li>Each nun picks up a letter from the crossword.</li>
 </ul>
 <p class='fl'>Who’s the superstar? Battle it out!</p>
+<p class='kbd'>
+	<span><kbd>left-click/drag</kbd>	<span>place nun(s)</span></span>
+	<span><kbd>right-click/drag</kbd>	<span>cross out</span></span>
+</p>
