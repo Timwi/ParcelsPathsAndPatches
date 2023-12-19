@@ -5,7 +5,7 @@
 	}
 }
 #
-<p>This is a momentous occasion. Let’s keep a record of it.</p>
+<p>This is a momentous occasion. Let’s write it down.</p>
 <p class='kbd'>
 	<span><kbd>0</kbd>–<kbd>9</kbd> <span>type</span></span>
 	<span><kbd>Enter</kbd> <span>submit</span></span>

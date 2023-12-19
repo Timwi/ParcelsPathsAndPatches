@@ -3,7 +3,8 @@
 <head>
 	<link rel='stylesheet' type='text/css' href='Parcels,%20Paths%20and%20Patches.css'>
 	<script>
-		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5];
+		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5],
+			t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';');
 
 		let Easing = {
 			InQuad:	t => t * t,
@@ -65,7 +66,7 @@
 			if (url in fetchCache)
 				return fn ? fn(fetchCache[url]) : fetchCache[url];
 			let response = await fetch(url);
-			return	response.status === 403 ? false :
+			return	response.status === 403 || response.status === 404 ? false :
 				response.status === 200 ? (r => fn ? fn(r) : r)(fetchCache[url] = await response.text()) :
 				alert('Data could not be loaded. Contact your santa!') ?? null;
 		}
@@ -143,6 +144,34 @@
 				svg.push(`M${seg.c.slice(isClosed ? 1 : 0).map(fn).join(' ')}${isClosed ? 'z' : ''}`);
 			}
 			return svg.join('');
+		}
+
+		function followPathI(i, str, fn)
+		{
+			if (fn) fn(i);
+			for (let ch of str)
+			{
+				if (ch === '↑') { if (i < w	) return null; i -= w;	}
+				if (ch === '→') { if (i%w >= w-1	) return null; i++;	}
+				if (ch === '↓') { if (i >= w*(h-1)	) return null; i += w;	}
+				if (ch === '←') { if (i%w < 1	) return null; i--;	}
+				if (fn) fn(i);
+			}
+			return i;
+		}
+
+		function followPathXY(x, y, str, fn)
+		{
+			if (fn) fn(x, y);
+			for (let ch of str)
+			{
+				if (ch === '↑') y--;
+				if (ch === '→') x++;
+				if (ch === '↓') y++;
+				if (ch === '←') x--;
+				if (fn) fn(x, y);
+			}
+			return [x, y];
 		}
 
 		function make(id, elemName, attrs, content, parent)
@@ -265,7 +294,8 @@
 					let nm1 = mk(`${id}-m1`, 'use', { '*href': hasLetter ? '#nun-no-arms-1' : '#nun-template', '*transform': `translate(${x}, ${y})` }, null, p);
 					if (hasLetter)
 					{
-						let l = mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700', 'transform-origin': `${x+50} ${y+60}`,
+						let l = mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
+							'*transform-origin': `${x+50} ${y+60}`,
 							'*class':	ltr === '?' ? 'q' : '',
 							'*y':	ltr === '?' ? y+110 : y+90,
 							'*font-size':	ltr === '?' ? 110 : 70,
@@ -336,6 +366,112 @@
 							}
 							break;
 
+						case 3:
+							console.log(sc.n.map((n, ix) => followPathI(n, sc.m[s.m[ix]])));
+							for (let i = 0; i < sc.n.length; i++)
+							{
+								let a = 'M', q = '', al = [];
+								let g = mk(`ar-${i}-g`, 'g', { '*class': `ar${s.m.includes(i) ? ' u' : ''}`, transform: `translate(${t3as[i]}) scale(100)` });
+								followPathXY(0, 0, sc.m[i], (x, y) => { a += ` ${x} ${y}`; q += `M${x-.49} ${y-.49}h.98v.98h-.98z`; al.push([x, y]); });
+								mk(`ar-${i}-q`, 'path', { 'class': 'q', 'd': q }, null, g);
+								mk(`ar-${i}-a`, 'path', { 'class': 'a', 'd': a }, null, g);
+								mk(`ar-${i}-t`, 'text', { x: al[al.length >> 1][0], y: al[al.length >> 1][1]+.35 }, ['✓'], g);
+							}
+							for (let i = 0; i < sc.n.length; i++)
+							{
+								let fi = sc.n[i], ar = 'M';
+								if (s.m[i] !== null)
+								{
+									await makeNunWithLetter(i, `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25 });
+									fi = followPathI(fi, sc.m[s.m[i]], j => { ar += ` ${sqx(j)+50} ${sqy(j)+50}`; });
+									mk(`n-${i}-a`, 'path', { '*d': ar, fill: 'none', stroke: 'hsl(220, 20%, 80%)', 'stroke-width': '30', opacity: .2, 'marker-end': 'url(#arrow-marker)' });
+								}
+								await makeNunWithLetter(i, `n-${i}-t`, sqx(fi), sqy(fi), s.l[i],
+									{ 'class': 'nun', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` });
+								if (s.k[i] !== null)
+								{
+									mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z',
+										'*transform': `translate(${sqx(fi)+20}, ${sqy(fi)-90})`, stroke: 'black', 'stroke-width': 5, fill: 'white' });
+									let lines = (sc.a[s.k[i]] ?? sc.k[s.k[i]]).split(' ');
+									let sbg = mk(`n-${i}-sbt`, 'g', { fill: 'black', stroke: 'none', 'text-anchor': 'middle', 'font-family': 'Proxima', 'font-size': 18, 'font-weight': 200, 'letter-spacing': 1 },
+										lines.map((l, lx) => `<text y='${17*lx}'>${l}<${''}/text>`).join(''));
+									await document.fonts.ready;
+									let bb = sbg.getBBox();
+									sbg.setAttribute('transform', `translate(${sqx(fi)+70-bb.x-bb.width/2}, ${sqy(fi)-40-bb.y-bb.height/2})`);
+								}
+							}
+
+							let prevDd = document.querySelector('#ans-chk select')?.selectedIndex;
+							mk('ans-chk', 'foreignObject', { x: 875, y: 1403, width: 875, height: 100 }, `
+								<div style='display: flex; justify-content: center; align-items: center'>
+									<div class='ans-chk'>
+										<div><strong class='h'>Answer checker:<${''}/strong><${''}/div>
+										<div>
+											<select accesskey=','>${sc.k.map((k, kx) => `<option>${sc.a[kx] ? `${sc.a[kx]} (${k})` : k}<${''}/option>`).join('')}<${''}/select>
+											<input type='text' accesskey='.' />
+											<button accesskey='/'>Check<${''}/button>
+										<${''}/div>
+									<${''}/div>
+								<${''}/div>
+							`, input);
+							if (prevDd !== null)
+								document.querySelector('#ans-chk select').selectedIndex = prevDd;
+							async function t3ac()
+							{
+								let k = document.querySelector('#ans-chk select').selectedIndex;
+								let v = document.querySelector('#ans-chk input').value.toUpperCase().replace(/[^A-Z]/g, '');
+								let h = document.querySelector('#ans-chk .h');
+								if (v.length === 0)
+								{
+									h.innerHTML = 'Enter letters A–Z. Punctuation and case is ignored.';
+									h.style.color = 'hsl(220, 100%, 70%)';
+									coroutine('ans-chk', [
+										{ d: 2.17 },
+										() => { h.innerHTML = 'Answer checker:'; },
+										{ d: 1.47, v: { r: [0x66, 0xdb], g: [0x99, 0xde], b: [0xff, 0xe1] }, fn: t => {
+											h.style.color = `#${(t.r|0).toString(16).padStart(2, '0')}${(t.g|0).toString(16).padStart(2, '0')}${(t.b|0).toString(16).padStart(2, '0')}`;
+										} }
+									]);
+								}
+								else
+								{
+									let r = await doFetch(`Step7/ans-${k}-${v}.txt?answer=${getAnswer(state.step)}`);
+									if (r === false)
+									{
+										h.innerHTML = 'TRY AGAIN!';
+										h.style.color = 'hsl(0, 100%, 70%)';
+										coroutine('ans-chk', [
+											{ d: 1.47 },
+											() => { h.innerHTML = 'Answer checker:'; },
+											{ d: 1.47, v: { r: [0xff, 0xdb], g: [0x66, 0xde], b: [0x66, 0xe1] }, fn: t => {
+												h.style.color = `#${(t.r|0).toString(16).padStart(2, '0')}${(t.g|0).toString(16).padStart(2, '0')}${(t.b|0).toString(16).padStart(2, '0')}`;
+											} }
+										]);
+									}
+									else
+									{
+										sc.a[k] = r;
+										localStorage.setItem('ppp-state', JSON.stringify(state));
+										await updateView();
+										document.querySelector('#ans-chk select').selectedIndex = k;
+										document.querySelector('#ans-chk input').focus();
+										h = document.querySelector('#ans-chk .h');
+										h.innerHTML = 'NICE!';
+										h.style.color = 'hsl(120, 100%, 70%)';
+										coroutine('ans-chk', [
+											{ d: 1.47 },
+											() => { h.innerHTML = 'Answer checker:'; },
+											{ d: 1.47, v: { r: [0x66, 0xdb], g: [0xff, 0xde], b: [0x66, 0xe1] }, fn: t => {
+												h.style.color = `#${(t.r|0).toString(16).padStart(2, '0')}${(t.g|0).toString(16).padStart(2, '0')}${(t.b|0).toString(16).padStart(2, '0')}`;
+											} }
+										]);
+									}
+								}
+							};
+							document.querySelector('#ans-chk button').onclick = t3ac;
+							document.querySelector('#ans-chk input').onkeydown = function(e) { if (e.code === 'Enter') t3ac(); };
+							break;
+
 						case 26: // cs
 							if (sc.n)
 								for (let i = 0; i < sc.n.length; i++)
@@ -367,7 +503,7 @@
 							mk(`mom-${mIx}-r`, '*path', { d: `M${350 + 250*mIx} 1225h250v250h-250z`, fill: 'hsl(38, 100%, 40%)', 'fill-opacity': .5, stroke: 'hsl(38, 85%, 70%)', 'stroke-width': 10, 'paint-order': 'stroke' });
 							mk(`mom-${mIx}-t`, '*text', { x: 475 + 250*mIx, y: 1441, fill: 'hsl(38, 100%, 90%)', 'font-family': 'Proxima', 'font-size': 271, 'text-anchor': 'middle' }, [s.b]);
 							await document.fonts.ready;
-							let cursorX = s.b.length > 0 ? (bb => bb.x+bb.width+20)(document.getElementById(`mom-${mIx}-t`).getBBox()) : 475;
+							let cursorX = s.b.length > 0 ? (bb => bb.x+bb.width+20)(document.getElementById(`mom-${mIx}-t`).getBBox()) : 475 + 250*mIx;
 							if (step === state.steps.length-1)
 								mk('mom-l', 'path', { '*d': `M${cursorX} 1250v200`, stroke: 'hsl(38, 100%, 90%)', 'stroke-width': 10, 'style': 'animation: .74s infinite blinking-cursor;' });
 							break;
@@ -376,7 +512,7 @@
 				await render(state.step);
 
 				// Previous momentous occasions
-				for (let sIx = 0, mIx = 0; sIx < state.steps.length-1; sIx++)
+				for (let sIx = 0, mIx = 0; sIx < state.step; sIx++)
 					if (state.steps[sIx].type === 47)
 					{
 						mk(`mom-${mIx}-r`, '*path', { d: `M${375 + 250*mIx} 1250h200v200h-200z`, fill: 'none', stroke: 'hsl(120, 20%, 80%)', 'stroke-width': 10 });
@@ -384,7 +520,7 @@
 						mIx++;
 					}
 
-				let showCheckBtn = false;
+				let showCheckBtn = false, checkBtnTransform = '';
 				switch (sc.type)
 				{
 					case 0:
@@ -402,6 +538,12 @@
 						showCheckBtn = !s.l.includes(' ') && !s.l.includes('?') && !s.n.includes(-1);
 						break;
 
+					case 3:
+						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h);
+						showCheckBtn = s.m.every(m => m !== null) && s.k.every(k => k !== null) && sc.a.length === sc.k.length;
+						checkBtnTransform = 'translate(275, -125)';
+						break;
+
 					case 26:
 						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h && sc.n.includes(x + w*y));
 						showCheckBtn = true;
@@ -414,7 +556,7 @@
 				}
 
 				if (showCheckBtn && state.step === state.steps.length - 1)
-					mk('check-btn', 'g', { 'class': 'btn', onclick: checkBtnPress }, `
+					mk('check-btn', 'g', { 'class': 'btn', onclick: checkBtnPress, '*transform': checkBtnTransform }, `
 						<circle fill='url(#btn-check-1)' cx='1300' cy='1300' r='150' />
 						<circle fill='url(#btn-check-2)' cx='1300' cy='1300' r='130' />
 						<text class='btn-text' fill='white' x='0' y='42' filter='url(#shadow)'
@@ -426,7 +568,7 @@
 				// Steps bar
 				if (state.steps.length > 1)
 				{
-					mk('steps-bar', 'path', { fill: 'hsl(222, 10%, 20%)', d: 'M1450 0h1222v150H1450z' });
+					mk('steps-bar', 'path', { fill: 'hsl(220, 10%, 20%)', d: 'M1450 0h1222v150H1450z' });
 					for (let i = 0; i < state.steps.length; i++)
 					{
 						mk(`step-${i}-btn`, 'g', { '*class': `step-btn${i === state.step ? ' sel' : ''}`, 'transform-origin': `${1525 + 80*i} 75` }, `
@@ -505,6 +647,8 @@
 				{
 					case 1:	return inf.v.b.replace(/ /g, '_');
 					case 2:	return [...inf.v.n, inf.v.l].join('-');
+					case 3:	return [...inf.v.m, ...inf.v.k, inf.v.l].join('-');
+					case 26:	return inf.v.l;
 					default:	return inf.v.b;
 				}
 			}
@@ -623,12 +767,16 @@
 				let result = await loadStep(state.step + 1);
 				if (result === false)
 					return ifWrong();
+				if (result === null)
+					return false;
 				inputBlocked = true;
 				await ifGood();
 				let thIx = stepsWithThumbnails.indexOf(state.step + 1);
 				if (thIx >= 0)
 				{
 					let svg = await doFetch(thumbnailUrl(state.step + 1));
+					if (svg === null)
+						return;
 					let tt = make('temp-thumbnail', 'g', {}, svg);
 					await coroutine('swoop-thumbnail', [
 						{ d: .47 },
@@ -644,6 +792,9 @@
 
 			document.body.addEventListener('keydown', function(e)
 			{
+				if (Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(document.activeElement)))
+					return true;
+
 				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`, m;
 
 				if (	keycombo === 'Ctrl+KeyZ'	|| keycombo === 'Alt+Backspace'	||	// Undo
@@ -666,6 +817,13 @@
 						}
 						updateView();
 					}
+					e.preventDefault();
+					return false;
+				}
+				else if (keycombo === 'Escape')
+				{
+					state.steps[state.step].v = JSON.parse(last);
+					updateView();
 					e.preventDefault();
 					return false;
 				}
@@ -754,6 +912,7 @@
 							break;
 
 						case 2:
+						case 3:
 						case 26:
 							let ni = s.l.indexOf('?');
 							if (ni >= 0 && (m = /^Key([A-Z])$/.exec(keycombo)))
@@ -802,22 +961,28 @@
 				updateView(changes);
 			}
 
-			let mouseX = null, mouseY = null, mouseE = null, mouseI = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
+			let mouseX = null, mouseY = null, mouseE = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
+			let mouseC = null, mouseI = null, mouseM = null;
 
 			function click(x, y, e, btns)
 			{
 				//console.log('click', arguments);
-				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y, ni = 'n' in sc ? sc.n.indexOf(i) : 'n' in s ? s.n.indexOf(i) : null;
+				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y;
+				let ni = 'n' in sc ? sc.n.indexOf(i) : 'n' in s ? s.n.indexOf(i) : null;
 				switch (sc.type)
 				{
-					case 0: s.v = s.i === (s.i = i) !== s.v; break;
-					case 1: let wa = (btns & 2) ? '_' : 'X'; s.b = setChar(s.b, i, s.b[i] === wa ? ' ' : wa); changes = true; break;
 					case 2:
-						if (ni >= 0 && btns === 2) { s.n[ni] = sc.n[ni]; changes = true; }
-						if (ni >= 0 && btns === 4) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
+						if (ni >= 0 && (btns & 2)) { s.n[ni] = sc.n[ni]; changes = true; }
+						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
+						break;
+					case 3:
+						ni = s.m.findIndex((a, ix) => (a === null ? sc.n[ix] : followPathI(sc.n[ix], sc.m[a])) === i);
+						if (ni >= 0 && (btns & 1)) { s.k[ni] = s.k[ni] === null ? document.querySelector('#ans-chk select').selectedIndex : null; changes = true; }
+						if (ni >= 0 && (btns & 2)) { s.m[ni] = null; changes = true; }
+						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
 						break;
 					case 26:
-						if (ni >= 0 && btns === 4) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
+						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
 						break;
 				}
 				maybeUpdateView(changes);
@@ -825,15 +990,40 @@
 			function startDrag(x, y, e, btns)
 			{
 				//console.log('startDrag', arguments);
-				let sc = state.steps[state.step], s = sc.v, i = e ?? x + w*y;
+				let sc = state.steps[state.step], s = sc.v, i = e ?? x + w*y, ni;
 				switch (sc.type)
 				{
+					case 0: if (btns & 1) s.v = s.i === (s.i = i) !== s.v; break;
+
+					case 1:
+						let wa = (btns & 2) ? '_' : 'X';
+						s.b = setChar(s.b, i, s.b[i] === wa ? ' ' : wa);
+						changes = true;
+						break;
+
 					case 2:
-						let ni = s.n.indexOf(i);
-						if (ni !== -1 && btns === 1)
+						ni = s.n.indexOf(i);
+						if (ni !== -1 && (btns & 1))
 						{
 							document.getElementById(`n-${ni}-t`).classList.add('sel');
 							mouseI = ni;
+						}
+						break;
+
+					case 3:
+						ni = s.m.findIndex((a, ix) => (a === null ? sc.n[ix] : followPathI(sc.n[ix], sc.m[a])) === i);
+						if (ni !== -1 && (btns & 1))
+						{
+							document.getElementById(`n-${ni}-t`).classList.add('sel');
+							mouseI = ni;
+							mouseM = s.m[ni];
+							document.getElementById(`sq-${sc.n[ni]}`).classList.add('tg');
+							for (let j = 0; j < sc.m.length; j++)
+							{
+								let ji = j !== s.m[ni] && s.m.includes(j) ? null : followPathI(sc.n[ni], sc.m[j]);
+								if (ji !== null)
+									document.getElementById(`sq-${ji}`).classList.add('tg');
+							}
 						}
 						break;
 				}
@@ -842,13 +1032,26 @@
 			{
 				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y, fi = fromE ?? fromX + w*fromY, oi = origE ?? origX + w*origY;
 				//console.log('drag', arguments, '█', i, fi, oi);
-				if ([0].includes(sc.type))
-					return click(x, y, e, btns);
 
 				switch (sc.type)
 				{
+					case 0: return click(x, y, e, btns);
 					case 1: changes = s.b[i] !== s.b[fi]; s.b = setChar(s.b, i, s.b[fi]); break;
 					case 2: s.n[mouseI] = i; break;
+
+					case 3:
+						if (i === sc.n[mouseI])
+						{
+							s.m[mouseI] = null;
+							break;
+						}
+						for (let mi = 0; mi < sc.m.length; mi++)
+							if (!s.m.includes(mi) && followPathI(sc.n[mouseI], sc.m[mi]) === i)
+							{
+								s.m[mouseI] = mi;
+								break;
+							}
+						break;
 
 					case 42:
 						let dir =	fromX === x	&& fromY === y+1	? 0 :
@@ -879,15 +1082,15 @@
 				switch (sc.type)
 				{
 					case 2:
+					case 3:
 						for (let nu of document.querySelectorAll('.nun'))
 							nu.classList.remove('sel');
-						console.log(i, oi);
-						changes = i !== oi;
-						mouseI = null;
+						for (let tg of Array.from(document.querySelectorAll('.tg')))
+							tg.classList.remove('tg');
+						changes = sc.type === 2 ? i !== oi : mouseI !== null && s.m[mouseI] !== mouseM;
 						break;
-
-					case 42: mouseI = null; break;
 				}
+				mouseI = mouseM = null;
 				maybeUpdateView(changes);
 			}
 
@@ -898,8 +1101,8 @@
 				mouseStartX = mouseX = e.target.dataset.x|0;
 				mouseStartY = mouseY = e.target.dataset.y|0;
 				mouseStartE = mouseE = 'e' in e.target.dataset ? e.target.dataset.e|0 : null;
+				mouseC = e.buttons;
 				startDrag(mouseX, mouseY, mouseE, e.buttons);
-				click(mouseX, mouseY, mouseE, e.buttons);
 				e.preventDefault();
 				return false;
 			});
@@ -908,7 +1111,9 @@
 				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
 					return true;
 				endDrag(mouseStartX, mouseStartY, mouseStartE, mouseX, mouseY, mouseE);
-				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = null;
+				if (mouseC !== null)
+					click(mouseX, mouseY, mouseE, mouseC);
+				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = mouseC = null;
 			});
 
 			document.body.addEventListener('click',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
@@ -940,6 +1145,7 @@
 				for (let tn of document.querySelectorAll('.thumbnail'))
 					if (tn.contains(e.target))
 						return setThumbnailOverlay(tn.id, false);
+				mouseC = null;
 			});
 
 			document.getElementById('copy').onclick = function()
@@ -994,7 +1200,7 @@
 				<feDropShadow stdDeviation="10" />
 			</filter>
 			<marker overflow='visible' id='arrow-marker' orient='auto-start-reverse'>
-				<path fill='context-stroke' stroke='context-stroke' d='M-.5 0-2 .7V-.7z' />
+				<path fill='context-stroke' stroke='context-stroke' d='M-.2 0-1.6 .7V-.7z' />
 			</marker>
 			<g id='nun-template'>
 				<g transform='scale(.02) translate(1142, -200)'>

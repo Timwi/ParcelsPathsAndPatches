@@ -69,8 +69,141 @@
             "v": {
                 "b": "CDBBBBBBCCCDBCBBCCCCCCBBCCCACCBBCCCCDABBACCACCDBBBACDACCBBBBACCCBCBBBBACBABBBBBBA"
             }
+        },
+        {
+            "type": 26,
+            "n": [
+                0,
+                14,
+                21,
+                43,
+                40,
+                56,
+                62,
+                66,
+                73,
+                27
+            ],
+            "v": {
+                "l": "THIYTFIVER"
+            }
+        },
+        {
+            "type": 47,
+            "v": {
+                "b": "35"
+            }
+        },
+        {
+            "type": 3,
+            "n": [
+                0,
+                14,
+                21,
+                43,
+                40,
+                56,
+                62,
+                66,
+                73,
+                27
+            ],
+            "k": [
+                "Alexander’s Family Name",
+                "Ezri’s Prior Host",
+                "Gint’s Legacy",
+                "Kai Winn’s Predecessor",
+                "Lwaxana’s Home",
+                "Spicy Food",
+                "The 60s Entertainer",
+                "The Klingon Afterlife",
+                "The Tailor",
+                "Vedek Antos"
+            ],
+            "a": [
+                "ROZHENKO",
+                "JADZIA",
+                "RULES OF ACQUISITION",
+                "OPAKA",
+                "BETAZED",
+                "HASPERAT",
+                "VIC FONTAINE",
+                "STOVOKOR",
+                "GARAK",
+                "BAREIL"
+            ],
+            "l": "THIYTFIVER",
+            "m": [
+                "←←",
+                "←←←",
+                "↑←",
+                "↑←←",
+                "↑↑↑↑",
+                "↑↑↑↑",
+                "→→→↑↑↑",
+                "→→→→→→→",
+                "→→→→→↓↓",
+                "↓↓↓→"
+            ],
+            "v": {
+                "m": [
+                    7,
+                    3,
+                    8,
+                    2,
+                    0,
+                    4,
+                    1,
+                    5,
+                    6,
+                    9
+                ],
+                "k": [
+                    2,
+                    6,
+                    4,
+                    7,
+                    3,
+                    8,
+                    0,
+                    5,
+                    9,
+                    1
+                ],
+                "l": "FCDTPAZPLZ"
+            }
+        },
+        {
+            "type": 42,
+            "n": [
+                7,
+                3,
+                44,
+                33,
+                38,
+                20,
+                59,
+                30,
+                49,
+                55
+            ],
+            "l": "FCDTPAZPLZ",
+            "v": {
+			"b": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "d": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ]
+            }
         }
-
     ],
-    "step": 4
+    "step": 8
 }

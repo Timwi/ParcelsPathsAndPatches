@@ -14,3 +14,6 @@
 	<li>The nun-bear links do not cross themselves, and they never make a direct U-turn (two adjacent 90° turns in the same direction).</li>
 	<li>Every square in the plot of land belongs to exactly one nun-bear link.</li>
 </ul>
+<p class='kbd'>
+	<span><kbd>left-drag</kbd> <span>draw or erase</span></span>
+</p>
