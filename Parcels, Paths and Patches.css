@@ -102,3 +102,6 @@ li { margin: .5cm 0; }
 	55%	{ opacity: 0; }
 	100%	{ opacity: 0; }
 }
+
+.nun { transition: transform .1s; }
+.nun.sel { transform: scale(1.25); filter: url(#shadow); }

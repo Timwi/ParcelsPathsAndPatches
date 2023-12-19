@@ -2,12 +2,12 @@
 <path fill="hsl(220, 10%, 20%)" d="M402 152h96v96h-96zM502 152h96v96h-96zM602 152h96v96h-96zM702 152h96v96h-96zM802 152h96v96h-96zM902 152h96v96h-96zM1002 152h96v96h-96zM1102 152h96v96h-96zM1202 152h96v96h-96zM402 252h96v96h-96zM502 252h96v96h-96zM602 252h96v96h-96zM702 252h96v96h-96zM802 252h96v96h-96zM902 252h96v96h-96zM1002 252h96v96h-96zM1102 252h96v96h-96zM1202 252h96v96h-96zM402 352h96v96h-96zM502 352h96v96h-96zM602 352h96v96h-96zM702 352h96v96h-96zM802 352h96v96h-96zM902 352h96v96h-96zM1002 352h96v96h-96zM1102 352h96v96h-96zM1202 352h96v96h-96zM402 452h96v96h-96zM502 452h96v96h-96zM602 452h96v96h-96zM702 452h96v96h-96zM802 452h96v96h-96zM902 452h96v96h-96zM1002 452h96v96h-96zM1102 452h96v96h-96zM1202 452h96v96h-96zM402 552h96v96h-96zM502 552h96v96h-96zM602 552h96v96h-96zM702 552h96v96h-96zM802 552h96v96h-96zM902 552h96v96h-96zM1002 552h96v96h-96zM1102 552h96v96h-96zM1202 552h96v96h-96zM402 652h96v96h-96zM502 652h96v96h-96zM602 652h96v96h-96zM702 652h96v96h-96zM802 652h96v96h-96zM902 652h96v96h-96zM1002 652h96v96h-96zM1102 652h96v96h-96zM1202 652h96v96h-96zM402 752h96v96h-96zM502 752h96v96h-96zM602 752h96v96h-96zM702 752h96v96h-96zM802 752h96v96h-96zM902 752h96v96h-96zM1002 752h96v96h-96zM1102 752h96v96h-96zM1202 752h96v96h-96zM402 852h96v96h-96zM502 852h96v96h-96zM602 852h96v96h-96zM702 852h96v96h-96zM802 852h96v96h-96zM902 852h96v96h-96zM1002 852h96v96h-96zM1102 852h96v96h-96zM1202 852h96v96h-96zM402 952h96v96h-96zM502 952h96v96h-96zM602 952h96v96h-96zM702 952h96v96h-96zM802 952h96v96h-96zM902 952h96v96h-96zM1002 952h96v96h-96zM1102 952h96v96h-96zM1202 952h96v96h-96z" />
 <path d="M400 150h900v900h-900z" fill="none" stroke="hsl(220, 20%, 75%)" stroke-width="6" />
 <path d="M1300 750 1000 750 1000 850M800 150 800 250 1100 250 1100 350 1200 350 1200 450 1100 450 1100 750M1100 950 700 950 700 750 900 750 900 850 1100 850zM600 150 600 250 700 250 700 350 1000 350 1000 250M800 350 800 750M800 450 700 450 700 650 500 650 500 950 600 950M700 850 600 850 600 1050M500 450 500 550 700 550M400 450 600 450 600 350 500 350 500 150" fill="none" stroke="hsl(220, 20%, 75%)" stroke-width="4" />
-<image href="nun.svg" x="400" y="150" width="100" height="100" />
-<image href="nun.svg" x="900" y="250" width="100" height="100" />
-<image href="nun.svg" x="700" y="350" width="100" height="100" />
-<image href="nun.svg" x="1100" y="450" width="100" height="100" />
-<image href="nun.svg" x="800" y="550" width="100" height="100" />
-<image href="nun.svg" x="600" y="650" width="100" height="100" />
-<image href="nun.svg" x="1200" y="750" width="100" height="100" />
-<image href="nun.svg" x="1000" y="850" width="100" height="100" />
-<image href="nun.svg" x="500" y="950" width="100" height="100" />
+<use href="#nun-template" transform='translate(400, 150)' />
+<use href="#nun-template" transform='translate(900, 250)' />
+<use href="#nun-template" transform='translate(700, 350)' />
+<use href="#nun-template" transform='translate(1100, 450)' />
+<use href="#nun-template" transform='translate(800, 550)' />
+<use href="#nun-template" transform='translate(600, 650)' />
+<use href="#nun-template" transform='translate(1200, 750)' />
+<use href="#nun-template" transform='translate(1000, 850)' />
+<use href="#nun-template" transform='translate(500, 950)' />

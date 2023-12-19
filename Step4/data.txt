@@ -1,0 +1,15 @@
+{
+	"type": 3,
+	"n": [0, 14, 21, 43, 40, 56, 62, 66, 73, 27],
+	"v": {
+		"b": "_________________________________________________________________________________"
+	}
+}
+#
+<ul>
+	<li>Each nun has a teddy bear that belongs to another nun. They all want their teddy bears back.</li>
+	<li>They can be paired up into 5 pairs such that in each pair, both nuns have each other’s teddy bears.</li>
+	<li>Find a set of non-overlapping paths that will link each nun to their teddy bear.</li>
+	<li>The nun-bear links do not cross themselves, and they never make a direct U-turn (two adjacent 90° turns in the same direction).</li>
+	<li>Every square in the plot of land belongs to exactly one nun-bear link.</li>
+</ul>
