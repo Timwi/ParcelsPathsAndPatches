@@ -253,11 +253,15 @@
 				state = {};
 			if (!('steps' in state)) state.steps = [];
 
-			let last = JSON.stringify(state.steps[state.step]);
+			let last = JSON.stringify(state.steps[state.step]), lastUpdate = 0;
 
 			async function updateView(changes)
 			{
-				let updated = new Set(), sc = state.steps[state.step], s = sc.v;
+				lastUpdate = counter++;
+				counter %= 2147483647;
+
+				let updated = new Set(), sc = state.steps[state.step], s = sc.v, lu = lastUpdate;
+
 				function mk(id, elemName, attrs, content, parent)
 				{
 					updated.add(id);
@@ -625,9 +629,10 @@
 						`);
 					}
 
-				for (let obj of Array.from(document.querySelectorAll('#vis *,#input *')))
-					if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
-						obj.remove();
+				if (lastUpdate <= lu)
+					for (let obj of Array.from(document.querySelectorAll('#vis *,#input *')))
+						if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
+							obj.remove();
 
 				if (changes)
 				{
