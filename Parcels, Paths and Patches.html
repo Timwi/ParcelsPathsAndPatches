@@ -520,7 +520,7 @@
 								await makeNunWithLetter(i, `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
 							for (let i = 0; i < sc.d.length; i++)
 								mk(`d-${i}`, 'use', { href: '#drumkit', transform: `translate(${sqx(sc.d[i])} ${sqy(sc.d[i])})` });
-							let bt = makePath(sc.b, 'hsl(60, 30%, 40%)');
+							let bt = makePath(state.steps[state.step-3].v.b, 'hsl(60, 30%, 40%)');
 							mk('loop-2', 'path', { d: bt.getAttribute('d'), stroke: 'hsl(0, 30%, 40%)', 'stroke-width': 15, 'stroke-dasharray': '20 20', fill: 'none' });
 							break;
 
