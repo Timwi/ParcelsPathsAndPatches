@@ -1,10 +1,14 @@
 {
 	"type": 42,
+	"subtype": 1,
 	"n": [7, 3, 44, 33, 38, 20, 59, 30, 49, 55],
 	"l": "FCDTPAZPLZ",
 	"v": {
 		"b": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-		"d": [null, null, null, null, null, null, null, null, null, null]
+		"r": "          ",
+		"n": "          ",
+		"d": [],
+		"m": []
 	}
 }
 #
@@ -15,5 +19,8 @@
 </ul>
 <p class='fl'>I’m tellin’ ya... gee, linseed is so hard to find these days!</p>
 <p class='kbd'>
-	<span><kbd>dunno</kbd>	<span>dunno</span></span>
+	<span><kbd>middle-click</kbd> + <kbd>0</kbd>–<kbd>9</kbd> + <kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd><kbd>←</kbd> <span>set nun digit and direction</span></span>
+	<span><kbd>left-click</kbd>	<span>place drum kit</span></span>
+	<span><kbd>left-drag</kbd>	<span>draw path</span></span>
+	<span><kbd>right-click/drag</kbd>	<span>mark with dot</span></span>
 </p>

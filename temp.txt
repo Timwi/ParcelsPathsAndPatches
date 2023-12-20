@@ -172,38 +172,7 @@
                 ],
                 "l": "FCDTPAZPLZ"
             }
-        },
-        {
-            "type": 42,
-            "n": [
-                7,
-                3,
-                44,
-                33,
-                38,
-                20,
-                59,
-                30,
-                49,
-                55
-            ],
-            "l": "FCDTPAZPLZ",
-            "v": {
-			"b": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                "d": [
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                ]
-            }
         }
     ],
-    "step": 8
+    "step": 7
 }
