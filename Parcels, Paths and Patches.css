@@ -74,13 +74,14 @@ ul { margin: .5cm 0 1cm; margin-bottom: 2cm; }
 li { margin: .5cm 0; }
 
 #input path { fill: transparent; }
-#input path:hover { fill: hsla(220, 10%, 100%, .2); }
+#input path:hover { fill: hsla(220, 10%, 100%, .1); }
 
 .btn { cursor: pointer; }
 .btn .btn-text { transform: translate(1300px, 1300px) rotate(-10deg) scale(.75); transition: transform .1s; }
 .btn:hover .btn-text { transform: translate(1300px, 1300px) rotate(-10deg); }
 
-#copy:hover { filter: url(#shadow); transform: scale(1.2); }
+.ui-btn { transition: transform .1s ease-out; }
+.ui-btn:hover { filter: url(#shadow); transform: scale(1.2); }
 
 #vis>.thumbnail * { pointer-events: all; user-select: none; cursor: pointer; }
 .step-btn { transform: scale(.8); transition: transform .147s, opacity .147s; cursor: pointer; --hue: 220; }
@@ -96,7 +97,7 @@ li { margin: .5cm 0; }
 
 .nun { transition: transform .1s; }
 .nun.sel { transform: scale(1.25); filter: url(#shadow); }
-.nun text.q { animation: .47s ease-in-out alternate infinite pulsate-q; }
+text.q { animation: .47s ease-in-out alternate infinite pulsate-q; fill: hsl(38, 80%, 85%); stroke: hsl(38, 60%, 25%); paint-order: stroke; stroke-width: 10; text-anchor: middle; font-family: 'Work Sans'; font-weight: 700; }
 
 @keyframes pulsate-q {
 	0%	{ transform: scale(.7); }
