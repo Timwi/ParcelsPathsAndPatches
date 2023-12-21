@@ -1,0 +1,23 @@
+{
+	"type": 1,
+	"subtype": 1,
+	"b": "bbbbbhheebbbbbhheebbbbbhheeaaafdddeeaaafdddeeaaafdddeeaaaggggiiaaaggggjjcccggggjj",
+	"v": {
+		"b": "                                                                                 ",
+		"d": []
+	}
+}
+#
+<ul>
+	<li>The groundskeeper has subdivided the area into patches.</li>
+	<li>Plant seeds in some squares, but they need space, so don’t seed orthogonally adjacent squares.</li>
+	<li>The nuns need to be able to tend to the plants later, so make sure the unseeded area is contiguous.</li>
+	<li>If a patch contains a car, the number of seeds in that patch must equal the number of squares the car visited.</li>
+	<li>Make sure that every orthogonal line connecting unseeded squares through two or more patch boundaries contains at least one seed.</li>
+</ul>
+<p class='fl'>Oh, heya. ... Whaaa— Kayley?!</p>
+<p class='kbd'>
+	<span><kbd>left-click/drag</kbd>	<span>place seeds</span></span>
+	<span><kbd>right-click/drag</kbd>	<span>cross out</span></span>
+	<span><kbd>middle-click</kbd>	<span>place number</span></span>
+</p>

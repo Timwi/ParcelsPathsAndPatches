@@ -1,0 +1,24 @@
+{
+	"type": 42,
+	"n": [41, 0, 31, 69, 68, 27, 43, 46, 20, 36],
+	"d": [63, 49, 17, 29, 5, 55],
+	"c": [66, 4, 32, 22, 53],
+	"a": "ndc",
+	"l": "IFHYTFETREF FMSRRR RT",
+	"v": {
+		"b": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+	}
+}
+#
+<ul>
+	<li>The groundskeeper is back to do his round on his motorized lawn mower.</li>
+	<li>His route forms a closed, non-self-intersecting loop going through some squares in the grid.</li>
+	<li>The lawn mower will make a 90° turn on a square with a nun. It will not turn on the square immediately before or after.</li>
+	<li>The lawn mower will continue straight on a square with a car or a drum kit. If it went straight on the square immediately before, it makes a 90° turn immediately after.</li>
+	<li>The guy is not very good at his job because he missed a few spots.</li>
+</ul>
+<p class='fl'>The nuns are late for evening mass. You should hurry.</p>
+<p class='kbd'>
+	<span><kbd>0</kbd>–<kbd>9</kbd> <span>type</span></span>
+	<span><kbd>Enter</kbd> <span>submit</span></span>
+</p>

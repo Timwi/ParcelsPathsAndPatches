@@ -192,3 +192,4 @@
 	<use href="#nun-hand-left" transform="translate(473.6978073120117,	510) rotate(90)" />
 	<use href="#nun-hand-right" transform="translate(426.3022155761719,	510) rotate(-90)" />
 </g>
+<rect fill='white' fill-opacity='0' x='375' y='125' width='950' height='950' stroke='none' />

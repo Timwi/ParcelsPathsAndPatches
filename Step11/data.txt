@@ -20,5 +20,7 @@
 	<li>No two cars hit the same drum kit.</li>
 </ul>
 <p class='kbd'>
-	<span><kbd>?</kbd>	<span>?</span></span>
+	<span><kbd>left-drag</kbd>	<span>place car</span></span>
+	<span><kbd>left-click</kbd>	<span>rotate car</span></span>
+	<span><kbd>right-click</kbd>	<span>remove car</span></span>
 </p>

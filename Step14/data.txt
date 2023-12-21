@@ -1,0 +1,41 @@
+{
+	"type": 26,
+	"n": [7, 3, 44, 33, 38, 20, 59, 30, 49, 55],
+	"d": [0, 4, 8, 29, 54, 70],
+	"c": [21, 32, 37, 53, 66],
+	"a": "ndc",
+	"l": "IFHYTFETREF FMSRRR RT",
+	"z": true,
+	"v": {
+		"n": [7, 3, 44, 33, 38, 20, 59, 30, 49, 55],
+		"d": [0, 4, 8, 29, 54, 70],
+		"c": [21, 32, 37, 53, 66]
+	}
+}
+#
+<ol>
+	<li>D4 moves as far as she can in a straight line diagonally while staying on seeded squares.</li>
+	<li>The nun now immediately to her south makes a knight’s move to a “┌─” piece of the nun-bear link.</li>
+	<li>A nun currently standing on a vowel in the crossword moves immediately north of the previous via a knight’s move.</li>
+	<li>The only nun who sees a car somewhere east of her moves to the last vacated square.</li>
+	<li>The drum kit with the same letter as the previous move, moves to B7.</li>
+	<li>A1 moves in an orthogonal direction to the furthest unoccupied seeded square.</li>
+	<li>The only unlettered drum kit does likewise.</li>
+	<li>The car in the largest parcel moves to the last vacated square.</li>
+	<li>A nun moves west to be on an unoccupied square in the same column as the other nun with her letter.</li>
+	<li>G4 moves south as far as she can while still ending up on an unseeded square.</li>
+	<li>The only nun diagonal from her now, moves diagonally to an endpoint of a nun-bear link.</li>
+	<li>The only remaining drum kit able to move south one square, does so.</li>
+	<li>The only remaining nun able to move south-east three squares, does so.</li>
+	<li>A car moves to a seeded square where it is within two squares of two other cars with the same letter.</li>
+	<li>The only remaining item in column A moves to an unoccupied square at the top of a column containing exactly two seeded squares.</li>
+	<li>The car with the latest letter in the alphabet moves to the space last vacated by a car.</li>
+	<li>The last remaining lettered car moves to the square just vacated.</li>
+	<li>H1 reflects her position about the only point a knight’s move away that is a corner in a nun-bear link.</li>
+	<li>The last car moves to an unseeded R in the crossword that is not next to a P and not a straight segment of nun-bear link or barrier tape.</li>
+	<li>The last nun moves to E4.</li>
+</ol>
+<p class='kbd'>
+	<span><kbd>left-drag</kbd> <span>move things around</span></span>
+	<span><kbd>right-click</kbd> <span>move something back</span></span>
+</p>

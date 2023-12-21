@@ -1,0 +1,18 @@
+{
+	"type": 47,
+	"n": [41, 0, 31, 69, 68, 27, 43, 46, 20, 36],
+	"d": [63, 49, 17, 29, 5, 55],
+	"c": [66, 4, 32, 22, 53],
+	"v": {
+		"l": "IFHYTFETREF FMSRRR RT",
+		"b": ""
+	}
+}
+#
+<ul>
+	<li>This is a momentous occasion. Let’s chisel it into memory.</li>
+</ul>
+<p class='kbd'>
+	<span><kbd>0</kbd>–<kbd>9</kbd> <span>type</span></span>
+	<span><kbd>Enter</kbd> <span>submit</span></span>
+</p>

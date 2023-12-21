@@ -1,0 +1,20 @@
+{
+	"type": 26,
+	"n": [41, 0, 31, 69, 68, 27, 43, 46, 20, 36],
+	"d": [63, 49, 17, 29, 5, 55],
+	"c": [66, 4, 32, 22, 53],
+	"a": "ndc",
+	"z": true,
+	"v": {
+		"l": "IFHYTFETREF FMSRRR RT"
+	}
+}
+#
+<ul>
+	<li>Every third item moved in the previous step, beginning with the third, as well as items that did not move, Caesar shift their letters by +6 if it’s a nun or −1 if not. If a car drove through the square diagonally and then left the plot, the shift is reversed instead. On the center square of the 3×3 patch, it is doubled.</li>
+	<li>Every third item moved in the previous step, beginning with the last and going in reverse order, replace their letters to spell out the rank of Enrique Muniz, and then Caesar shift them by −4.</li>
+</ul>
+<p class='kbd'>
+	<span><kbd>middle-click</kbd> <span>change letter</span></span>
+	<span><kbd>space</kbd> <span>remove letter</span></span>
+</p>

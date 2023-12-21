@@ -3,8 +3,9 @@
 <head>
 	<link rel='stylesheet' type='text/css' href='Parcels,%20Paths%20and%20Patches.css'>
 	<script>
-		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5],
-			t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';');
+		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 12, 13],
+			t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';'),
+			ccs = [355, 30, 50, 100, 170, 200, 240, 280, 320];
 
 		let Easing = {
 			InQuad:	t => t * t,
@@ -231,11 +232,24 @@
 			{
 				if (Array.isArray(content))
 					elem.textContent = content[0];
-				else
+				else if (elem.PPPSauce !== content)
+				{
+					elem.PPPSauce = content;
 					elem.innerHTML = content;
+				}
 			}
 			return elem;
 		}
+
+		function sqxx(x)	{ return 400 + 100*x;	}
+		function sqx(i)	{ return sqxx(i%w);	}
+		function sqyy(y)	{ return 150 + 100*y;	}
+		function sqy(i)	{ return sqyy((i/w)|0);	}
+		function edxx(i)	{ return i < 0 ? null : i < 10 ? i-1 : i < 20 ? 9 : i < 30 ? 29-i : i < 40 ? -1 : null;	}
+		function edyy(i)	{ return i < 0 ? null : i < 10 ? -1 : i < 20 ? i-11 : i < 30 ? 9 : i < 40 ? 39-i : null;	}
+		function edx(i)	{ let r = edxx(i); return r === null ? null : 400 + 100*r;	}
+		function edy(i)	{ let r = edyy(i); return r === null ? null : 150 + 100*r;	}
+		function ed(x, y)	{ return y === -1 ? x+1 : x === w ? y+11 : y === h ? 29-x : x === -1 ? 39-y : null;	}
 
 		document.addEventListener('DOMContentLoaded', async function()
 		{
@@ -253,25 +267,28 @@
 				state = {};
 			if (!('steps' in state)) state.steps = [];
 
-			let last = JSON.stringify(state.steps[state.step]), lastUpdate = 0;
+			let last = JSON.stringify(state.steps[state.step]);
+			let mouseX = null, mouseY = null, mouseE = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
+			let mouseC = null, mouseI = null, mouseM = null, mouseK = null;
 
 			async function updateView(changes)
 			{
-				lastUpdate = counter++;
-				counter %= 2147483647;
+				let updated = new Set(), sc = state.steps[state.step], s = sc.v;
 
-				let updated = new Set(), sc = state.steps[state.step], s = sc.v, lu = lastUpdate;
+				let lis = Array.from(div.querySelectorAll('li'));
+				if ('j' in s)
+					for (let i = 0, v = s.j; i < lis.length; i++, v >>= 1)
+						if (v & 1) lis[i].classList.add('j');
+						else lis[i].classList.remove('j');
+				else
+					for (let li of lis)
+						li.classList.remove('j');
 
 				function mk(id, elemName, attrs, content, parent)
 				{
 					updated.add(id);
 					return make(id, elemName, attrs, content, parent);
 				}
-
-				function sqxx(x)	{ return 400 + 100*x;	}
-				function sqx(i)	{ return sqxx(i%w);	}
-				function sqyy(y)	{ return 150 + 100*y;	}
-				function sqy(i)	{ return sqyy((i/w)|0);	}
 
 				// Grid
 				for (let i = 0; i < w*h; i++)
@@ -296,12 +313,13 @@
 
 				function setupGridInput(fnc, numExtra)
 				{
-					for (let y = -1; y <= 10; y++)
-						for (let x = -1; x <= 10; x++)
+					for (let y = -1; y <= h; y++)
+						for (let x = -1; x <= w; x++)
 							if (fnc(x, y))
 								mk(`inp-${x}-${y}`, 'path', { d: `M${sqxx(x)} ${sqyy(y)}h100v100h-100z`, 'data-x': x, 'data-y': y }, null, input);
-					for (let i = 0; i < numExtra; i++)
-						mk(`inp-ex-${i}`, 'path', { d: `M100 ${100+200*i}h100v100h-100z`, 'data-e': ~i }, null, input);
+					if (numExtra !== undefined)
+						for (let i = 0; i < numExtra; i++)
+							mk(`inp-ex-${i}`, 'path', { d: `M100 ${100+200*i}h100v100h-100z`, 'data-e': ~i }, null, input);
 				}
 
 				function generatePatches(b)
@@ -318,11 +336,13 @@
 					return joinSegments(sgm, c => `${sqxx(c%W)} ${sqyy((c/W)|0)}`);
 				}
 
-				async function makeNunWithLetter(i, id, x, y, ltr, attrs)
+				async function makeItemWithLetter(t, id, x, y, ltr, attrs, cc, r)
 				{
-					let p = mk(id, 'g', attrs), hasLetter = !/^[_\s]*$/.test(ltr);
-					let nm1 = mk(`${id}-m1`, 'use', { '*href': hasLetter ? '#nun-no-arms-1' : '#nun-template', '*transform': `translate(${x}, ${y})` }, null, p);
-					if (hasLetter)
+					let p = mk(id, 'g', { '*transform-origin': `${x+50} ${y+50}`, ...attrs }), hasLetter = !/^[_\s]*$/.test(ltr);
+					let p2 = mk(`${id}-p2`, 'g', { '*transform-origin': `${x+50} ${y+50}` }, null, p);
+					let dic = { n: hasLetter ? '#nun-no-arms-1' : '#nun-template', d: '#drumkit', c: '#car' };
+					let nm = mk(`${id}-m`, 'use', { '*href': dic[t], '*transform': `translate(${x}, ${y})` }, null, p2);
+					if (hasLetter && t === 'n')
 					{
 						let l = mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
 							'*transform-origin': `${x+50} ${y+60}`,
@@ -334,7 +354,7 @@
 							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, ltr, p);
 						await document.fonts.ready;
 						let bb = l.getBBox();
-						p.appendChild(nm1);
+						p.appendChild(nm);
 						mk(`${id}-la1`, 'path', { '*d': `M${x+(2075+1142)*.02} ${y+2000*.02} C ${x+4100*.02} ${y+2750*.02} ${x+4100*.02} ${y+2750*.02} ${bb.x+bb.width} ${y+60}`, stroke: 'black', 'stroke-width': 8, fill: 'none' }, null, p);
 						mk(`${id}-la2`, 'path', { '*d': `M${x+(2075+1142)*.02} ${y+2000*.02} C ${x+4100*.02} ${y+2750*.02} ${x+4100*.02} ${y+2750*.02} ${bb.x+bb.width+5} ${y+60}`, stroke: '#272727', 'stroke-width': 5.2, fill: 'none' }, null, p);
 						mk(`${id}-ra1`, 'path', { '*d': `M${x+(608+1142)*.02} ${y+2000*.02} C ${x+900*.02} ${y+2750*.02} ${x+900*.02} ${y+2750*.02} ${bb.x} ${y+60}`, stroke: 'black', 'stroke-width': 8, fill: 'none' }, null, p);
@@ -344,6 +364,28 @@
 						mk(`${id}-lh`, 'use', { href: '#nun-hand-left',	'*transform': `translate(${bb.x+bb.width},	${y+60}) rotate(90)`	}, null, p);
 						mk(`${id}-rh`, 'use', { href: '#nun-hand-right',	'*transform': `translate(${bb.x},	${y+60}) rotate(-90)`	}, null, p);
 					}
+					else if (hasLetter)
+						mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
+							'*transform-origin': `${x+50} ${y+60}`,
+							'*class':	ltr === '?' ? 'q' : '',
+							'*y':	ltr === '?' ? y+110 : y+90,
+							'*font-size':	ltr === '?' ? 110 : 70,
+							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
+							'*stroke':	ltr === '?' ? 'hsl(38, 60%, 25%)' : 'black',
+							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, ltr, p);
+					if (cc !== undefined)
+						nm.setAttribute('filter', `hue-rotate(${ccs[cc % 9]-100}deg)`);
+					if (r !== undefined)
+						p2.setAttribute('transform', [
+							'rotate(-90)',
+							'rotate(-45)',
+							'rotate(0)',
+							'rotate(45)',
+							'rotate(90)',
+							'rotate(-45) scale(-1 1)',
+							'rotate(0) scale(-1 1)',
+							'rotate(45) scale(-1 1)'
+						][r]);
 					return p;
 				}
 
@@ -386,31 +428,22 @@
 
 						case 1:
 							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
-							mk('frame2', 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(sc.b) });
+							mk(`frame2-${sc.subtype}`, 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(sc.b) });
 							for (let i = 0; i < w*h; i++)
 								if (s.b[i] === 'X')
-									mk(`cl-${i}-1`, 'use', { href: '#nun-template', transform: `translate(${sqx(i)}, ${sqy(i)})` });
+									mk(`cl-${i}-1`, 'use', { '*href': ['#nun-template', '#seeds'][sc.subtype], transform: `translate(${sqx(i)}, ${sqy(i)})` });
 								else if (s.b[i] === '_')
 									mk(`cl-${i}-0`, 'path', { stroke: 'hsl(0, 100%, 75%)', 'stroke-width': 10, opacity: .25, fill: 'none', d: `m${sqx(i)+20} ${sqy(i)+20} 60 60m0-60-60 60` });
-							break;
-
-						case 2:
-							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
-							mk('frame2', 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(state.steps[state.step-2].b) });
-							for (let i = 0; i < s.n.length; i++)
-							{
-								let cx = sc.n[i] < 0 ? 100 : sqx(sc.n[i]), cy = sc.n[i] < 0 ? 100 + 200*~sc.n[i] : sqy(sc.n[i]);
-								let dx = s.n[i] < 0 ? 100 : sqx(s.n[i]), dy = s.n[i] < 0 ? 100 + 200*~s.n[i] : sqy(s.n[i]);
-								if (s.n[i] !== sc.n[i])
-								{
-									await makeNunWithLetter(i, `n-${i}-f`, cx, cy, s.l[i], { opacity: .25 });
-									mk(`n-${i}-a`, 'path', { '*d': `M${cx+50} ${cy+50} ${dx+50} ${dy+50}`, stroke: 'hsl(220, 20%, 80%)', 'stroke-width': '30', opacity: .2, fill: 'none', 'marker-end': 'url(#arrow-marker)' });
-								}
-								await makeNunWithLetter(i, `n-${i}-t`, dx, dy, s.l[i], { 'class': 'nun', '*transform-origin': `${dx+50} ${dy+50}` });
-							}
+							if (sc.subtype === 1)
+								for (let d of s.d)
+									mk(`cl-d-${d.i}${d.n === '?' ? 'q' : ''}`, 'text', d.n === '?'
+										? { x: sqx(d.i)+50, y: sqy(d.i)+80, 'font-family': 'Proxima', 'font-size': 90, 'class': 'q', 'transform-origin': `${sqx(d.i)+50} ${sqy(d.i)+60}` }
+										: { x: sqx(d.i)+50, y: sqy(d.i)+80, 'text-anchor': 'middle', 'font-size': 90, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 70%)', stroke: 'hsl(220, 10%, 10%)', 'stroke-width': 10, 'paint-order': 'stroke' },
+										[d.n]);
 							break;
 
 						case 3:
+							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
 							for (let i = 0; i < sc.n.length; i++)
 							{
 								let a = 'M', q = '', al = [];
@@ -425,12 +458,13 @@
 								let fi = sc.n[i], ar = 'M';
 								if (s.m[i] !== null)
 								{
-									await makeNunWithLetter(i, `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25 });
+									await makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25 });
 									fi = followPathI(fi, sc.m[s.m[i]], j => { ar += ` ${sqx(j)+50} ${sqy(j)+50}`; });
 									mk(`n-${i}-a`, 'path', { '*d': ar, fill: 'none', stroke: 'hsl(220, 20%, 80%)', 'stroke-width': '30', opacity: .2, 'marker-end': 'url(#arrow-marker)' });
 								}
-								await makeNunWithLetter(i, `n-${i}-t`, sqx(fi), sqy(fi), s.l[i],
-									{ 'class': 'nun', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` });
+								// (t, id, x, y, ltr, attrs, cc, r)
+								await makeItemWithLetter('n', `n-${i}-t`, sqx(fi), sqy(fi), s.l[i],
+									{ 'class': 'movable', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` });
 								if (s.k[i] !== null)
 								{
 									mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z',
@@ -516,23 +550,51 @@
 							break;
 
 						case 4:
-							for (let i = 0; i < sc.n.length; i++)
-								await makeNunWithLetter(i, `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
-							for (let i = 0; i < sc.d.length; i++)
-								mk(`d-${i}`, 'use', { href: '#drumkit', transform: `translate(${sqx(sc.d[i])} ${sqy(sc.d[i])})` });
 							let bt = makePath(state.steps[state.step-3].v.b, 'hsl(60, 30%, 40%)');
 							mk('loop-2', 'path', { d: bt.getAttribute('d'), stroke: 'hsl(0, 30%, 40%)', 'stroke-width': 15, 'stroke-dasharray': '20 20', fill: 'none' });
+							await makeItemWithLetter('c', 'c-e', 100, 100, '', {}, s.c.length);
+							for (let i = 0; i < s.c.length; i++)
+							{
+								if (s.c[i].i !== -1 && mouseI !== i)
+								{
+									let r = s.c[i].r, dx = [0, 1, 1, 1, 0, -1, -1, -1][r], dy = [-1, -1, 0, 1, 1, 1, 0, -1][r], x = edxx(s.c[i].i)+dx, y = edyy(s.c[i].i)+dy;
+									while (x >= 0 && x < w && y >= 0 && y < h && !sc.n.includes(x+w*y) && !sc.d.includes(x+w*y)) { x += dx; y += dy; }
+									mk(`c-${i}-a`, 'path', { opacity: .5, stroke: `hsl(${ccs[i%9]}, 80%, 80%)`, 'stroke-width': 25, '*d': `M${edx(s.c[i].i)+50} ${edy(s.c[i].i)+50} ${sqxx(x)+50} ${sqyy(y)+50}`, 'marker-end': 'url(#arrow-marker)' });
+								}
+								await makeItemWithLetter('c', `c-${i}`, edx(s.c[i].i) ?? 100, edy(s.c[i].i) ?? 100, '', { '*class': `movable${mouseI === i ? ' sel' : ''}` }, i, s.c[i].r);
+							}
+							for (let i = 0; i < sc.n.length; i++)
+								await makeItemWithLetter('n', `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
+							for (let i = 0; i < sc.d.length; i++)
+								await makeItemWithLetter('d', `d-${i}-t`, sqx(sc.d[i]), sqy(sc.d[i]));
 							break;
 
-						case 26: // cs
+						case 26: // move & ltrs
 							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
-							makePath(state.steps[step-1].v.b);
-							if (sc.n)
-								for (let i = 0; i < sc.n.length; i++)
-									await makeNunWithLetter(i, `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), s.l[i], { 'class': 'nun' });
-							if (sc.d)
-								for (let i = 0; i < sc.d.length; i++)
-									mk(`dr-${i}`, 'use', { href: '#drumkit', '*transform': `translate(${sqx(sc.d[i])} ${sqy(sc.d[i])})` });
+							if (sc.f)
+								mk('frame2', 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(state.steps[state.step-2].b) });
+							if (sc.p)
+								makePath(state.steps[step-1].v.b);
+							if (sc.z)
+							{
+								for (let x = 0; x < w; x++)
+									mk(`ch-${x}`, 'text', { x: sqxx(x)+50, y: 135, 'font-size': 32, 'font-family': 'Proxima', 'text-anchor': 'middle', fill: 'hsl(220, 15%, 60%)' }, [String.fromCharCode(65 + x)]);
+								for (let y = 0; y < h; y++)
+									mk(`rh-${y}`, 'text', { y: sqyy(y)+55, x: 385, 'font-size': 32, 'font-family': 'Proxima', 'text-anchor': 'end', fill: 'hsl(220, 15%, 60%)' }, [y + 1]);
+							}
+
+							for (let ai = 0, k = 0; k < sc.a.length; ai += sc[sc.a[k]].length, k++)
+								for (let i = 0, cn = sc[sc.a[k]], n = s[sc.a[k]]; i < cn.length; i++)
+								{
+									let cx = cn[i] < 0 ? 100 : sqx(cn[i]), cy = cn[i] < 0 ? 100 + 200*~cn[i] : sqy(cn[i]), dx = cx, dy = cy, l = (s.l ?? sc.l)[ai+i];
+									if (n && n[i] !== cn[i])
+									{
+										await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-f`, cx, cy, l, { opacity: .25 });
+										dx = n[i] < 0 ? 100 : sqx(n[i]); dy = n[i] < 0 ? 100 + 200*~n[i] : sqy(n[i]);
+										mk(`${sc.a[k]}-${i}-a`, 'path', { '*d': `M${cx+50} ${cy+50} ${dx+50} ${dy+50}`, stroke: 'hsl(220, 20%, 80%)', 'stroke-width': '30', opacity: .2, fill: 'none', 'marker-end': 'url(#arrow-marker)' });
+									}
+									await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-t`, dx, dy, l, { 'class': 'movable' });
+								}
 							break;
 
 						case 42: // paths
@@ -551,7 +613,7 @@
 							mk('loop', 'path', { fill: 'none', '*stroke': 'hsl(120, 60%, 75%)', 'stroke-width': 15, '*d': joinSegments(sgm, c => `${sqxx(c%w)+50} ${sqyy((c/w)|0)+50}`) });
 							if (sc.n)
 								for (let i = 0; i < sc.n.length; i++)
-									await makeNunWithLetter(i, `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
+									await makeItemWithLetter('n', `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
 
 							if (sc.subtype === 1)
 							{
@@ -564,28 +626,27 @@
 									let x = sqx(sc.n[ni]), y = sqy(sc.n[ni]);
 									switch (s.r[ni])
 									{
-										case '?': mk(`n-${ni}-yrq`, 'text', { 'class': 'q', x: x+75, y: y+90, '*transform-origin': `${x+75} ${y+90}`, 'font-size': 60 }, ['?']); break;
+										case '?': mk(`n-${ni}-yrq`, 'text', { 'class': 'q', x: x+75, y: y+90, '*transform-origin': `${x+75} ${y+90}`, 'font-size': 60, 'font-family': 'Work Sans', 'font-weight': 700 }, ['?']); break;
 										case '0': mk(`n-${ni}-yr`, 'path', { '*d': `M${x+80} ${y+80}v-60`,	stroke: 'white', 'stroke-width': 5, 'marker-end': 'url(#arrow-marker)' }); break;
 										case '1': mk(`n-${ni}-yr`, 'path', { '*d': `M${x+20} ${y+80}h60`,	stroke: 'white', 'stroke-width': 5, 'marker-end': 'url(#arrow-marker)' }); break;
 										case '2': mk(`n-${ni}-yr`, 'path', { '*d': `M${x+20} ${y+20}v60`,	stroke: 'white', 'stroke-width': 5, 'marker-end': 'url(#arrow-marker)' }); break;
 										case '3': mk(`n-${ni}-yr`, 'path', { '*d': `M${x+80} ${y+80}h-60`,	stroke: 'white', 'stroke-width': 5, 'marker-end': 'url(#arrow-marker)' }); break;
 									}
-									switch (s.n[ni])
+									switch (s.a[ni])
 									{
 										case ' ': break;
-										case '?': mk(`n-${ni}-ynq`, '*text', { 'class': 'q', x: x+25, y: y+90, '*transform-origin': `${x+25} ${y+90}`, 'font-size': 60 }, ['?']); break;
+										case '?': mk(`n-${ni}-ynq`, '*text', { 'class': 'q', x: x+25, y: y+90, '*transform-origin': `${x+25} ${y+90}`, 'font-size': 60, 'font-family': 'Work Sans', 'font-weight': 700 }, ['?']); break;
 										default:
 											let yx = '23'.includes(s.r[ni]) ? 80 : 20;
 											mk(`n-${ni}-yn`, '*text', {
 												x: x+yx, y: y+90, '*transform-origin': `${x+yx} ${y+90}`,
 												'font-family': 'Work Sans', 'font-weight': '700', 'font-size': 50, fill: 'hsl(60, 40%, 80%)',
 												stroke: 'hsl(60, 30%, 60%)', 'stroke-opacity': '.7', 'stroke-width': 7, 'paint-order': 'stroke', 'text-anchor': 'middle'
-											}, [s.n[ni]]);
+											}, [s.a[ni]]);
 											break;
 									}
 								}
 							}
-
 							break;
 
 						case 47: // momentous occasion
@@ -621,22 +682,23 @@
 
 					case 1:
 						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h);
-						showCheckBtn = s.b.replace(/[^X]/g, '').length === 9;
-						break;
-
-					case 2:
-						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h, 1);
-						showCheckBtn = !s.l.includes(' ') && !s.l.includes('?') && !s.n.includes(-1);
+						showCheckBtn = sc.subtype === 0 ? s.b.replace(/[^X]/g, '').length === 9 : true;
 						break;
 
 					case 3:
 						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h);
-						showCheckBtn = s.m.every(m => m !== null) && s.k.every(k => k !== null) && sc.a.length === sc.k.length;
+						showCheckBtn = s.m.every(m => m !== null) && s.k.every(k => k !== null) && s.k.every((_, ix) => typeof sc.a[ix] === 'string');
 						checkBtnTransform = 'translate(275, -125)';
 						break;
 
+					case 4:
+						setupGridInput((x, y) => x === -1 || x === w || y === -1 || y === h, 1);
+						showCheckBtn = s.c.length === 9;
+						checkBtnTransform = 'translate(200, 0)';
+						break;
+
 					case 26:
-						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h && sc.n.includes(x + w*y));
+						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h && (Array.from(sc.a).some(k => k in s || sc[k].includes(x + w*y))), sc.e);
 						showCheckBtn = true;
 						break;
 
@@ -664,35 +726,40 @@
 					mk('steps-bar', 'path', { fill: 'hsl(220, 10%, 20%)', d: 'M1450 0h1222v150H1450z' });
 					for (let i = 0; i < state.steps.length; i++)
 					{
-						mk(`step-${i}-btn`, 'g', { '*class': `step-btn${i === state.step ? ' sel' : ''}`, 'transform-origin': `${1525 + 80*i} 75` }, `
-							<circle cx='${1525 + 80*i}' cy='75' r='40' style='fill: hsl(var(--hue), 50%, 40%)' />
-							<circle cx='${1525 + 80*i}' cy='75' r='27' style='fill: hsl(var(--hue), 60%, 80%)' />
-							<circle cx='${1525 + 80*i}' cy='75' r='15' style='fill: hsl(var(--hue), 50%, 30%)' />`, input);
+						mk(`step-${i}-btn`, 'g', { '*class': `step-btn${i === state.step ? ' sel' : ''}`, 'transform-origin': `${1500 + 65*i} 75` }, `
+							<circle cx='${1500 + 65*i}' cy='75' r='35' style='fill: hsl(var(--hue), 50%, 40%)' />
+							<circle cx='${1500 + 65*i}' cy='75' r='23' style='fill: hsl(var(--hue), 60%, 80%)' />
+							<circle cx='${1500 + 65*i}' cy='75' r='13' style='fill: hsl(var(--hue), 50%, 30%)' />`, input);
 						document.getElementById(`step-${i}-btn`).onclick = (st => async () => { state.step = st; setupStep(...await loadStep(st)); })(i);
 					}
 				}
 
+				let thLater = [];
 				for (let thIx = 0; thIx < stepsWithThumbnails.length; thIx++)
-					if (state.steps.length > stepsWithThumbnails[thIx])
+					if (state.step >= stepsWithThumbnails[thIx])
 					{
-						let	th = stepsWithThumbnails[thIx], mx = 400, my = 150, tx = 1500, ty = 200 + 250*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950,
-							x3 = (x1-400)*2/9+1500, y3 = (y1-150)*2/9+200+250*thIx, x4 = (x2-400)*2/9+1500, y4 = (y2-150)*2/9+200+250*thIx;
-						mk(`thumbnail-${th}`, 'g',
-							{ 'class': 'thumbnail', transform: `translate(${tx}, ${ty}) scale(${2/9}) translate(${-mx}, ${-my})` },
-							await doFetch(thumbnailUrl(th)));
-						mk(`show-thumbnail-${th}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)` }, `
-							<use	opacity='.5'	href='#thumbnail-${th}' transform='translate(${mx}, ${my}) scale(${9/2}) translate(${-tx}, ${-ty})' />
-							<path	opacity='.2'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
-							<path	opacity='.2'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
-							<path	opacity='.3'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
-							<path	opacity='.3'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
-						`);
+						let	th = stepsWithThumbnails[thIx], mx = 850, my = 600, tx = 1600, ty = 300 + 250*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950, f = thIx === 3 ? 11 : 9;
+						if (thIx === 3) { x1 -= 100; y1 -= 100; x2 += 100; y2 += 100; }
+						let x3 = (x1-mx)*2/f+tx, y3 = (y1-my)*2/f+ty, x4 = (x2-mx)*2/f+tx, y4 = (y2-my)*2/f+ty;
+						let g = mk(`thumbnail-${th}`, 'g', { 'class': 'thumbnail', transform:
+							`translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` });
+						mk(`thumbnail-${th}-r`, 'g', { }, await doFetch(thumbnailUrl(th)), g);
+						thLater.push(() =>
+						{
+							mk(`show-thumbnail-${th}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)` }, `
+								<use	opacity='.5'	href='#thumbnail-${th}-r' />
+								<path	opacity='.2'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
+								<path	opacity='.2'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
+								<path	opacity='.3'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
+								<path	opacity='.3'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
+							`);
+						});
 					}
+				for (let thl of thLater) thl();
 
-				if (lastUpdate <= lu)
-					for (let obj of Array.from(document.querySelectorAll('#vis *,#input *')))
-						if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
-							obj.remove();
+				for (let obj of Array.from(document.querySelectorAll('#vis *,#input *')))
+					if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
+						obj.remove();
 
 				if (changes)
 				{
@@ -716,7 +783,7 @@
 				switch (sc.type)
 				{
 					case 0:
-						for (let e of Array.from(document.querySelectorAll('div.cw-c')))
+						for (let e of Array.from(div.querySelectorAll('div.cw-c')))
 							e.onclick = function()
 							{
 								if (inputBlocked)
@@ -728,6 +795,18 @@
 								return false;
 							};
 						break;
+
+					default:
+						let lis = Array.from(div.querySelectorAll('li'));
+						lis.forEach((li, ix) =>
+						{
+							li.onclick = function()
+							{
+								s.j = (s.j ?? 0) ^ (1 << ix);
+								updateView(true);
+							};
+						});
+						break;
 				}
 
 				localStorage.setItem('ppp-state', JSON.stringify(state));
@@ -736,22 +815,22 @@
 
 			function getAnswer(step)
 			{
-				let inf = state.steps[step-1];
-				switch (inf.type)
+				let sc = state.steps[step-1], s = sc.v;
+				switch (sc.type)
 				{
-					case 1:	return inf.v.b.replace(/ /g, '_');
-					case 2:	return [...inf.v.n, inf.v.l].join('-');
-					case 3:	return [...inf.v.m, ...inf.v.k, inf.v.l].join('-');
-					case 26:	return inf.v.l;
+					case 1:	return s.b.replace(/ /g, '_');
+					case 3:	return [...s.m, ...s.k, s.l].join('-');
+					case 4:	let t = s.c.slice(0); t.sort((a, b) => a.i-b.i); return t.map(c => `${c.i}-${c.r}`).join('-');
+					case 26:	let u = []; for (let k of sc.a) if (k in s) u.push(...s[k]); if ('l' in s) u.push(s.l.replace(/ /g, '_')); return u.join('-');
 					case 42:
-						switch (inf.subtype)
+						switch (sc.subtype)
 						{
-							case 1:	return `${inf.v.b}-${inf.v.n}-${inf.v.r}-${inf.v.d.join('-')}`;
-							default:	return inf.v.b;
+							case 1:	return `${s.b}-${s.a}-${s.r}-${s.d.join('-')}`;
+							default:	return s.b;
 						}
 						break;
 					default:
-						return inf.v.b;
+						return s.b;
 				}
 			}
 
@@ -879,11 +958,12 @@
 					let svg = await doFetch(thumbnailUrl(state.step + 1));
 					if (svg === null)
 						return;
-					let tt = make('temp-thumbnail', 'g', {}, svg);
+					let tt = make('temp-thumbnail', 'g', {}, svg), re = tt.querySelector('rect:last-child');
+					re.setAttribute('fill', 'white');
 					await coroutine('swoop-thumbnail', [
-						{ d: .47 },
-						{ d: .87, v: { x: [400, 1500], y: [150, 200 + 250*thIx], s: [1, 2/9] }, e: Easing.OutQuart,
-							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-400, -150)`); } }
+						{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuart, fn: t => { re.setAttribute('fill-opacity', t.o); } },
+						{ d: .87, v: { x: [850, 1600], y: [600, 300 + 250*thIx], s: [1, 2/(thIx === 3 ? 11 : 9)] }, e: Easing.OutQuart,
+							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-850, -600)`); } }
 					]);
 				}
 				inputBlocked = false;
@@ -892,12 +972,12 @@
 
 			setupStep(...await loadStep(state.step ?? 0));
 
-			document.body.addEventListener('keydown', function(e)
+			document.body.addEventListener('keydown', async function(e)
 			{
 				if (Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(document.activeElement)))
 					return true;
 
-				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`, m;
+				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`;
 
 				if (	keycombo === 'Ctrl+KeyZ'	|| keycombo === 'Alt+Backspace'	||	// Undo
 					keycombo === 'Ctrl+KeyY'	|| keycombo === 'Ctrl+Shift+KeyZ'	|| keycombo === 'Alt+Shift+Backspace')	// Redo
@@ -938,7 +1018,7 @@
 					if (keycombo === 'Enter' || keycombo === 'NumpadEnter')
 						return checkBtnPress();
 
-					let sc = state.steps[state.step], s = sc.v, changes = false;
+					let sc = state.steps[state.step], s = sc.v, changes = false, m;
 
 					switch (sc.type)
 					{
@@ -1013,10 +1093,18 @@
 							}
 							break;
 
-						case 2:
+						case 1:
+							let ri = s.d && s.d.findIndex(d => d.n === '?');
+							if (sc.subtype === 1 && ri >= 0 && ((m = /^Digit([0-9])$/.exec(keycombo)) || (m = /^Numpad([0-9])$/.exec(keycombo))))
+							{
+								s.d[ri].n = m[1]|0;
+								changes = true;
+							}
+							break;
+
 						case 3:
 						case 26:
-							let ni = s.l.indexOf('?');
+							let ni = 'l' in s ? s.l.indexOf('?') : -1;
 							if (ni >= 0 && (m = /^Key([A-Z])$/.exec(keycombo)))
 							{
 								s.l = setChar(s.l, ni, m[1]);
@@ -1032,10 +1120,10 @@
 						case 42:
 							if (sc.subtype === 1)
 							{
-								let sn = true, ni = s.n.indexOf('?');
+								let sn = true, ni = s.a.indexOf('?');
 								if (ni === -1) { sn = false; ni = s.r.indexOf('?'); }
 								if (sn && ni >= 0 && ((m = /^Digit([0-9])$/.exec(keycombo)) || (m = /^Numpad([0-9])$/.exec(keycombo))))
-									s.n = setChar(s.n, ni, m[1]);
+									s.a = setChar(s.a, ni, m[1]);
 								else if (!sn && ni >= 0 && (m = /^Arrow(Up|Right|Down|Left)$/.exec(keycombo)))
 								{
 									s.r = setChar(s.r, ni, `${["Up", "Right", "Down", "Left"].indexOf(m[1])}`);
@@ -1067,7 +1155,7 @@
 				return false;
 			});
 
-			function maybeUpdateView(changes)
+			async function maybeUpdateView(changes)
 			{
 				// Sneaky: if the user is viewing an already completed step, pretend no changes were made
 				if (changes && state.step < state.steps.length - 1)
@@ -1075,32 +1163,72 @@
 					state.steps[state.step].v = JSON.parse(last);
 					changes = false;
 				}
-				updateView(changes);
+				await updateView(changes);
 			}
 
-			let mouseX = null, mouseY = null, mouseE = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
-			let mouseC = null, mouseI = null, mouseM = null;
+			function get(s, sc, i)
+			{
+				for (let j = 0, ad = 0, ii = 0; j < sc.a.length; j++)
+					if ((ii = (s[sc.a[j]] ?? sc[sc.a[j]]).indexOf(i)) >= 0) return [j, sc.a[j], ii + ad, ii];
+					else ad += sc[sc.a[j]].length;
+				return [-1, null, -1, -1];
+			}
 
-			function click(x, y, e, btns)
+			async function click(x, y, e, btns)
 			{
 				//console.log('click', arguments);
 				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y;
 				let ni = 'n' in sc ? sc.n.indexOf(i) : 'n' in s ? s.n.indexOf(i) : null;
 				switch (sc.type)
 				{
-					case 2:
-						if (ni >= 0 && (btns & 2)) { s.n[ni] = sc.n[ni]; changes = true; }
-						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
+					case 1:
+						let ri = sc.b.indexOf(sc.b[i]);
+						if (sc.subtype === 1 && (btns & 4) && ri >= 0)
+						{
+							sc.v = JSON.parse(last);
+							let ai = s.d.findIndex(d => d.i === ri);
+							if (ai >= 0) sc.v.d[ai].n = '?';
+							else sc.v.d.push({ i: ri, n: '?' });
+						}
 						break;
+
 					case 3:
 						ni = s.m.findIndex((a, ix) => (a === null ? sc.n[ix] : followPathI(sc.n[ix], sc.m[a])) === i);
 						if (ni >= 0 && (btns & 1)) { s.k[ni] = s.k[ni] === null ? document.querySelector('#ans-chk select').selectedIndex : null; changes = true; }
 						if (ni >= 0 && (btns & 2)) { s.m[ni] = null; changes = true; }
 						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
 						break;
-					case 26:
-						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
+
+					case 4:
+						if (e === null && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c.i === i)) >= 0)
+						{
+							if (btns & 1)
+							{
+								let allowed =	i === 0	? [3]	:
+									i < 10	? [3, 4, 5]	:
+									i === 10	? [5]	:
+									i < 20	? [5, 6, 7]	:
+									i === 20	? [7]	:
+									i < 30	? [7, 0, 1]	:
+									i === 30	? [1]	: [1, 2, 3], v = s.c[ni].r;
+								do { s.c[ni].r = (s.c[ni].r + 1) % 8; }
+								while (!allowed.includes(s.c[ni].r));
+								changes = s.c[ni].r !== v;
+							}
+							if (btns & 2)
+							{
+								s.c.splice(ni, 1);
+								changes = true;
+							}
+						}
 						break;
+
+					case 26:
+						let [j, k, ai, ii] = get(s, sc, i);
+						if (ai >= 0 && (btns & 2) && k in s) { s[k][ii] = sc[k][ii]; changes = true; }
+						if (ai >= 0 && (btns & 4) && 'l' in s) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ai, '?'); }
+						break;
+
 					case 42:
 						switch (sc.subtype)
 						{
@@ -1126,16 +1254,16 @@
 								if (ni >= 0 && (btns & 4))
 								{
 									sc.v = JSON.parse(last);
-									sc.v.n = setChar(sc.v.n, ni, '?');
+									sc.v.a = setChar(sc.v.a, ni, '?');
 									sc.v.r = setChar(sc.v.r, ni, '?');
 								}
 								break;
 						}
 						break;
 				}
-				maybeUpdateView(changes);
+				await maybeUpdateView(changes);
 			}
-			function startDrag(x, y, e, btns)
+			async function startDrag(x, y, e, btns)
 			{
 				//console.log('startDrag', arguments);
 				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y, ni;
@@ -1144,17 +1272,11 @@
 					case 0: if (btns & 1) s.v = s.i === (s.i = i) !== s.v; break;
 
 					case 1:
-						let wa = (btns & 2) ? '_' : 'X';
-						s.b = setChar(s.b, i, s.b[i] === wa ? ' ' : wa);
-						changes = true;
-						break;
-
-					case 2:
-						ni = s.n.indexOf(i);
-						if (ni !== -1 && (btns & 1))
+						let wa = (btns & 2) ? '_' : (btns & 1) ? 'X' : null;
+						if (wa !== null)
 						{
-							document.getElementById(`n-${ni}-t`).classList.add('sel');
-							mouseI = ni;
+							s.b = setChar(s.b, i, s.b[i] === wa ? ' ' : wa);
+							changes = true;
 						}
 						break;
 
@@ -1175,23 +1297,45 @@
 						}
 						break;
 
+					case 4:
+						if ((btns & 1) && e === -1)
+						{
+							mouseI = s.c.length;
+							s.c.push({ i: mouseM = -1, r: 2 });
+						}
+						else if ((btns & 1) && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c.i === i)) >= 0)
+						{
+							mouseI = ni;
+							mouseM = i;
+						}
+						break;
+
+					case 26:
+						let [j, k, ai, ii] = get(s, sc, i);
+						if (ai >= 0 && (btns & 1) && k in s)
+						{
+							document.getElementById(`${k}-${ii}-t`).classList.add('sel');
+							mouseK = k;
+							mouseI = ii;
+						}
+						break;
+
 					case 42:
 						if (sc.subtype === 1 && (btns & 2))
 							mouseM = !s.m.includes(i);
 						break;
 				}
-				maybeUpdateView(changes);
+				await maybeUpdateView(changes);
 			}
-			function drag(origX, origY, origE, fromX, fromY, fromE, x, y, e, btns)
+			async function drag(origX, origY, origE, fromX, fromY, fromE, x, y, e, btns)
 			{
 				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y, fi = fromE ?? fromX + w*fromY, oi = origE ?? origX + w*origY;
 				//console.log('drag', arguments, '█', i, fi, oi);
 
 				switch (sc.type)
 				{
-					case 0: return click(x, y, e, btns);
+					case 0: await click(x, y, e, btns); break;
 					case 1: changes = s.b[i] !== s.b[fi]; s.b = setChar(s.b, i, s.b[fi]); break;
-					case 2: s.n[mouseI] = i; break;
 
 					case 3:
 						if (i === sc.n[mouseI])
@@ -1205,6 +1349,16 @@
 								s.m[mouseI] = mi;
 								break;
 							}
+						break;
+
+					case 4:
+						if (mouseI !== null && (btns & 1))
+							s.c[mouseI].i = (i = ed(x, y)) !== null ? i : -1;
+						break;
+
+					case 26:
+						if (btns & 1)
+							s[mouseK][mouseI] = i;
 						break;
 
 					case 42:
@@ -1240,22 +1394,16 @@
 						}
 						break;
 				}
-				maybeUpdateView(changes);
+				await maybeUpdateView(changes);
 			}
-			function endDrag(origX, origY, origE, x, y, e)
+			async function endDrag(origX, origY, origE, x, y, e)
 			{
 				//console.log('endDrag', arguments);
 				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y, oi = origE ?? origX + w*origY;
 				switch (sc.type)
 				{
-					case 2:
-						for (let nu of document.querySelectorAll('.nun'))
-							nu.classList.remove('sel');
-						changes = i !== oi;
-						break;
-
 					case 3:
-						for (let nu of document.querySelectorAll('.nun'))
+						for (let nu of document.querySelectorAll('.movable'))
 							nu.classList.remove('sel');
 						for (let tg of Array.from(document.querySelectorAll('.tg')))
 							tg.classList.remove('tg');
@@ -1267,30 +1415,62 @@
 									if (s.m[j2] !== null && s.m[j2] < s.m[j1] && sc.m[s.m[j1]] === sc.m[s.m[j2]])
 										[s.m[j1], s.m[j2]] = [s.m[j2], s.m[j1]];
 						break;
+
+					case 4:
+						if (mouseI !== null)
+						{
+							i = s.c[mouseI].i;
+							changes = i !== mouseM;
+							if (i === -1)
+								s.c.splice(mouseI, 1);
+							else
+							{
+								let allowed =	i === 0	? [3]	:
+									i < 10	? [3, 4, 5]	:
+									i === 10	? [5]	:
+									i < 20	? [5, 6, 7]	:
+									i === 20	? [7]	:
+									i < 30	? [7, 0, 1]	:
+									i === 30	? [1]	: [1, 2, 3];
+								if (!allowed.includes(s.c[mouseI].r))
+									s.c[mouseI].r = allowed[0];
+							}
+						}
+						break;
+
+					case 26:
+						for (let nu of document.querySelectorAll('.movable'))
+							nu.classList.remove('sel');
+						changes = i !== oi;
+						break;
 				}
-				mouseI = mouseM = null;
-				maybeUpdateView(changes);
+				mouseI = mouseM = mouseK = null;
+				await maybeUpdateView(changes);
 			}
 
-			document.body.addEventListener('mousedown', function(e)
+			document.body.addEventListener('mousedown', async function(e)
 			{
 				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
+					return true;
+				if (Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(e.target)))
 					return true;
 				mouseStartX = mouseX = e.target.dataset.x|0;
 				mouseStartY = mouseY = e.target.dataset.y|0;
 				mouseStartE = mouseE = 'e' in e.target.dataset ? e.target.dataset.e|0 : null;
 				mouseC = e.buttons;
-				startDrag(mouseX, mouseY, mouseE, e.buttons);
 				e.preventDefault();
+				await startDrag(mouseX, mouseY, mouseE, e.buttons);
 				return false;
 			});
-			document.body.addEventListener('mouseup', function(e)
+			document.body.addEventListener('mouseup', async function(e)
 			{
 				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
 					return true;
-				endDrag(mouseStartX, mouseStartY, mouseStartE, mouseX, mouseY, mouseE);
+				if (Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(e.target)))
+					return true;
+				await endDrag(mouseStartX, mouseStartY, mouseStartE, mouseX, mouseY, mouseE);
 				if (mouseC !== null)
-					click(mouseX, mouseY, mouseE, mouseC);
+					await click(mouseX, mouseY, mouseE, mouseC);
 				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = mouseC = null;
 			});
 
@@ -1648,6 +1828,20 @@
 				<path fill="url(#car-svg-J)" d="M156.36 360.8c-24.94-2.75-64.16 15.23-72.43 55.44 39.7-71.3 101.35-40.66 103.17-43.96a65.14 65.14 0 0 0-30.74-11.49Z" color="#000" opacity=".97"/>
 				<path fill="url(#car-svg-K)" d="M526.98 358.24c-24.95-2.74-64.17 15.24-72.43 55.44 39.7-71.28 101.34-40.65 103.16-43.95a65.14 65.14 0 0 0-30.73-11.49z" color="#000" opacity=".97"/>
 				<path fill="#fff" d="M444.77 451.66c-38.05 1.2-76.15.34-114.22.76-30.1.12-60.52-.19-90.45.64-4.77 4.32-.09 3.8 4.48 3.5 67.24-.37 134.48-.03 201.72-.15-.57-1.13.35-4.79-1.53-4.75z" color="#000" opacity=".15"/>
+			</g>
+			<filter id="seed-a" x="-100%" y="-100%" width='200%' height='200%'>
+				<feGaussianBlur result="fbSourceGraphic" stdDeviation="4 4"/>
+			</filter>
+			<g id='seeds'>
+				<path d="M22.6 66.17c-5.08-.1-16.07-2.1-18-4.6-1.93-2.51-1.27-3.92 2.3-7.94 3.59-4.02 14.77-10.95 19.76-11.66 5-.72 9.45 2.16 11.52 6.17a13.03 13.03 0 0 1-1.32 13.82c-3.29 4.1-9.18 4.32-14.26 4.2ZM28.28 75.4c3.91 3.24 11.27 11.63 11.22 14.8-.04 3.17-1.44 3.86-6.75 4.78-5.3.92-18.36-.62-22.71-3.17-4.36-2.54-6.06-7.57-5.18-12 .88-4.43 4.5-8.82 9.63-10 5.14-1.16 9.88 2.34 13.79 5.59ZM45.7 88.73c-3.77-3.4-10.79-12.09-10.61-15.25.18-3.16 1.6-3.8 6.94-4.5 5.33-.7 18.32 1.37 22.57 4.08 4.24 2.72 5.74 7.81 4.68 12.2a13.03 13.03 0 0 1-10.02 9.6c-5.18.96-9.78-2.73-13.55-6.13ZM45.97 54.06c-1.32-4.91-2.5-16.01-.64-18.57 1.87-2.56 3.4-2.32 8.27-.01 4.86 2.3 14.65 11.09 16.74 15.68 2.1 4.58.58 9.67-2.69 12.79a13.03 13.03 0 0 1-13.62 2.61c-4.88-2-6.73-7.6-8.06-12.5ZM49.16 4.93c5.01-.82 16.18-.87 18.53 1.25 2.36 2.11 1.96 3.62-.82 8.22-2.79 4.6-12.52 13.46-17.3 15.07-4.77 1.62-9.68-.4-12.45-3.97a13.03 13.03 0 0 1-1.22-13.82c2.48-4.65 8.24-5.93 13.26-6.75ZM6.04 21.44c.88-5 4.5-15.56 7.28-17.09 2.78-1.52 4.07-.65 7.5 3.5 3.43 4.14 8.57 16.25 8.52 21.29-.04 5.04-3.57 9.01-7.85 10.45a13.03 13.03 0 0 1-13.45-3.4c-3.57-3.88-2.88-9.74-2-14.75ZM73.8 74.02c1.13-4.95 5.3-15.3 8.15-16.69 2.85-1.38 4.1-.45 7.3 3.87 3.22 4.32 7.73 16.68 7.42 21.71-.31 5.03-4.04 8.82-8.39 10.03a13.03 13.03 0 0 1-13.26-4.1c-3.36-4.05-2.36-9.87-1.23-14.82ZM90.88 36.46c-2.8 4.23-10.37 12.45-13.52 12.74-3.16.28-4-1.03-5.47-6.21-1.48-5.18-1.33-18.33.73-22.93 2.07-4.6 6.9-6.82 11.39-6.41 4.5.4 9.25 3.52 10.96 8.5 1.7 4.99-1.27 10.08-4.09 14.31Z"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="matrix(.3747 -.24322 .24322 .3747 22.04 72.68)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="matrix(.44672 -.00086 .00086 .44672 34.8 27.74)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(-.44672) rotate(-35.3 -377.06 83.66)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(-.44672) rotate(-84.3 -81.25 98.5)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(-.44672) rotate(48.6 66.4 -264.18)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(.44672) rotate(-73.79 97.12 86.43)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(.44672) rotate(24.95 43.97 27.8)"/>
+				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(.44672) rotate(27.91 -119.7 394.6)"/>
 			</g>
 		</defs>
 		<g id='ui'>
