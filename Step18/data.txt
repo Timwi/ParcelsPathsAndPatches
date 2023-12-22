@@ -1,0 +1,24 @@
+{
+	"type": 26,
+	"n": [41, 0, 31, 69, 68, 27, 43, 46, 20, 36],
+	"d": [63, 49, 17, 29, 5, 55],
+	"c": [66, 4, 32, 22, 53],
+	"a": "ndc",
+	"z": true,
+	"p": 1,
+	"l": "ULYYTLSTRJE ELTWNI AT",
+	"v": {
+		"l": "ULYYTLSTRJE ELTWNI AT"
+	}
+}
+#
+<ul>
+	<li>Everyone suddenly remembers last night when they were watching the last episode that involves Kor. In reading order, everything is relettered to spell out its title.</li>
+	<li>Somehow we’ve run out of C’s, so those are now unlettered instead.</li>
+	<li>We couldn’t find any H’s, so we’re using Y’s instead.</li>
+	<li>The nun in column H gets really confused. She and the car diagonal from her instead take the (previous) letter from the nun and car in the first row, respectively, while the nun 2 spaces from her didn’t get the memo and keeps her previous letter.</li>
+</ul>
+<p class='kbd'>
+	<span><kbd>middle-click</kbd> <span>change letter</span></span>
+	<span><kbd>space</kbd> <span>remove letter</span></span>
+</p>

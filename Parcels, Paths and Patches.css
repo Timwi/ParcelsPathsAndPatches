@@ -84,7 +84,7 @@ li { margin: .5cm 0; }
 .ui-btn { transition: transform .1s ease-out; }
 .ui-btn:hover { filter: url(#shadow); transform: scale(1.2); }
 
-#vis>.thumbnail * { pointer-events: all; user-select: none; cursor: pointer; }
+#vis>g>.thumbnail * { pointer-events: all; user-select: none; cursor: pointer; }
 .step-btn { transform: scale(.8); transition: transform .147s, opacity .147s; cursor: pointer; --hue: 220; }
 .step-btn:hover { transform: none; --hue: 210; }
 .step-btn.sel { --hue: 70; }
