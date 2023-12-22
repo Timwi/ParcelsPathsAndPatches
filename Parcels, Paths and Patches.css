@@ -115,7 +115,7 @@ p.kbd kbd+span { margin-right: .4cm; }
 p.kbd > span { white-space: nowrap; }
 
 .cs { text-align: center; width: 100%; border-collapse: collapse; margin-bottom: 2cm; }
-.cs td { height: 2cm; min-width: 1.5cm; }
+.cs td { height: 2.5cm; min-width: 1.5cm; }
 .cs td.h { background-color: hsl(222, 10%, 15%); }
 .cs td.up>span { text-orientation: mixed; writing-mode: vertical-rl; transform: rotate(180deg); }
 
@@ -127,10 +127,14 @@ path.tg { animation: .47s ease-in-out alternate infinite pulsate-tg; }
 }
 
 .ar .q	{	fill: hsl(220, 10%, 25%); }
-.ar .a	{	fill: none; stroke: hsl(220, 20%, 80%); stroke-width: .3; opacity: .2; marker-end: url(#arrow-marker); }
+.ar .a	{	opacity: .2; }
+.ar .a>path:first-child	{	fill: none; stroke: hsl(220, 20%, 80%); stroke-width: .3; }
+.ar .a>path:last-child	{	fill: hsl(220, 20%, 80%); stroke-width: .3; }
 .ar text	{	fill: hsl(120, 80%, 80%); opacity: 0; font-size: 1px; font-weight: 900; text-anchor: middle; }
 .ar.u .q	{	fill: hsl(120, 20%, 25%); }
-.ar.u .a	{	stroke: hsl(120, 40%, 70%); opacity: .5; }
+.ar.u .a	{	opacity: .5; }
+.ar.u .a>path:first-child	{	stroke: hsl(120, 40%, 70%); }
+.ar.u .a>path:last-child	{	fill: hsl(120, 40%, 70%); }
 .ar.u text	{	opacity: 1; }
 
 #ans-chk>div	{ padding: 0; }

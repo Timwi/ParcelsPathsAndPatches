@@ -19,10 +19,10 @@
 	<li>One of the nuns from the median-length nun-bear link likes <cite>The Tailor</cite>. Her path crosses the stopping square of one of the nuns who walked the least, but not the one who likes <cite>The Klingon Afterlife</cite>.</li>
 	<li>One of the nuns who starts in the leftmost column likes <cite>Ezri’s Prior Host</cite>.</li>
 	<li>The nun who likes <cite>Gint’s Legacy</cite>, walks the same total distance as the one who likes <cite>Lwaxana’s Home</cite>, who in turn takes a right-turn during her walk.</li>
-	<li>The nun who likes <cite>Spicy Food</cite> crosses paths with the one who likes <cite>Kai Winn’s Predecessor</cite>, who in turn does not have a vowel on the other end of their nun-bear link.</li>
+	<li>The nun who likes <cite>Spicy Food</cite> crosses paths with (but does not end up on the path of) the one who likes <cite>Kai Winn’s Predecessor</cite>, who in turn does not have a vowel on the other end of their nun-bear link.</li>
 	<li>The nun who likes <cite>The 60s Entertainer</cite> has a letter earlier in the alphabet than her nun-bear link partner.</li>
 	<li>The paths walked by the nun with the Y and the nun who likes <cite>Vedek Antos</cite>, do not cross any other nuns’ paths.</li>
-	<li>Each nun replaces their letter with a new one based on the thing they like and the total distance they walked in this step.</li>
+	<li>Each nun replaces their letter with one from the thing they like based on the total distance they walked in this step.</li>
 </ul>
 <p class='kbd'>
 	<span><kbd>left-click</kbd>	<span>set nun’s like to drop-down item</span></span>

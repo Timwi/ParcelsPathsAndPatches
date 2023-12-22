@@ -80,25 +80,33 @@
 <path d="M1002 952h96v96h-96z" fill="hsl(220, 10%, 20%)" />
 <path d="M1102 952h96v96h-96z" fill="hsl(220, 10%, 20%)" />
 <path d="M1202 952h96v96h-96z" fill="hsl(220, 10%, 20%)" />
-<path fill="none" stroke-width="15" stroke="hsl(60, 30%, 40%)" d="M1250 1000 450 1000 450 900 650 900 650 700 450 700 450 500 550 500 550 400 450 400 450 300 550 300 550 200 650 200 650 300 950 300 950 200 1050 200 1050 300 1250 300 1250 500 1150 500 1150 400 850 400 850 600 750 600 750 800 850 800 850 900 1050 900 1050 700 950 700 950 600 1150 600 1150 800 1250 800 1250 900z" />
-<path d="M1250 1000 450 1000 450 900 650 900 650 700 450 700 450 500 550 500 550 400 450 400 450 300 550 300 550 200 650 200 650 300 950 300 950 200 1050 200 1050 300 1250 300 1250 500 1150 500 1150 400 850 400 850 600 750 600 750 800 850 800 850 900 1050 900 1050 700 950 700 950 600 1150 600 1150 800 1250 800 1250 900z" stroke="hsl(0, 30%, 40%)" stroke-width="15" stroke-dasharray="20 20" fill="none" />
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M550 100 950 500" />
+<path fill="none" stroke-width="15" stroke="hsl(120, 15%, 40%)" d="M1250 1000 450 1000 450 900 650 900 650 700 450 700 450 500 550 500 550 400 450 400 450 300 550 300 550 200 650 200 650 300 950 300 950 200 1050 200 1050 300 1250 300 1250 500 1150 500 1150 400 850 400 850 600 750 600 750 800 850 800 850 900 1050 900 1050 700 950 700 950 600 1150 600 1150 800 1250 800 1250 900z" />
+<g opacity="0.5"><path d="M550 100 950 500" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(950 500) rotate(45) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="550 100" transform="rotate(45)"><use href="#car" transform="translate(500, 50)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M850 100 1350 600" />
+<g opacity="0.5"><path d="M850 100 1350 600" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(1350 600) rotate(45) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="850 100" transform="rotate(45)"><use href="#car" transform="translate(800, 50)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M350 300 1350 300" />
-<g transform-origin="350 300" transform="rotate(0)"><use href="#car" transform="translate(300, 250)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M1350 500 950 100" />
+<g opacity="0.5"><path d="M1350 500 950 100" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(950 100) rotate(-135) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="1350 500" transform="rotate(45) scale(-1 1)"><use href="#car" transform="translate(1300, 450)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M1350 1000 750 400" />
+<g opacity="0.5"><path d="M1350 1000 750 400" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(750 400) rotate(-135) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="1350 1000" transform="rotate(45) scale(-1 1)"><use href="#car" transform="translate(1300, 950)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M1250 1100 1250 700" />
+<g opacity="0.5"><path d="M1250 1100 1250 700" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(1250 700) rotate(-90) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="1250 1100" transform="rotate(-90)"><use href="#car" transform="translate(1200, 1050)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M1050 1100 550 600" />
+<g opacity="0.5"><path d="M1050 1100 550 600" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(550 600) rotate(-135) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="1050 1100" transform="rotate(45) scale(-1 1)"><use href="#car" transform="translate(1000, 1050)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M350 1000 1350 1000" />
+<g opacity="0.5"><path d="M350 1000 1350 1000" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(1350 1000) rotate(0) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="350 1000" transform="rotate(0)"><use href="#car" transform="translate(300, 950)" /></g>
-<path opacity="0.5" stroke="hsl(220, 20%, 70%)" stroke-width="25" marker-end="url(#arrow-marker)" d="M350 500 750 900" />
+<g opacity="0.5"><path d="M350 300 1350 300" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(1350 300) rotate(0) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
+<g transform-origin="350 300" transform="rotate(0)"><use href="#car" transform="translate(300, 250)" /></g>
+<g opacity="0.5"><path d="M350 500 750 900" stroke-width="25" fill="none" stroke="hsl(100, 80%, 80%)" />
+<path d="M-.2 0-1.6 .7V-.7z" transform="translate(750 900) rotate(45) scale(50) translate(.7 0)" fill="hsl(100, 80%, 80%)" /></g>
 <g transform-origin="350 500" transform="rotate(45)"><use href="#car" transform="translate(300, 450)" /></g>
 <g transform-origin="1150 200"><use href="#nun-no-arms-1" transform="translate(1100, 150)" />
 <path stroke="black" stroke-width="8" fill="none" d="M1164.34 190 C 1182 205 1182 205 1161.126293182373 210" />
@@ -190,15 +198,15 @@
 <text font-family="Work Sans" font-weight="700" paint-order="stroke" stroke-width="10" text-anchor="middle" x="550" transform-origin="550 810" class="" y="840" font-size="70" fill="hsl(0, 0%, 85%)" stroke="black">E</text>
 <use href="#nun-hand-left" transform="translate(572.0842475891113,	810) rotate(90)" />
 <use href="#nun-hand-right" transform="translate(527.9157104492188,	810) rotate(-90)" /></g>
-<use href="#drumkit" transform="translate(400 150)" />
-<use href="#drumkit" transform="translate(800 150)" />
-<use href="#drumkit" transform="translate(1200 150)" />
-<use href="#drumkit" transform="translate(700 350)" />
-<use href="#drumkit" transform="translate(600 450)" />
-<use href="#drumkit" transform="translate(900 450)" />
-<use href="#drumkit" transform="translate(500 550)" />
-<use href="#drumkit" transform="translate(1200 650)" />
-<use href="#drumkit" transform="translate(400 750)" />
-<use href="#drumkit" transform="translate(700 850)" />
-<use href="#drumkit" transform="translate(1100 850)" />
+<use href="#drumkit" transform="translate(400, 150)" />
+<use href="#drumkit" transform="translate(800, 150)" />
+<use href="#drumkit" transform="translate(1200, 150)" />
+<use href="#drumkit" transform="translate(700, 350)" />
+<use href="#drumkit" transform="translate(600, 450)" />
+<use href="#drumkit" transform="translate(900, 450)" />
+<use href="#drumkit" transform="translate(500, 550)" />
+<use href="#drumkit" transform="translate(1200, 650)" />
+<use href="#drumkit" transform="translate(400, 750)" />
+<use href="#drumkit" transform="translate(700, 850)" />
+<use href="#drumkit" transform="translate(1100, 850)" />
 <rect fill='white' fill-opacity='0' x='275' y='25' width='1150' height='1150' stroke='none' />

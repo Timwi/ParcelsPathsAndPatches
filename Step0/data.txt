@@ -15,7 +15,7 @@
 		<div class='cw-c' data-cell='→9'><div>9.	</div><div>Stringed instrument&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='→14'><div>10.	</div><div>Type of exam&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='→18'><div>11.	</div><div>Gelatin substitute&nbsp;<span class='e'>(4)</span>	</div></div>
-		<div class='cw-c' data-cell='→23'><div>12.	</div><div>High-____ (tall)&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='→23'><div>12.	</div><div>High-____ building&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='→27'><div>13.	</div><div>Mild&nbsp;<span class='e'>(9)</span>	</div></div>
 		<div class='cw-c' data-cell='→39'><div>15.	</div><div>Bread ingredient, at&nbsp;times&nbsp;<span class='e'>(3)</span>	</div></div>
 		<div class='cw-c' data-cell='→45'><div>16.	</div><div>Baseball player&nbsp;<span class='e'>(9)</span>	</div></div>

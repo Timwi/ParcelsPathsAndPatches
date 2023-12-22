@@ -12,7 +12,7 @@
 	<li>The groundskeeper has subdivided the area into patches.</li>
 	<li>Plant seeds in some squares, but they need space, so don’t seed orthogonally adjacent squares.</li>
 	<li>The nuns need to be able to tend to the plants later, so make sure the unseeded area is contiguous.</li>
-	<li>If a patch contains a car, the number of seeds in that patch must equal the number of squares the car visited.</li>
+	<li>The groundskeeper has cleared out the demolished drum kits, but the cars that crashed into them are still there. A patch that contains a car must contain a number of seeds equal to the number of squares the car visited.</li>
 	<li>Make sure that every orthogonal line connecting unseeded squares through two or more patch boundaries contains at least one seed.</li>
 </ul>
 <p class='fl'>Oh, heya. ... Whaaa— Kayley?!</p>

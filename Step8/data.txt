@@ -15,8 +15,9 @@
 #
 <ul>
 	<li>The concert organizer arrives and places drum kits in some squares.</li>
-	<li>Every nun reports how many drum kits she can see in the direction she last walked. Nuns that are now on a square that was a vertical straight segment in the nun-bear link, but not at the edge of the grid, see 0 (zero), except the one that is in the largest parcel, who sees 2. Everyone else sees 1.</li>
+	<li>Every nun reports how many drum kits she can see in the direction she last walked. Nuns that are now on a square that was a vertical straight segment in the nun-bear link, but not at the edge of the grid, see 0 (zero), except the one that is in the largest parcel, who sees 2. Everyone else sees 1. (Nuns can see behind other nuns.)</li>
 	<li>The concert organizer places barrier tape through all the remaining unoccupied squares such that it forms a single loop. Every square contains either a nun, or a drum kit, or a part of the barrier tape.</li>
+	<li>No two drum kits are orthogonally adjacent.</li>
 </ul>
 <p class='fl'>I’m tellin’ ya... gee, linseed is so hard to find these days!</p>
 <p class='kbd'>
