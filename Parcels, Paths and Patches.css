@@ -63,7 +63,7 @@ foreignObject>div {
 	font-size: 48pt;
 	font-weight: 600;
 }
-.cw-c { display: flex; }
+.cw-c { display: flex; cursor: pointer; }
 .cw-c:hover { background: hsla(220, 10%, 100%, .2); }
 .cw-c > div { flex-grow: 1; }
 .cw-c > div:first-child { width: 2cm; flex-grow: 0; flex-shrink: 0; text-align: right; padding-right: .5cm; font-weight: 700; }

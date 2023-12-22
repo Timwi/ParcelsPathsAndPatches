@@ -17,4 +17,6 @@
 <p class='kbd'>
 	<span><kbd>left-click/drag</kbd>	<span>place nun(s)</span></span>
 	<span><kbd>right-click/drag</kbd>	<span>cross out</span></span>
+	<span><kbd>Ctrl+Z</kbd>	<span>undo</span></span>
+	<span><kbd>Ctrl+Y</kbd>	<span>redo</span></span>
 </p>

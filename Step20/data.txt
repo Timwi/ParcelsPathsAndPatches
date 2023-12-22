@@ -1,0 +1,33 @@
+{
+	"type": 5,
+	"i": [
+		{ "id": "c-0-t-l",	"x": 950,	"y": 440,	"l": "A",	"h": false	},
+		{ "id": "c-1-t-l",	"x": 1050,	"y": 840,	"l": "N",	"h": true	},
+		{ "id": "c-2-t-l",	"x": 650,	"y": 640,	"l": "N",	"h": false	},
+		{ "id": "c-3-t-l",	"x": 950,	"y": 640,	"l": "O",	"h": false	},
+		{ "id": "c-4-t-l",	"x": 550,	"y": 640,	"l": "I",	"h": false	},
+		{ "id": "d-0-t-l",	"x": 1150,	"y": 440,	"l": "E",	"h": false	},
+		{ "id": "d-1-t-l",	"x": 750,	"y": 840,	"l": "E",	"h": true	},
+		{ "id": "d-2-t-l",	"x": 950,	"y": 840,	"l": "E",	"h": true	},
+		{ "id": "d-3-t-l",	"x": 550,	"y": 840,	"l": "E",	"h": true	},
+		{ "id": "d-5-t-l",	"x": 1050,	"y": 440,	"l": "R",	"h": false	},
+		{ "id": "n-0-t-l",	"x": 1050,	"y": 640,	"l": "U",	"h": false	},
+		{ "id": "n-1-t-l",	"x": 650,	"y": 440,	"l": "O",	"h": false	},
+		{ "id": "n-2-t-l",	"x": 750,	"y": 440,	"l": "U",	"h": false	},
+		{ "id": "n-3-t-l",	"x": 850,	"y": 640,	"l": "Y",	"h": false	},
+		{ "id": "n-5-t-l",	"x": 1150,	"y": 640,	"l": "R",	"h": false	},
+		{ "id": "n-6-t-l",	"x": 650,	"y": 840,	"l": "L",	"h": true	},
+		{ "id": "n-7-t-l",	"x": 550,	"y": 440,	"l": "Y",	"h": false	},
+		{ "id": "n-8-t-l",	"x": 850,	"y": 840,	"l": "M",	"h": true	},
+		{ "id": "n-9-t-l",	"x": 1150,	"y": 840,	"l": "T",	"h": true	}
+	],
+	"f": false,
+	"v": {
+		"b": ""
+	}
+}
+#
+<p class='kbd'>
+	<span><kbd>A</kbd>-<kbd>Z</kbd> <span>type</span></span>
+	<span><kbd>Enter</kbd> <span>submit</span></span>
+</p>
