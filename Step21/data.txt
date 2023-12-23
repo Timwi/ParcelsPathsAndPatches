@@ -27,4 +27,5 @@
 }
 #
 <h1>You did it.</h1>
-<p>Thank you for participating in Secret Solver 2023. Have a great holiday, and best wishes for New Year’s from your santa!</p>
+<p>Thank you for participating in Secret Solver 2023. I hope you enjoyed this little car-nun-drum puzzle as much as I did creating it.</p>
+<p>Have a great holiday, and best wishes for New Year’s from your santa!</p>

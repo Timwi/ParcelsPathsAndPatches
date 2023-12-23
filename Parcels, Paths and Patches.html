@@ -6,6 +6,7 @@
 		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 12, 13],
 			t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';'),
 			ccs = [355, 30, 50, 100, 170, 200, 240, 280, 320];
+		function getCounter() { let c = counter++; counter %= 2147483647; return c; }
 
 		let Easing = {
 			InQuad:	t => t * t,
@@ -33,8 +34,7 @@
 
 		async function coroutine(id, data, fnc)
 		{
-			let val = id === null ? null : (coroutines[id] = counter++);
-			counter %= 2147483647;
+			let val = id === null ? null : (coroutines[id] = getCounter());
 			for (let ix = 0; ix < data.length; ix++)
 			{
 				if (typeof data[ix] === 'function')
@@ -198,12 +198,15 @@
 			return !good.includes(false);
 		}
 
+		let lastMade = 0;
 		function make(id, elemName, attrs, content, parent)
 		{
-			let force = elemName.startsWith('*');
+			parent = parent ?? vis;
+			let force = elemName.startsWith('*'), isn = false;
 			if (force) elemName = elemName.substring(1);
 			let elem = document.getElementById(id) ?? (function()
 			{
+				isn = true;
 				let e = document.createElementNS('http://www.w3.org/2000/svg', elemName);
 				if (id !== null)
 					e.id = id;
@@ -235,7 +238,6 @@
 				if (elem.hasAttribute(restore) && (!attrs || !(restore in attrs || `*${restore}` in attrs)))
 					elem.removeAttribute(restore);
 
-			(parent ?? vis).appendChild(elem);
 			if (content !== undefined)
 			{
 				if (Array.isArray(content))
@@ -246,7 +248,73 @@
 					elem.innerHTML = content;
 				}
 			}
+			if (isn && elem.getBBox && (parent === vis || parent === input))
+			{
+				let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				g.classList.add('nd');
+				g.classList.add('aa');
+				g.appendChild(elem);
+				parent.appendChild(g);
+				let bb = g.getBBox();
+				g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+				let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
+				fn({ s: 0, o: 0 });
+				coroutine(`${id}-aas`, [
+					{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+					{ d: .2,	v: { s: [0.9, 1.2], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
+					{ d: .05,	v: { s: [1.3, 1], o: [1, 1] }, e: Easing.InQuad,	fn: fn },
+					() => { parent.insertBefore(elem, g); g.remove(); }
+				]);
+				lastMade = document.timeline.currentTime;
+			}
+			else
+			{
+				if (elem.parentNode && elem.parentNode.classList.contains('aa'))
+					elem = elem.parentNode;
+				parent.appendChild(elem);
+			}
 			return elem;
+		}
+
+		let lastRemoved = 0;
+		function removeUnused(updated)
+		{
+			for (let elem of Array.from(document.querySelectorAll('#input *,#vis *')))
+				if (elem.classList.contains('aa'))
+					elem.parentNode.appendChild(elem);
+				else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd') && (!elem.parentNode || !elem.parentNode.classList.contains('aa')))
+				{
+					let p = elem.parentNode;
+					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+					g.classList.add('nd');
+					g.classList.add('aa');
+					p.appendChild(g);
+					g.appendChild(elem);
+					let bb = g.getBBox();
+					g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+					let b = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+					b.id = `${elem.id}-fgb`;
+					b.setAttribute('x', '-100%');
+					b.setAttribute('y', '-100%');
+					b.setAttribute('width', '200%');
+					b.setAttribute('height', '200%');
+					let b2 = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+					b2.setAttribute('result', 'fbSourceGraphic');
+					b2.setAttribute('stdDeviation', '0 0');
+					b.appendChild(b2);
+					defs.appendChild(b);
+					g.setAttribute('filter', `url(#${elem.id}-fgb)`);
+
+					let fn = t => { b2.setAttribute('stdDeviation', `${t.b} ${t.b}`); g.setAttribute('opacity', t.o); g.setAttribute('transform', `scale(${t.s})`); };
+					fn({ b: 0, o: 1, s: 1 });
+					coroutine(null, [
+						{ d: lastRemoved !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+						{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, 1.5] }, e: Easing.OutQuad,	fn: fn },
+						() => { g.remove(); b.remove(); }
+					]);
+					elem.removeAttribute('id');
+					lastRemoved = document.timeline.currentTime;
+				}
 		}
 
 		function sqxx(x)	{ return 400 + 100*x;	}
@@ -268,7 +336,7 @@
 			function findLightIx(sv) { return lights.findIndex(lg => (lg[0] % w === lg[1] % w) === sv.v && lg.includes(sv.i)); }
 			function findLight(sv) { return lights[findLightIx(sv)]; }
 
-			let main = document.getElementById('main'), input = document.getElementById('input'), vis = document.getElementById('vis'), div = document.getElementById('div');
+			let main = document.getElementById('main'), input = document.getElementById('input'), vis = document.getElementById('vis'), div = document.getElementById('div'), defs = document.getElementById('defs');
 			let state, stateRaw = localStorage.getItem('ppp-state');
 			try { state = JSON.parse(stateRaw); } catch { }
 			if (Object.prototype.toString.call(state) !== "[object Object]")
@@ -824,9 +892,7 @@
 						}
 				}
 
-				for (let obj of Array.from(document.querySelectorAll('#vis *,#input *')))
-					if (obj.id && !updated.has(obj.id) && !obj.classList.contains('nd'))
-						obj.remove();
+				removeUnused(updated);
 
 				if (changes)
 				{
@@ -897,14 +963,16 @@
 				let sc = state.steps[step], s = sc.v;
 				last = JSON.stringify(s);
 
-				if (step === 0 && !('n' in sc))
+				if (step === 0 && !('j' in sc))
 				{
 					document.getElementById('vis').innerHTML = '';
+					document.getElementById('input').innerHTML = '';
+					document.getElementById('ui').style.visibility = 'hidden';
 					document.getElementById('fo').style.visibility = 'hidden';
 					let t1 = make(null, 'text', { '*opacity': 0, x: 1336, y: 750, 'font-family': 'Book Antiqua', 'font-size': 256, fill: 'white', 'text-anchor': 'middle' }, ['GREETINGS.']);
 					let t2 = make(null, 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 192, fill: 'white', 'text-anchor': 'middle' }, ['Welcome to...']);
 					let t3 = make(null, 'text', { '*opacity': 0, x: 1652, y: 770, 'font-family': 'Book Antiqua', 'font-size': 64, fill: 'white', 'text-anchor': 'middle' }, ['...whatever this is']);
-					let t4 = make('lets-start', 'text', { '*opacity': 0, x: 1336, y: 750, 'font-family': 'Book Antiqua', 'font-size': 47, fill: 'white', 'text-anchor': 'middle' }, ['Let’s start you off with a little crossword.']);
+					let t4 = make('lets-start', 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 47, fill: 'white', 'text-anchor': 'middle' }, ['Let’s start you off with a little crossword.']);
 					await coroutine('intro', [
 						{ d: .47 },
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t1.setAttribute('opacity', t.o); } },
@@ -921,7 +989,8 @@
 						{ d: 1.47 },
 						() => { for (let s of [t1, t2, t3]) s.remove(); }
 					]);
-					sc.n = true;
+					sc.j = true;
+					document.getElementById('ui').style.visibility = 'visible';
 					document.getElementById('fo').style.visibility = 'visible';
 				}
 
@@ -1788,6 +1857,8 @@
 			document.addEventListener('paste', async function(e)
 			{
 				if (!inputBlocked)
+				{
+					coroutine('intro', [{ d: .1 }]);
 					try
 					{
 						let j = JSON.parse((e.clipboardData || window.clipboardData).getData("text"));
@@ -1798,13 +1869,14 @@
 						}
 					}
 					catch {}
+				}
 			});
 		});
 	</script>
 </head>
 <body>
 	<svg id='main' viewBox='0 0 2672 1503'>
-		<defs>
+		<defs id='defs'>
 			<linearGradient id='btn-check-1' gradientTransform="rotate(70)">
 				<stop offset="0%" stop-color="hsl(38, 83%, 95%)" />
 				<stop offset="100%" stop-color="hsl(38, 83%, 45%)" />
