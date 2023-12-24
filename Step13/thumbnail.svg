@@ -112,4 +112,3 @@
 <text x="850" y="530" text-anchor="middle" font-size="90" font-family="Proxima" fill="hsl(220, 10%, 70%)" stroke="hsl(220, 10%, 10%)" stroke-width="10" paint-order="stroke">4</text>
 <text x="750" y="830" text-anchor="middle" font-size="90" font-family="Proxima" fill="hsl(220, 10%, 70%)" stroke="hsl(220, 10%, 10%)" stroke-width="10" paint-order="stroke">4</text>
 <text x="1150" y="230" text-anchor="middle" font-size="90" font-family="Proxima" fill="hsl(220, 10%, 70%)" stroke="hsl(220, 10%, 10%)" stroke-width="10" paint-order="stroke">4</text>
-<rect fill='white' fill-opacity='0' x='375' y='125' width='950' height='950' stroke='none' />

@@ -209,4 +209,3 @@
 <use href="#drumkit" transform="translate(400, 750)" />
 <use href="#drumkit" transform="translate(700, 850)" />
 <use href="#drumkit" transform="translate(1100, 850)" />
-<rect fill='white' fill-opacity='0' x='275' y='25' width='1150' height='1150' stroke='none' />

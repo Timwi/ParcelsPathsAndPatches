@@ -2,6 +2,33 @@
 <html>
 <head>
 	<link rel='stylesheet' type='text/css' href='Parcels,%20Paths%20and%20Patches.css'>
+	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua.ttf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua%20Italics.ttf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua%20Bold.ttf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua%20Bold%20Italics.ttf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Thin.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Thin%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Light.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Light%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Regular.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Regular%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20SemiBold.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20SemiBold%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Bold.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Bold%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Extrabold.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Extrabold%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Black.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Black%20Italic.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Thin.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-ExtraLight.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Light.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Regular.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Medium.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-SemiBold.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Bold.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-ExtraBold.otf' />
+	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Black.otf' />
 	<script>
 		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 12, 13],
 			t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';'),
@@ -199,7 +226,7 @@
 		}
 
 		let lastMade = 0;
-		function make(id, elemName, attrs, content, parent)
+		function make(id, elemName, attrs, content, parent, nodom)
 		{
 			parent = parent ?? vis;
 			let force = elemName.startsWith('*'), isn = false;
@@ -248,30 +275,77 @@
 					elem.innerHTML = content;
 				}
 			}
-			if (isn && elem.getBBox && (parent === vis || parent === input))
+			if (!nodom && isn && elem.getBBox && !elem.classList.contains('anim-none') && !elem.classList.contains('at') && parent.classList.contains('at'))
 			{
 				let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 				g.classList.add('nd');
 				g.classList.add('aa');
 				g.appendChild(elem);
 				parent.appendChild(g);
-				let bb = g.getBBox();
-				g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
-				let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
-				fn({ s: 0, o: 0 });
-				coroutine(`${id}-aas`, [
-					{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-					{ d: .2,	v: { s: [0.9, 1.2], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
-					{ d: .05,	v: { s: [1.3, 1], o: [1, 1] }, e: Easing.InQuad,	fn: fn },
-					() => { parent.insertBefore(elem, g); g.remove(); }
-				]);
+				function animDone()
+				{
+					if (!elem.PPPDisappear)
+						g.parentNode.insertBefore(elem, g);
+					g.remove();
+				}
+
+				if (elem.classList.contains('anim-sw'))
+				{
+					let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { primitiveUnits: 'objectBoundingBox' }, null, defs, true);
+					let fi = make(null, 'feImage', { result: 'lingrad' }, null, f, true);
+					let fc = make(null, 'feComposite', { 'in': 'lingrad', in2: 'SourceGraphic', operator: 'atop' }, null, f, true);
+					let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { gradientTransform: 'rotate(20)' }, null, defs, true);
+					let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
+					let msid = `swfm=${getCounter()}`, ms = make(msid, 'mask', {}, null, defs, true);
+					make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms, true);
+					g.setAttribute('filter', `url(#${fid})`);
+					g.setAttribute('mask', `url(#${msid})`);
+					let fn = t => {
+						fi.setAttribute('href', `data:image/svg+xml,
+							%3Csvg width%3D%222672%22 height%3D%221503%22 xmlns%3D'http%3A//www.w3.org/2000/svg' xmlns%3Axlink%3D'http%3A//www.w3.org/1999/xlink'%3E
+							%3Cdefs%3E
+								%3ClinearGradient id%3D'lightGradient' gradientTransform%3D'rotate(20)'%3E
+									%3Cstop	stop-color%3D'white'	stop-opacity%3D'0'	offset%3D'0%25'/%3E
+									%3Cstop	stop-color%3D'white'	stop-opacity%3D'0'	offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
+									%3Cstop	stop-color%3D'white'	stop-opacity%3D'1'	offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
+									%3Cstop	stop-color%3D'white'	stop-opacity%3D'1'	offset%3D'100%25'/%3E
+								%3C/linearGradient%3E
+							%3C/defs%3E%0A
+							%3Crect x%3D'0%25' y%3D'0%25' width%3D'100' height%3D'100' fill%3D'url(%23lightGradient)'/%3E
+							%3C/svg%3E`);
+						lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
+						lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
+					};
+					coroutine(null, [
+						{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+						{ d: 3,	v: { v: [-20, 120] }, fn: fn },
+						() => { animDone(); f.remove(); ms.remove(); lg.remove(); }
+					]);
+				}
+				else
+				{
+					let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
+					fn({ s: 1, o: 0 });
+					coroutine(null, [
+						{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+						() => {
+							let bb = g.getBBox();
+							g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+						},
+						{ d: .2,	v: { s: [0.9, 1], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
+						//{ d: .2,	v: { s: [1.2, 1], o: [1, 1] }, e: Easing.InQuad,	fn: fn },
+						animDone
+					]);
+				}
 				lastMade = document.timeline.currentTime;
 			}
 			else
 			{
-				if (elem.parentNode && elem.parentNode.classList.contains('aa'))
-					elem = elem.parentNode;
-				parent.appendChild(elem);
+				let rElem = elem;
+				if (!nodom)
+					if (elem.parentNode && elem.parentNode.classList.contains('aa'))
+						rElem = elem.parentNode;
+				parent.appendChild(rElem);
 			}
 			return elem;
 		}
@@ -279,42 +353,59 @@
 		let lastRemoved = 0;
 		function removeUnused(updated)
 		{
-			for (let elem of Array.from(document.querySelectorAll('#input *,#vis *')))
+			function process(elem)
+			{
 				if (elem.classList.contains('aa'))
-					elem.parentNode.appendChild(elem);
-				else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd') && (!elem.parentNode || !elem.parentNode.classList.contains('aa')))
+					process(elem.querySelector(':scope>*'));
+				else if (elem.classList.contains('at'))
+					for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
+						process(subelem);
+				else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd') && elem.classList.contains('anim-none'))
+					elem.remove();
+				else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd'))
 				{
-					let p = elem.parentNode;
+					let ei = elem.id, sw = elem.classList.contains('anim-sw');
+					elem.removeAttribute('id');
 					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 					g.classList.add('nd');
-					g.classList.add('aa');
-					p.appendChild(g);
-					g.appendChild(elem);
+					g.classList.add('da');
+					das.appendChild(g);
+					g.appendChild(elem.parentNode && elem.parentNode.classList.contains('aa') ? elem.parentNode : elem);
 					let bb = g.getBBox();
 					g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
 					let b = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-					b.id = `${elem.id}-fgb`;
+					let fgbid = `fgb-${getCounter()}`;
+					b.id = fgbid;
 					b.setAttribute('x', '-100%');
 					b.setAttribute('y', '-100%');
-					b.setAttribute('width', '200%');
-					b.setAttribute('height', '200%');
+					b.setAttribute('width', '300%');
+					b.setAttribute('height', '300%');
 					let b2 = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
 					b2.setAttribute('result', 'fbSourceGraphic');
 					b2.setAttribute('stdDeviation', '0 0');
 					b.appendChild(b2);
 					defs.appendChild(b);
-					g.setAttribute('filter', `url(#${elem.id}-fgb)`);
-
-					let fn = t => { b2.setAttribute('stdDeviation', `${t.b} ${t.b}`); g.setAttribute('opacity', t.o); g.setAttribute('transform', `scale(${t.s})`); };
+					g.setAttribute('filter', `url(#${fgbid})`);
+					let fn = t => {
+						b2.setAttribute('stdDeviation', `${t.b} ${t.b}`);
+						g.setAttribute('opacity', t.o);
+						g.setAttribute('transform', `scale(${t.s})`);
+					};
 					fn({ b: 0, o: 1, s: 1 });
 					coroutine(null, [
 						{ d: lastRemoved !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-						{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, 1.5] }, e: Easing.OutQuad,	fn: fn },
-						() => { g.remove(); b.remove(); }
+						{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, sw ? 1 : 1.2] }, e: Easing.OutQuad,	fn: fn },
+						() => { elem.PPPDisappear = true; g.remove(); b.remove(); }
 					]);
-					elem.removeAttribute('id');
 					lastRemoved = document.timeline.currentTime;
 				}
+				else if (elem.id && !elem.classList.contains('nd'))
+					for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
+						process(subelem);
+			}
+
+			for (let subelem of Array.from(document.querySelectorAll('#input>*,#vis>*')))
+				process(subelem);
 		}
 
 		function sqxx(x)	{ return 400 + 100*x;	}
@@ -336,7 +427,14 @@
 			function findLightIx(sv) { return lights.findIndex(lg => (lg[0] % w === lg[1] % w) === sv.v && lg.includes(sv.i)); }
 			function findLight(sv) { return lights[findLightIx(sv)]; }
 
-			let main = document.getElementById('main'), input = document.getElementById('input'), vis = document.getElementById('vis'), div = document.getElementById('div'), defs = document.getElementById('defs');
+			let	main = document.getElementById('main'),
+				input = document.getElementById('input'),
+				vis = document.getElementById('vis'),
+				div = document.getElementById('div'),
+				defs = document.getElementById('defs'),
+				das = document.getElementById('das'),
+				ths = document.getElementById('ths');
+
 			let state, stateRaw = localStorage.getItem('ppp-state');
 			try { state = JSON.parse(stateRaw); } catch { }
 			if (Object.prototype.toString.call(state) !== "[object Object]")
@@ -408,10 +506,10 @@
 					for (let y = -1; y <= h; y++)
 						for (let x = -1; x <= w; x++)
 							if (fnc(x, y))
-								mk(`inp-${x}-${y}`, 'path', { d: `M${sqxx(x)} ${sqyy(y)}h100v100h-100z`, 'data-x': x, 'data-y': y }, null, input);
+								mk(`inp-${x}-${y}`, 'path', { d: `M${sqxx(x)} ${sqyy(y)}h100v100h-100z`, 'data-x': x, 'data-y': y, 'class': 'anim-none' }, null, input);
 					if (numExtra !== undefined)
 						for (let i = 0; i < numExtra; i++)
-							mk(`inp-ex-${i}`, 'path', { d: `M100 ${100+200*i}h100v100h-100z`, 'data-e': ~i }, null, input);
+							mk(`inp-ex-${i}`, 'path', { d: `M100 ${100+200*i}h100v100h-100z`, 'data-e': ~i, 'class': 'anim-none' }, null, input);
 				}
 
 				function generatePatches(b)
@@ -443,7 +541,7 @@
 							'*font-size':	ltr === '?' ? 110 : 70,
 							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
 							'*stroke':	ltr === '?' ? 'hsl(38, 60%, 25%)' : 'black',
-							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, ltr, p);
+							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, [ltr], p);
 						await document.fonts.ready;
 						let bb = l.getBBox();
 						p.appendChild(nm);
@@ -464,7 +562,7 @@
 							'*font-size':	ltr === '?' ? 110 : 70,
 							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
 							'*stroke':	ltr === '?' ? 'hsl(38, 60%, 25%)' : 'black',
-							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, ltr, p);
+							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, [ltr], p);
 					if (cc !== undefined)
 						nm.setAttribute('filter', `hue-rotate(${ccs[cc % 9]-100}deg)`);
 					if (r !== undefined)
@@ -498,15 +596,16 @@
 				function makePathFollow(d, f, t)
 				{
 					if (!(f >= 0 && f < w*h && t >= 0 && t < w*h && f !== t) || d[f] === null || d[t] === null)
-						return [`M${sqx(f)+50} ${sqy(f)+50} ${sqx(t)+50} ${sqy(t)+50}`, null, null, null];
-					let s = [sqx(f)+50, sqy(f)+50], r = [-w, 1, w, -1], n = 0;
+						return [[[sqx(f)+50, sqy(f)+50], [sqx(t)+50, sqy(t)+50]], null, null, null];
+					let s = [[sqx(f)+50, sqy(f)+50]], r = [-w, 1, w, -1], n = 0;
 					while (f !== t)
 					{
 						n++;
 						f += r[d[f]];
 						s.push([sqx(f)+50, sqy(f)+50]);
 					}
-					return [s, n, (sqxx(x1) + sqxx(x2))/2+50, (sqyy(y1) + sqyy(y2))/2+50];
+					let k = s[s.length-2], l = s[s.length-1];
+					return [s, n, (k[0] + l[0])/2, (k[1] + l[1])/2];
 				}
 
 				async function render(step)
@@ -536,8 +635,8 @@
 							break;
 
 						case 1:
-							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
-							mk(`frame2-${sc.subtype}`, 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(sc.b) });
+							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6, 'class': 'anim-sw' });
+							mk(`frame2-${sc.b}`, 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(sc.b), 'class': 'anim-sw' });
 							for (let i = 0; i < w*h; i++)
 								if (s.b[i] === 'X')
 									mk(`cl-${i}-1`, 'use', { '*href': ['#nun-template', '#seeds'][sc.subtype], transform: `translate(${sqx(i)}, ${sqy(i)})` });
@@ -554,7 +653,7 @@
 							break;
 
 						case 3:
-							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
+							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6, 'class': 'anim-sw' });
 							for (let i = 0; i < sc.n.length; i++)
 							{
 								let a = [], q = '';
@@ -566,12 +665,12 @@
 							}
 							for (let i = 0; i < sc.n.length; i++)
 							{
-								let fi = sc.n[i], ar = [];
+								let fi = sc.n[i], ar = [], sel = mouseI === i;
 								if (s.m[i] !== null)
 								{
-									await makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25 });
+									await makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25, 'class': 'anim-none' });
 									fi = followPathI(fi, sc.m[s.m[i]], j => { ar.push([sqx(j)+50, sqy(j)+50]); });
-									mkArrow(`n-${i}-a`, ar, 'hsl(220, 20%, 80%)', 30, { opacity: .2 });
+									mkArrow(`n-${i}-a`, ar, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' });
 								}
 								await makeItemWithLetter('n', `n-${i}-t`, sqx(fi), sqy(fi), s.l[i],
 									{ 'class': 'movable', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` });
@@ -681,9 +780,9 @@
 							break;
 
 						case 26:
-							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
+							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6, 'class': 'anim-sw' });
 							if (sc.f)
-								mk('frame2', 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(state.steps[state.step-2].b) });
+								mk(`frame2-${state.steps[state.step-2].b}`, 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(state.steps[state.step-2].b), 'class': 'anim-sw' });
 							if ('p' in sc)
 								makePath(state.steps[step-sc.p].v.b, 'hsl(120, 15%, 40%)');
 							if (sc.z)
@@ -694,7 +793,7 @@
 									mk(`rh-${y}`, 'text', { y: sqyy(y)+55, x: 385, 'font-size': 32, 'font-family': 'Proxima', 'text-anchor': 'end', fill: 'hsl(220, 15%, 60%)' }, [y + 1]);
 							}
 
-							let g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g'));
+							let g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g', { 'class': 'at' }));
 							for (let ai = 0, k = 0; k < sc.a.length; ai += sc[sc.a[k]].length, k++)
 								for (let i = 0, cn = sc[sc.a[k]], n = s[sc.a[k]]; i < cn.length; i++)
 								{
@@ -702,12 +801,12 @@
 									let dx = cx, dy = cy, l = (s.l ?? sc.l)[ai+i], sel = mouseK === sc.a[k] && mouseI === i;
 									if (n && n[i] !== cn[i])
 									{
-										await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-f`, cx, cy, l, { opacity: .25 }, g[0]);
+										await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-f`, cx, cy, l, { opacity: .25, 'class': 'anim-none' }, g[0]);
 										dx = sqx(n[i]); dy = sqy(n[i]);
 										let d = [[cx+50, cy+50], [dx+50, dy+50]], c = null, x, y;
 										if (sc.w && sel)
 											[d, c, x, y] = makePathFollow(sc.w, cn[i], n[i]);
-										mkArrow(`${sc.a[k]}-${i}-a`, d, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { opacity: sel ? .7 : .2 }, g[sel ? 3 : 1]);
+										mkArrow(`${sc.a[k]}-${i}-a`, d, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' }, g[sel ? 3 : 1]);
 										if (c !== null && sel)
 										{
 											mk(`${sc.a[k]}-${i}-o`, 'rect', { '*x': x-25, '*y': y-25, rx: 20, ry: 20, width: 50, height: 50, fill: 'white', stroke: 'black', 'stroke-width': 5 }, null, g[5]);
@@ -719,9 +818,9 @@
 							break;
 
 						case 42:
-							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6 });
+							mk('frame1', 'path', { d: 'M400 150h900v900h-900z', fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 6, 'class': 'anim-sw' });
 							if (sc.b)
-								mk('frame2', 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(sc.b) });
+								mk(`frame2-${sc.b}`, 'path', { fill: 'none', stroke: 'hsl(220, 20%, 75%)', 'stroke-width': 4, d: () => generatePatches(sc.b), 'class': 'anim-sw' });
 							let sgm = [];
 							for (let i = 0; i < w*h; i++)
 							{
@@ -867,28 +966,29 @@
 							<circle cx='${1490 + 54.5*i}' cy='50' r='30' style='fill: hsl(var(--hue), 50%, 40%)' />
 							<circle cx='${1490 + 54.5*i}' cy='50' r='20' style='fill: hsl(var(--hue), 60%, 80%)' />
 							<circle cx='${1490 + 54.5*i}' cy='50' r='10' style='fill: hsl(var(--hue), 50%, 30%)' />`, input);
-						document.getElementById(`step-${i}-btn`).onclick = (st => async () => { state.step = st; await setupStepMaybe(await loadStep(st)); })(i);
+						document.getElementById(`step-${i}-btn`).onclick = (st => async () => { await setupStepMaybe(await loadStep(st)); })(i);
 					}
 				}
 
 				if (sc.type !== 5)
 				{
-					let th1 = mk('th1', 'g'), th2 = mk('th2', 'g');
+					let th1 = mk('th1', 'g', { 'class': 'at' });
 					for (let thIx = 0; thIx < stepsWithThumbnails.length; thIx++)
 						if (state.step >= stepsWithThumbnails[thIx])
 						{
-							let	th = stepsWithThumbnails[thIx], mx = 850, my = 600, tx = 1600, ty = 250 + 250*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950, f = thIx === 3 ? 11 : 9;
+							let th = stepsWithThumbnails[thIx], mx = 850, my = 600, tx = 1600, ty = 250 + 250*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950, f = thIx === 3 ? 11 : 9;
 							if (thIx === 3) { x1 -= 100; y1 -= 100; x2 += 100; y2 += 100; }
 							let x3 = (x1-mx)*2/f+tx, y3 = (y1-my)*2/f+ty, x4 = (x2-mx)*2/f+tx, y4 = (y2-my)*2/f+ty;
-							let g = mk(`thumbnail-${th}`, 'g', { 'class': 'thumbnail', transform: `translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` }, null, th1);
-							mk(`thumbnail-${th}-r`, 'g', {}, await doFetch(thumbnailUrl(th)), g);
-							mk(`show-thumbnail-${th}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)` }, `
-								<use	opacity='.5'	href='#thumbnail-${th}-r' />
+							await ensureThumbnail(thIx);
+							mk(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, transform: `translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` }, null, th1);
+							mk(`show-thumbnail-${thIx}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)`, 'class': 'anim-none' }, `
+								<use	opacity='.5'	href='#thumbnail-${thIx}-r' />
 								<path	opacity='.2'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
 								<path	opacity='.2'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
 								<path	opacity='.3'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
 								<path	opacity='.3'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
-							`, th2);
+							`, ths);
+							mk(`thumbnail-${thIx}`, 'rect', { x: x3, y: y3, width: x4-x3, height: y4-y3, fill: 'transparent', 'class': 'thumbnail' }, null, input);
 						}
 				}
 
@@ -910,8 +1010,7 @@
 				function cos(a) { return Math.cos(a*Math.PI/180); }
 				function g(sy, ty, tt, t, gr) { return .5*gr*t*t-.5*(gr*tt*tt+2*sy-2*ty)/tt*t+sy; }
 				await coroutine(null, [{ d: .047 }]);
-				let p = make('fw-par', 'g', { 'class': 'nd' });
-				p.parentNode.insertBefore(p, p.parentNode.firstChild);
+				let p = document.getElementById('fw');
 				while (state.steps[state.step].type === 5 && state.steps[state.step].f)
 				{
 					let tx = Math.random()*1750, ty = Math.random()*1000 + 100, tt = Math.random()*1.47 + .47;
@@ -925,10 +1024,10 @@
 						{
 							dot.remove();
 							let tn = (Math.random()*10 + 20)|0, sa = Math.random()*40 + 160, ea = Math.random()*40 + 340;
-							let ut = Math.random()*1.47 + .87, rh = Math.random()*360, tr = Math.random()*500+700, rl = Math.random()*50 + 50;
+							let ut = Math.random()*1.47 + .87, rh = Math.random()*360, tr = Math.random()*500+400, rl = Math.random()*50 + 50;
 							for (let i = 0; i < tn; i++)
 							{
-								let dt = make(null, 'circle', { r: 4, fill: `hsl(${rh}, 100%, ${rl}%)`, 'class': 'nd' }, p);
+								let dt = make(null, 'circle', { r: 4, fill: `hsl(${rh}, 100%, ${rl}%)`, 'class': 'nd' }, null, p);
 								let ux = tx + tr*cos((ea-sa)*i/(tn-1)) + Math.random()*20 - 10;
 								let uy = ty + tr*sin((ea-sa)*i/(tn-1)) + Math.random()*20 - 10;
 								let vt = ut + Math.random()*.4-.2;
@@ -965,6 +1064,7 @@
 
 				if (step === 0 && !('j' in sc))
 				{
+					inputBlocked = true;
 					document.getElementById('vis').innerHTML = '';
 					document.getElementById('input').innerHTML = '';
 					document.getElementById('ui').style.visibility = 'hidden';
@@ -992,6 +1092,7 @@
 					sc.j = true;
 					document.getElementById('ui').style.visibility = 'visible';
 					document.getElementById('fo').style.visibility = 'visible';
+					inputBlocked = false;
 				}
 
 				div.innerHTML = html ?? '';
@@ -1039,7 +1140,7 @@
 				}
 
 				localStorage.setItem('ppp-state', JSON.stringify(state));
-				updateView();
+				await updateView();
 			}
 
 			function getAnswer(step)
@@ -1071,6 +1172,16 @@
 			function thumbnailUrl(step)
 			{
 				return `Step${step}/thumbnail.svg?answer=${getAnswer(step)}`;
+			}
+
+			async function ensureThumbnail(thIx)
+			{
+				let th = document.getElementById(`thumbnail-${thIx}-r`);
+				if (th.PPPLoaded)
+					return;
+				let svg = await doFetch(thumbnailUrl(stepsWithThumbnails[thIx]));
+				th.innerHTML = svg;
+				th.PPPLoaded = true;
 			}
 
 			async function checkBtnPress()
@@ -1112,7 +1223,7 @@
 								th.setAttribute('opacity', t.o);
 								sb.setAttribute('transform', `translate(0, ${-t.y})`);
 							} },
-							() => { th.remove(); document.getElementById('th2').remove(); },
+							() => { th.remove(); },
 							{ d: 1.47, v: { y: [0, -275], h: [0, 60], s: [0, 80], l: [85, 75] }, e: Easing.InOutQuad, fn: t => {
 								for (let mg = 0; mg < 4; mg++)
 									document.getElementById(`mom-${mg}`).setAttribute('transform', `translate(0, ${t.y})`);
@@ -1135,7 +1246,7 @@
 					r.setAttribute('fill',	'hsl(0, 0%, 40%)');
 					r.setAttribute('stroke',	'hsl(0, 0%, 70%)');
 					tx.setAttribute('fill',	'hsl(0, 0%, 90%)');
-					let msg = make(null, '*text', { x: 850, y: 1050, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle' });
+					let msg = make(null, '*text', { x: 850, y: 1050, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle', 'transform-origin': '850 1050' });
 					ifGood = async function()
 					{
 						msg.remove();
@@ -1169,7 +1280,7 @@
 					r.setAttribute('fill',	'hsl(0, 0%, 40%)');
 					r.setAttribute('stroke',	'hsl(0, 0%, 70%)');
 					tx.setAttribute('fill',	'hsl(0, 0%, 90%)');
-					let msg = make(null, '*text', { x: 475 + 250*mIx, y: 1245, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle' });
+					let msg = make('mom-msg', '*text', { x: 475 + 250*mIx, y: 1245, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle' }, ['\u00a0']);
 					ifGood = async function()
 					{
 						msg.textContent = 'GOOD!';
@@ -1194,6 +1305,7 @@
 					ifWrong = async function()
 					{
 						msg.textContent = 'TRY AGAIN';
+						msg.setAttribute('opacity', 1);
 						r.setAttribute('fill',	'hsl(0, 100%, 40%)');
 						r.setAttribute('stroke',	'hsl(0, 100%, 70%)');
 						tx.setAttribute('fill',	'hsl(0, 100%, 90%)');
@@ -1259,16 +1371,16 @@
 				let thIx = stepsWithThumbnails.indexOf(state.step + 1);
 				if (thIx >= 0)
 				{
-					let svg = await doFetch(thumbnailUrl(state.step + 1));
-					if (svg === null)
-						return;
-					let tt = make('temp-thumbnail', 'g', {}, svg), re = tt.querySelector('rect:last-child');
-					re.setAttribute('fill', 'white');
+					await ensureThumbnail(thIx);
+					let tt = make(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, 'class': 'anim-none' }), sp = thIx === 3;
+					let re = make(`thumbnail-${thIx}-x`, 'rect', { 'class': 'anim-none', x: sp ? 275 : 375, y: sp ? 25 : 125, width: sp ? 1150 : 950, height: sp ? 1150 : 950, fill: 'white', '*fill-opacity': 0 });
 					await coroutine('swoop-thumbnail', [
 						{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuart, fn: t => { re.setAttribute('fill-opacity', t.o); } },
 						{ d: .87, v: { x: [850, 1600], y: [600, 250 + 250*thIx], s: [1, 2/(thIx === 3 ? 11 : 9)] }, e: Easing.OutQuart,
 							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-850, -600)`); } }
 					]);
+					tt.classList.remove('anim-none');
+					re.remove();
 				}
 				inputBlocked = false;
 				await setupStep(...result);
@@ -1637,7 +1749,11 @@
 
 					case 42:
 						if (sc.subtype === 1 && (btns & 2))
+						{
 							mouseM = !s.m.includes(i);
+							if (mouseM) { s.m.push(i); s.m.sort((a, b) => a-b); changes = true; }
+							else { s.m.splice(s.m.indexOf(i), 1); changes = true; }
+						}
 						break;
 				}
 				await maybeUpdateView(changes);
@@ -1885,7 +2001,7 @@
 				<stop offset="0%" stop-color="hsl(38, 83%, 55%)" />
 				<stop offset="100%" stop-color="hsl(38, 83%, 75%)" />
 			</linearGradient>
-			<filter id="shadow" x="-100%" y="-100%" width='200%' height='200%' filterUnits="userSpaceOnUse">
+			<filter id="shadow" x="-100%" y="-100%" width='300%' height='300%' filterUnits="userSpaceOnUse">
 				<feDropShadow stdDeviation="10" />
 			</filter>
 			<g id='nun-template'>
@@ -2150,21 +2266,24 @@
 				<path fill="url(#car-svg-K)" d="M526.98 358.24c-24.95-2.74-64.17 15.24-72.43 55.44 39.7-71.28 101.34-40.65 103.16-43.95a65.14 65.14 0 0 0-30.73-11.49z" color="#000" opacity=".97"/>
 				<path fill="#fff" d="M444.77 451.66c-38.05 1.2-76.15.34-114.22.76-30.1.12-60.52-.19-90.45.64-4.77 4.32-.09 3.8 4.48 3.5 67.24-.37 134.48-.03 201.72-.15-.57-1.13.35-4.79-1.53-4.75z" color="#000" opacity=".15"/>
 			</g>
-			<filter id="seed-a" x="-100%" y="-100%" width='200%' height='200%'>
-				<feGaussianBlur result="fbSourceGraphic" stdDeviation="4 4"/>
-			</filter>
 			<g id='seeds'>
 				<path d="M22.6 66.17c-5.08-.1-16.07-2.1-18-4.6-1.93-2.51-1.27-3.92 2.3-7.94 3.59-4.02 14.77-10.95 19.76-11.66 5-.72 9.45 2.16 11.52 6.17a13.03 13.03 0 0 1-1.32 13.82c-3.29 4.1-9.18 4.32-14.26 4.2ZM28.28 75.4c3.91 3.24 11.27 11.63 11.22 14.8-.04 3.17-1.44 3.86-6.75 4.78-5.3.92-18.36-.62-22.71-3.17-4.36-2.54-6.06-7.57-5.18-12 .88-4.43 4.5-8.82 9.63-10 5.14-1.16 9.88 2.34 13.79 5.59ZM45.7 88.73c-3.77-3.4-10.79-12.09-10.61-15.25.18-3.16 1.6-3.8 6.94-4.5 5.33-.7 18.32 1.37 22.57 4.08 4.24 2.72 5.74 7.81 4.68 12.2a13.03 13.03 0 0 1-10.02 9.6c-5.18.96-9.78-2.73-13.55-6.13ZM45.97 54.06c-1.32-4.91-2.5-16.01-.64-18.57 1.87-2.56 3.4-2.32 8.27-.01 4.86 2.3 14.65 11.09 16.74 15.68 2.1 4.58.58 9.67-2.69 12.79a13.03 13.03 0 0 1-13.62 2.61c-4.88-2-6.73-7.6-8.06-12.5ZM49.16 4.93c5.01-.82 16.18-.87 18.53 1.25 2.36 2.11 1.96 3.62-.82 8.22-2.79 4.6-12.52 13.46-17.3 15.07-4.77 1.62-9.68-.4-12.45-3.97a13.03 13.03 0 0 1-1.22-13.82c2.48-4.65 8.24-5.93 13.26-6.75ZM6.04 21.44c.88-5 4.5-15.56 7.28-17.09 2.78-1.52 4.07-.65 7.5 3.5 3.43 4.14 8.57 16.25 8.52 21.29-.04 5.04-3.57 9.01-7.85 10.45a13.03 13.03 0 0 1-13.45-3.4c-3.57-3.88-2.88-9.74-2-14.75ZM73.8 74.02c1.13-4.95 5.3-15.3 8.15-16.69 2.85-1.38 4.1-.45 7.3 3.87 3.22 4.32 7.73 16.68 7.42 21.71-.31 5.03-4.04 8.82-8.39 10.03a13.03 13.03 0 0 1-13.26-4.1c-3.36-4.05-2.36-9.87-1.23-14.82ZM90.88 36.46c-2.8 4.23-10.37 12.45-13.52 12.74-3.16.28-4-1.03-5.47-6.21-1.48-5.18-1.33-18.33.73-22.93 2.07-4.6 6.9-6.82 11.39-6.41 4.5.4 9.25 3.52 10.96 8.5 1.7 4.99-1.27 10.08-4.09 14.31Z"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="matrix(.3747 -.24322 .24322 .3747 22.04 72.68)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="matrix(.44672 -.00086 .00086 .44672 34.8 27.74)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(-.44672) rotate(-35.3 -377.06 83.66)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(-.44672) rotate(-84.3 -81.25 98.5)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(-.44672) rotate(48.6 66.4 -264.18)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(.44672) rotate(-73.79 97.12 86.43)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(.44672) rotate(24.95 43.97 27.8)"/>
-				<path fill="#fff" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" filter="url(#seed-a)" transform="scale(.44672) rotate(27.91 -119.7 394.6)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="matrix(.3747 -.24322 .24322 .3747 22.04 72.68)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="matrix(.44672 -.00086 .00086 .44672 34.8 27.74)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="scale(-.44672) rotate(-35.3 -377.06 83.66)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="scale(-.44672) rotate(-84.3 -81.25 98.5)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="scale(-.44672) rotate(48.6 66.4 -264.18)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="scale(.44672) rotate(-73.79 97.12 86.43)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="scale(.44672) rotate(24.95 43.97 27.8)"/>
+				<path fill="#888" d="M59.69 79.91c3.56-.7 3.95-1.41 3.95-2.53 0-1.11-3.79-2.05-9.76-3.17-7.64-1.43-7.03-3.97-12.49-9.83-5.46-5.87-6.89-6.95-6.89-3.44 0 3.52 4.68 14.9 10.16 17.58 5.9 2.89 11.47 2.1 15.03 1.4z" transform="scale(.44672) rotate(27.91 -119.7 394.6)"/>
 			</g>
+			<g id='thumbnail-0-r'></g>
+			<g id='thumbnail-1-r'></g>
+			<g id='thumbnail-2-r'></g>
+			<g id='thumbnail-3-r'></g>
+			<g id='thumbnail-4-r'></g>
 		</defs>
+		<g id='fw'></g>
 		<g id='ui'>
 			<g id='copy' class='ui-btn' transform-origin='100 1403'>
 				<circle cx='100' cy='1403' r='40' fill='hsl(220, 5%, 50%)' />
@@ -2175,11 +2294,13 @@
 				<path transform='translate(100, 1303) scale(.5) translate(-50 -50)' stroke='hsl(220, 5%, 90%)' stroke-width='6' fill='none' d='m 81.848907,13.511404 c 19.040973,18.000754 12.066421,39.862068 1.464918,52.248063 l 10.340418,9.478509 a 1.50015,1.50015 0 0 1 -0.781759,2.590007 L 54.907671,83.72431 a 1.50015,1.50015 0 0 1 -1.243952,-0.377203 1.50015,1.50015 0 0 1 -0.48377,-1.206508 l 2.579622,-38.332044 a 1.50015,1.50015 0 0 1 2.51092,-1.004976 L 69.316396,52.928771 C 78.995428,41.887723 86.695167,25.85783 79.924056,11.78144 c 0.669119,0.572187 1.310628,1.149291 1.924851,1.729964 z m -36.02393,3.640211 a 1.50015,1.50015 0 0 1 0.48377,1.206508 l -2.579622,38.332044 a 1.50015,1.50015 0 0 1 -2.51092,1.004975 L 30.17374,47.571271 C 20.494708,58.612319 12.793529,74.640892 19.564639,88.717281 -1.8471651,70.407315 5.2313829,47.524797 16.174871,34.739255 L 5.8344529,25.260745 a 1.50015,1.50015 0 0 1 0.783194,-2.58869 L 44.581025,16.774412 a 1.50015,1.50015 0 0 1 1.243952,0.377203 z' />
 			</g>
 		</g>
-		<g id='vis'></g>
+		<g id='vis' class='at'></g>
 		<foreignObject id='fo' x='1750' y='100' width='922' height='1403'>
 			<div xmlns="http://www.w3.org/1999/xhtml" id='div'></div>
 		</foreignObject>
-		<g id='input'></g>
+		<g id='input' class='at'></g>
+		<g id='das'></g>
+		<g id='ths'></g>
 	</svg>
 </body>
 </html>

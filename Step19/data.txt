@@ -20,7 +20,7 @@
 	<li>E₁ walks twice as many steps as L and one step less than Y₂.</li>
 	<li>E₂ walks one step less than R₂, and also as much as E₄ and O₁ combined.</li>
 	<li>I walks as many steps more than T as T does more than E₁.</li>
-	<li>L walks two steps less than Y₁ and then moves one step south.</li>
+	<li>L walks two steps less than Y₁.</li>
 	<li>N₁ walks the next square number after Y₁.</li>
 	<li>N₂ walks nine times as many steps as E₃, and also as much as E₃, L and O₁ combined.</li>
 	<li>O₁ walks twice as many steps as E₃ and three more steps than U₂.</li>
@@ -31,7 +31,8 @@
 	<li>T, U₁ and U₂ together walk as much as E₂.</li>
 	<li>X₁ walks the next prime number after R₂.</li>
 	<li>X₂ walks as much as O₁ and Y₂ combined.</li>
-	<li>Y₁ walks four steps less than N₂ and then moves one step north.</li>
+	<li>Y₁ walks four steps less than N₂.</li>
+	<li>After all of that, L walks an additional step south and Y₁ one step north.</li>
 </ul>
 <p class='kbd'>
 	<span><kbd>left-drag</kbd> <span>move things around</span></span>

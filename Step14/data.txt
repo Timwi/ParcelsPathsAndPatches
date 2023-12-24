@@ -13,6 +13,7 @@
 	}
 }
 #
+<p>In this step, everything moves at most once. Things can move through each other though.</p>
 <ol>
 	<li>D4 moves as far as she can in a straight line diagonally while staying on seeded squares.</li>
 	<li>The nun now immediately to her south makes a knight’s move to a “┌─” piece of the nun-bear link.</li>

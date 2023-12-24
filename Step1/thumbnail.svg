@@ -176,4 +176,3 @@
 <text x="1050" y="1025" fill="hsl(220, 10%, 100%)" font-size="64" text-anchor="middle">M</text>
 <text x="1150" y="1025" fill="hsl(220, 10%, 100%)" font-size="64" text-anchor="middle">U</text>
 <text x="1250" y="1025" fill="hsl(220, 10%, 100%)" font-size="64" text-anchor="middle">S</text>
-<rect fill='white' fill-opacity='0' x='375' y='125' width='950' height='950' stroke='none' />
