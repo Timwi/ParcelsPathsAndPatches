@@ -1609,7 +1609,7 @@
 					case 3:
 						ni = s.m.findIndex((a, ix) => (a === null ? sc.n[ix] : followPathI(sc.n[ix], sc.m[a])) === i);
 						if (ni >= 0 && (btns & 1)) { s.k[ni] = s.k[ni] === null ? document.querySelector('#ans-chk select').selectedIndex : null; changes = true; }
-						if (ni >= 0 && (btns & 2)) { s.m[ni] = null; changes = true; }
+						if (ni >= 0 && (btns & 2)) { s.m[ni] = null; s.l = setChar(s.l, ni, sc.l[ni]); changes = true; }
 						if (ni >= 0 && (btns & 4)) { sc.v = s = JSON.parse(last); s.l = setChar(s.l, ni, '?'); }
 						break;
 
