@@ -22,7 +22,7 @@
 	<li>The nun who likes <cite>Spicy Food</cite> crosses paths with (but does not end up on the path of) the one who likes <cite>Kai Winn’s Predecessor</cite>, who in turn does not have a vowel on the other end of her nun-bear link.</li>
 	<li>The nun who likes <cite>The 60s Entertainer</cite> has a letter earlier in the alphabet than her nun-bear link partner.</li>
 	<li>The paths walked by the nun with the Y and the nun who likes <cite>Vedek Antos</cite>, do not cross any other nuns’ paths.</li>
-	<li>Each nun replaces their letter with one from the thing they like based on the total distance they walked in this step.</li>
+	<li>Each nun replaces their letter with one from the thing they like based on the total distance they walked in this stage.</li>
 </ul>
 <p class='kbd'>
 	<span><kbd>left-click</kbd>	<span>set nun’s like to drop-down item</span></span>

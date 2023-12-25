@@ -17,6 +17,7 @@
 <p class='kbd'>
 	<span><kbd>left-click/drag</kbd>	<span>place nun(s)</span></span>
 	<span><kbd>right-click/drag</kbd>	<span>cross out</span></span>
-	<span><kbd>Ctrl+Z</kbd>	<span>undo</span></span>
-	<span><kbd>Ctrl+Y</kbd>	<span>redo</span></span>
+	<span><kbd>Ctrl+Z</kbd>/<kbd>Alt+BkSp</kbd>	<span>undo</span></span>
+	<span><kbd>Ctrl+Y</kbd>/<kbd>Ctrl+Shift+Z</kbd>/<kbd>Alt+Shift+BkSp</kbd>	<span>redo</span></span>
 </p>
+<p style='opacity: .5; font-size: 18pt'>(I shall avoid repeating the undo/redo shortcuts from now on. They will continue to work, even across stages.)</p>

@@ -11,8 +11,8 @@
 }
 #
 <ul>
-	<li>Every third item moved in the previous step, beginning with the third, as well as items that did not move, Caesar shift their letters by +6 if it’s a nun or −1 if not. If a car drove through the square diagonally and then left the plot, the shift is reversed instead. On the center square of the 3×3 patch, it is doubled.</li>
-	<li>Every third item moved in the previous step, beginning with the last and going in reverse order, replace their letters to spell out the rank of Enrique Muniz, and then Caesar shift them by −4.</li>
+	<li>Every third item moved in the previous stage, beginning with the third, as well as items that did not move, Caesar shift their letters by +6 if it’s a nun or −1 if not. If a car drove through the square diagonally and then left the plot, the shift is reversed instead. On the center square of the 3×3 patch, it is doubled.</li>
+	<li>Every third item moved in the previous stage, beginning with the last and going in reverse order, replace their letters to spell out the rank of Enrique Muniz, and then Caesar shift them by −4.</li>
 </ul>
 <p class='kbd'>
 	<span><kbd>middle-click</kbd> <span>change letter</span></span>

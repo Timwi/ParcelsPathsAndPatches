@@ -8,7 +8,7 @@
 			if (!localStorage || !localStorage.getItem || !localStorage.setItem)
 				return alert('This page requires access to local storage.');
 
-			let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 12, 13],
+			let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 8, 12, 13],
 				t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';'),
 				ccs = [355, 30, 50, 100, 170, 200, 240, 280, 320];
 			function getCounter() { let c = counter++; counter %= 2147483647; return c; }
@@ -364,7 +364,7 @@
 			function edy(i)	{ let r = edyy(i); return r === null ? null : 150 + 100*r;	}
 			function ed(x, y)	{ return y === -1 ? x+1 : x === w ? y+11 : y === h ? 29-x : x === -1 ? 39-y : null;	}
 
-			async function updateView(changes)
+			async function updateView()
 			{
 				let updated = new Set(), sc = state.steps[state.step], s = sc.v;
 
@@ -567,7 +567,10 @@
 										: { x: sqx(d.i)+50, y: sqy(d.i)+80, 'text-anchor': 'middle', 'font-size': 90, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 70%)', stroke: 'hsl(220, 10%, 10%)', 'stroke-width': 10, 'paint-order': 'stroke' },
 										[d.n]);
 							if (state.step === 1)
-								mk('cl-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1410, y: 65, 'text-anchor': 'end' }, ['For future reference: you can view previous subpuzzles by clicking these dots. →']);
+							{
+								mk('cl-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1410, y: 57, 'text-anchor': 'end' }, ['For future reference: you can view previous stages by clicking these dots. →']);
+								mk('cl-ffr2', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1370, y: 95, 'text-anchor': 'end' }, ['(or press Home/PgUp/PgDown/End)']);
+							}
 							break;
 
 						case 3:
@@ -734,6 +737,24 @@
 									}
 									await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-t`, dx, dy, l, { 'class': 'movable' }, g[sel ? 4 : 2]);
 								}
+
+							let [o, p] = 'o' in s ? [s.o, false] : state.step > 0 && 'o' in state.steps[state.step-1].v ? [state.steps[state.step-1].v.o, true] : [null, null];
+							if (o !== null)
+							{
+								let zc = p ? state.steps[state.step-1] : sc, z = zc.v;
+								let f = Array.from(zc.a).map(k => zc[k]).flat(), t = Array.from(zc.a).map(k => z[k]).flat(), y = 75;
+								for (let i = 0; i < o.length; i++)
+								{
+									mk(`i-${i}-n`, 'text', { x: 160, y: y + 60*i, 'text-anchor': 'end', 'font-size': 52, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 50%)' }, [`${i+1}.`]);
+									function coord(i) { return `${String.fromCharCode(65+i%w)}${((i/w)|0)+1}`; }
+									mk(`i-${i}-m`, 'text', { '*x': 185, '*y': y + 60*i, 'text-anchor': 'start', 'font-size': 58, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 70%)' }, [`${coord(f[o[i]])} → ${coord(t[o[i]])}`]);
+									if (i < o.length - 1 && state.step === state.steps.length-1 && !p)
+										mk(`i-${i}-s`, 'g', { transform: `translate(70 ${y+12 + 60*i}) scale(.6)`, 'class': 'swapper', 'data-i': i }, `
+											<circle cx='20' r='45' fill='transparent' />
+											<path class='s' d='m 17.53125,-41.076 3.0625,9.189453 C 9.963086,-27.607464 3.596156,-23.128036 -0.25,-17.999828 -4.95999,-11.71984 -5,-4.9998181 -5,1.719e-4 c 0,4.99999 0.04002,11.7200121 4.75,18.0000001 3.846156,5.128208 10.213086,9.607636 20.84375,13.886719 L 17.53125,41.076344 45.818359,35.27361 26.669922,13.658375 23.769531,22.359547 C 14.600726,18.565718 9.978856,14.971979 7.75,12.000172 4.960006,8.2801799 5,5.0001619 5,1.719e-4 c 0,-4.99999 -0.04,-8.280008 2.75,-11.9999999 2.228856,-2.971807 6.850726,-6.565546 16.019531,-10.359375 l 2.900391,8.701172 19.148437,-21.615235 z' />
+										`, input);
+								}
+							}
 							break;
 
 						case 42:
@@ -895,17 +916,17 @@
 					for (let thIx = 0; thIx < stepsWithThumbnails.length; thIx++)
 						if (state.step >= stepsWithThumbnails[thIx])
 						{
-							let th = stepsWithThumbnails[thIx], mx = 850, my = 600, tx = 1600, ty = 250 + 250*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950, f = thIx === 3 ? 11 : 9;
-							if (thIx === 3) { x1 -= 100; y1 -= 100; x2 += 100; y2 += 100; }
+							let th = stepsWithThumbnails[thIx], mx = 850, my = 600, tx = 1600, ty = 225 + 225*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950, f = thIx === 4 ? 11 : 9;
+							if (thIx === 4) { x1 -= 100; y1 -= 100; x2 += 100; y2 += 100; }
 							let x3 = (x1-mx)*2/f+tx, y3 = (y1-my)*2/f+ty, x4 = (x2-mx)*2/f+tx, y4 = (y2-my)*2/f+ty;
 							await ensureThumbnail(thIx);
 							mk(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, transform: `translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` }, null, th1);
 							mk(`show-thumbnail-${thIx}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)`, 'class': 'anim-none' }, `
 								<use	opacity='.9'	href='#thumbnail-${thIx}-r' />
-								<path	opacity='.4'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
-								<path	opacity='.4'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
-								<path	opacity='.6'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
-								<path	opacity='.6'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
+								<path	opacity='.1'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
+								<path	opacity='.1'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
+								<path	opacity='.2'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
+								<path	opacity='.2'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
 							`, ths);
 							mk(`thumbnail-${thIx}`, 'rect', { x: x3, y: y3, width: x4-x3, height: y4-y3, fill: 'transparent', 'class': 'thumbnail' }, null, input);
 						}
@@ -1025,7 +1046,7 @@
 				let sc = state.steps[step], s = sc.v;
 				last = JSON.stringify(s);
 
-				if (step === 0 && !('j' in sc))
+				if (step === 0 && !('j' in state))
 				{
 					inputBlocked = true;
 					document.getElementById('vis').innerHTML = '';
@@ -1052,7 +1073,7 @@
 						{ d: 1.47 },
 						() => { for (let s of [t1, t2, t3]) s.remove(); }
 					]);
-					sc.j = true;
+					state.j = true;
 					document.getElementById('ui').style.visibility = 'visible';
 					document.getElementById('fo').style.visibility = 'visible';
 					inputBlocked = false;
@@ -1096,6 +1117,8 @@
 						{
 							li.onclick = function()
 							{
+								if (state.step < state.steps.length - 1)
+									return;
 								let s = state.steps[step].v;
 								s.j = (s.j ?? 0) ^ (1 << ix);
 								saveUndo();
@@ -1105,6 +1128,7 @@
 						break;
 				}
 
+				localStorage.setItem('ppp-state', JSON.stringify(state));
 				await updateView();
 			}
 
@@ -1116,7 +1140,7 @@
 					case 1:	return s.b.replace(/ /g, '_');
 					case 3:	return [...s.m, ...s.k, ...s.a.map(s => s.replace(/ /g, '')), s.l].join('-');
 					case 4:	let t = s.c.filter(c => c !== null); t.sort((a, b) => a.i-b.i); return t.map(c => `${c.i}-${c.r}`).join('-');
-					case 26:	let u = []; for (let k of sc.a) if (k in s) u.push(...s[k]); if ('l' in s) u.push(s.l.replace(/ /g, '_')); return u.join('-');
+					case 26:	let u = []; for (let k of sc.a) if (k in s) u.push(...s[k]); if ('l' in s) u.push(s.l.replace(/ /g, '_')); if ('o' in s) u.push(...s.o); return u.join('-');
 					case 42:
 						switch (sc.subtype)
 						{
@@ -1336,11 +1360,11 @@
 				if (thIx >= 0)
 				{
 					await ensureThumbnail(thIx);
-					let tt = make(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, 'class': 'anim-none' }), sp = thIx === 3;
+					let tt = make(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, 'class': 'anim-none' }), sp = thIx === 4;
 					let re = make(`thumbnail-${thIx}-x`, 'rect', { 'class': 'anim-none', x: sp ? 275 : 375, y: sp ? 25 : 125, width: sp ? 1150 : 950, height: sp ? 1150 : 950, fill: 'white', '*fill-opacity': 0 });
 					await coroutine('swoop-thumbnail', [
 						{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuart, fn: t => { re.setAttribute('fill-opacity', t.o); } },
-						{ d: .87, v: { x: [850, 1600], y: [600, 250 + 250*thIx], s: [1, 2/(thIx === 3 ? 11 : 9)] }, e: Easing.OutQuart,
+						{ d: .87, v: { x: [850, 1600], y: [600, 250 + 250*thIx], s: [1, 2/(thIx === 4 ? 11 : 9)] }, e: Easing.OutQuart,
 							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-850, -600)`); } }
 					]);
 					tt.classList.remove('anim-none');
@@ -1357,24 +1381,50 @@
 
 				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`;
 
-				if (keycombo === 'Ctrl+KeyZ' || keycombo === 'Alt+Backspace')
+				switch (keycombo)
 				{
-					setUndo(state.undoptr - 1);
-					e.preventDefault();
-					return false;
-				}
-				else if (keycombo === 'Ctrl+KeyY' || keycombo === 'Ctrl+Shift+KeyZ' || keycombo === 'Alt+Shift+Backspace')
-				{
-					setUndo(state.undoptr + 1);
-					e.preventDefault();
-					return false;
-				}
-				else if (keycombo === 'Escape')
-				{
-					state.steps[state.step].v = JSON.parse(last);
-					e.preventDefault();
-					updateView();
-					return false;
+					case 'Ctrl+KeyZ':
+					case 'Alt+Backspace':
+						setUndo(state.undoptr - 1);
+						e.preventDefault();
+						return false;
+
+					case 'Ctrl+KeyY':
+					case 'Ctrl+Shift+KeyZ':
+					case 'Alt+Shift+Backspace':
+						setUndo(state.undoptr + 1);
+						e.preventDefault();
+						return false;
+
+					case 'Escape':
+						state.steps[state.step].v = JSON.parse(last);
+						e.preventDefault();
+						updateView();
+						return false;
+
+					case 'Home':
+						e.preventDefault();
+						if (state.step !== 0)
+							await setupStepMaybe(await loadStep(0));
+						return false;
+
+					case 'PageUp':
+						e.preventDefault();
+						if (state.step > 0)
+							await setupStepMaybe(await loadStep(state.step-1));
+						return false;
+
+					case 'PageDown':
+						e.preventDefault();
+						if (state.step < state.steps.length - 1)
+							await setupStepMaybe(await loadStep(state.step+1));
+						return false;
+
+					case 'End':
+						e.preventDefault();
+						if (state.step !== state.steps.length-1)
+							await setupStepMaybe(await loadStep(state.steps.length-1));
+						return false;
 				}
 
 				if (e.ctrlKey || e.altKey || /^F\d+$/.test(e.key))
@@ -1648,7 +1698,7 @@
 
 					case 26:
 						let [j, k, ai, ii] = get(s, sc, i);
-						if (ai >= 0 && (btns & 2) && k in s) { s[k][ii] = sc[k][ii]; changes = true; }
+						if (ai >= 0 && (btns & 2) && k in s) { s[k][ii] = sc[k][ii]; if ('o' in s) s.o = s.o.filter(x => x !== ai); changes = true; }
 						if (ai >= 0 && (btns & 4) && 'l' in s) { sc.v = s = JSON.parse(last); s.l = setChar(s.l, ai, '?'); }
 						break;
 
@@ -1835,7 +1885,6 @@
 						for (let tg of Array.from(document.querySelectorAll('.tg')))
 							tg.classList.remove('tg');
 						changes = mouseI !== null && s.m[mouseI] !== mouseM;
-						// canonicalize
 						for (let j1 = 0; j1 < s.m.length; j1++)
 							if (s.m[j1] !== null)
 								for (let j2 = j1+1; j2 < s.m.length; j2++)
@@ -1868,6 +1917,15 @@
 					case 26:
 						for (let nu of document.querySelectorAll('.movable'))
 							nu.classList.remove('sel');
+						if ('o' in s)
+						{
+							let [j, k, ri, ii] = get(s, sc, i);
+							let n = s.o.indexOf(ri);
+							if (n >= 0 && s[k][ii] === sc[k][ii])
+								s.o.splice(n, 1);
+							else if (n < 0 && s[k][ii] !== sc[k][ii])
+								s.o.push(ri);
+						}
 						changes = i !== oi;
 						break;
 				}
@@ -1907,7 +1965,35 @@
 				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = mouseC = null;
 			});
 
-			document.body.addEventListener('click',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
+			document.body.addEventListener('click', async function(e)
+			{
+				if (!div.contains(e.target))
+					e.preventDefault();
+				let o = Array.from(document.querySelectorAll('.swapper')).find(o => o.contains(e.target));
+				if (o)
+				{
+					let sc = state.steps[state.step], s = sc.v, i = o.dataset.o|0;
+					let t1 = document.getElementById(`o-${i}-m`), t2 = document.getElementById(`o-${i+1}-m`), y = 75;
+					if ('o' in s && i >= 0 && i < s.o.length && t1 && t2)
+					{
+						[s.o[i], s.o[i+1]] = [s.o[i+1], s.o[i]];
+						saveUndo();
+						let s1 = [185, y	+ 60*i], c1 = [205, y	+ 60*i], d1 = [205, y+60	+ 60*i], e1 = [185, y+60	+ 60*i];
+						let s2 = [185, y+60	+ 60*i], c2 = [165, y+60	+ 60*i], d2 = [165, y	+ 60*i], e2 = [185, y	+ 60*i];
+						function bé(s, c, d, e, t) { return Math.pow(1 - t, 3) * s + 3 * Math.pow(1 - t, 2) * t * c + 3 * (1 - t) * t * t * d + Math.pow(t, 3) * e; }
+						await coroutine(null, [
+							{ d: .47, v: { t: [0, 1] }, e: Easing.OutQuad, fn: t => {
+								t1.setAttribute('x', bé(s1[0], c1[0], d1[0], e1[0], t.t));
+								t1.setAttribute('y', bé(s1[1], c1[1], d1[1], e1[1], t.t));
+								t2.setAttribute('x', bé(s2[0], c2[0], d2[0], e2[0], t.t));
+								t2.setAttribute('y', bé(s2[1], c2[1], d2[1], e2[1], t.t));
+							} }
+						]);
+						[t1.id, t2.id] = [t2.id, t1.id];
+					}
+				}
+			});
+
 			document.body.addEventListener('contextmenu',	function(e) { if (!div.contains(e.target)) e.preventDefault();	});
 
 			function setThumbnailOverlay(id, on)
@@ -2286,6 +2372,7 @@
 			<g id='thumbnail-2-r'></g>
 			<g id='thumbnail-3-r'></g>
 			<g id='thumbnail-4-r'></g>
+			<g id='thumbnail-5-r'></g>
 		</defs>
 		<g id='fw'></g>
 		<g id='ui'>

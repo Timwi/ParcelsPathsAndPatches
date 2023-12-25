@@ -143,3 +143,7 @@ path.tg { animation: .47s ease-in-out alternate infinite pulsate-tg; }
 .ans-chk button	{ font: inherit; font-size: 16pt; padding: .1cm .25cm; background: hsl(220, 40%, 40%); border: 4px solid hsl(220, 40%, 50%); color: white; }
 
 li.j { opacity: .4; }
+
+#input .swapper,	#das .swapper	{ cursor: pointer; }
+#input .swapper>.s,	#das .swapper>.s	{ stroke-opacity: 0; transition: stroke-opacity .147s; stroke: hsl(220, 20%, 10%); stroke-width: 12; paint-order: stroke; stroke-linejoin: round;	fill: hsl(220, 20%, 50%); }
+#input .swapper:hover>.s,	#das .swapper:hover>.s	{ stroke-opacity: 1; }

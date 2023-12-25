@@ -9,11 +9,12 @@
 	"v": {
 		"n": [7, 3, 44, 33, 38, 20, 59, 30, 49, 55],
 		"d": [0, 4, 8, 29, 54, 70],
-		"c": [21, 32, 37, 53, 66]
+		"c": [21, 32, 37, 53, 66],
+		"o": []
 	}
 }
 #
-<p>In this step, everything moves at most once. Things can move through each other though.</p>
+<p>In this stage, everything moves at most once. Things can move through each other though.</p>
 <ol>
 	<li>D4 moves as far as she can in a straight line diagonally while staying on seeded squares.</li>
 	<li>The nun now immediately to her south makes a knight’s move to a “┌─” piece of the nun-bear link.</li>

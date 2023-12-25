@@ -30,14 +30,14 @@
 		<div class='cw-h'>	Down	</div>
 		<div class='cw-c' data-cell='↓0'><div>1.	</div><div>Accomplishment&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓1'><div>2.	</div><div>Push&nbsp;<span class='e'>(4)</span>	</div></div>
-		<div class='cw-c' data-cell='↓2'><div>3.	</div><div>Hoax&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓2'><div>3.	</div><div>____rock (Irish emblem)&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓3'><div>4.	</div><div>Unexpected revelations&nbsp;<span class='e'>(9)</span>	</div></div>
 		<div class='cw-c' data-cell='↓5'><div>5.	</div><div>Compare, statistically&nbsp;<span class='e'>(9)</span>	</div></div>
 		<div class='cw-c' data-cell='↓6'><div>6.	</div><div>Performance&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓7'><div>7.	</div><div>Endure&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓8'><div>8.	</div><div>Bolt&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓31'><div>14.	</div><div>Survey&nbsp;<span class='e'>(3)</span>	</div></div>
-		<div class='cw-c' data-cell='↓45'><div>16.	</div><div>Menorca, for example&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓45'><div>16.	</div><div>Menorca, e.g.&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓46'><div>17.	</div><div>Close&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓47'><div>18.	</div><div>Cheese&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓51'><div>19.	</div><div>Thump&nbsp;<span class='e'>(4)</span>	</div></div>
@@ -48,7 +48,7 @@
 <p class='fl'>None of the nuns is wearing a cross. Word on the street is they lost it.</p>
 <p class='kbd'>
 	<span><kbd>Space</kbd> <span>toggle direction</span></span>
-	<span><kbd>Tab</kbd><kbd>Shift+Tab</kbd> <span>prev/next unsolved entry</span></span>
-	<span><kbd>Ctrl+Z</kbd>	<span>undo</span></span>
-	<span><kbd>Ctrl+Y</kbd>	<span>redo</span></span>
+	<span><kbd>Tab</kbd>/<kbd>Shift+Tab</kbd> <span>prev/next unsolved entry</span></span>
+	<span><kbd>Ctrl+Z</kbd>/<kbd>Alt+BkSp</kbd>	<span>undo</span></span>
+	<span><kbd>Ctrl+Y</kbd>/<kbd>Alt+Shift+BkSp</kbd>	<span>redo</span></span>
 </p>
