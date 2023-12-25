@@ -14,7 +14,7 @@
 #
 <ul style='font-size: 23pt; margin-bottom: 1.5cm'>
 	<li>Every nun moves in one of the ways shown.</li>
-	<li>No nun stops on a square that another nun started at.</li>
+	<li>No nun starts or stops on a square that another nun started or stopped at.</li>
 	<li>All of the nuns that walk only horizontally, including the one who likes <cite>Alexander’s Family Name</cite>, share a letter with another nun.</li>
 	<li>One of the nuns from the median-length nun-bear link likes <cite>The Tailor</cite>. Her path crosses the stopping square of one of the nuns who walked the least, but not the one who likes <cite>The Klingon Afterlife</cite>.</li>
 	<li>One of the nuns who starts in the leftmost column likes <cite>Ezri’s Prior Host</cite>.</li>

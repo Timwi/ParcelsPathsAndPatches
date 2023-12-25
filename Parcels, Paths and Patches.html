@@ -548,7 +548,7 @@
 									c.classList.remove('hl');
 							});
 							mk('cw-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1210 }, ['For future reference:']);
-							mk('cw-ffr2', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1310 }, ['← You can click here to reset the current puzzle. (Warning: no undo.)']);
+							mk('cw-ffr2', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1310 }, ['← You can click here to reset the current puzzle.']);
 							mk('cw-ffr3', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1410 }, ['← You can click here to copy the game state into the clipboard as JSON, and later press Ctrl+V to go back to it.']);
 							break;
 
@@ -901,11 +901,11 @@
 							await ensureThumbnail(thIx);
 							mk(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, transform: `translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` }, null, th1);
 							mk(`show-thumbnail-${thIx}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)`, 'class': 'anim-none' }, `
-								<use	opacity='.5'	href='#thumbnail-${thIx}-r' />
-								<path	opacity='.2'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
-								<path	opacity='.2'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
-								<path	opacity='.3'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
-								<path	opacity='.3'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
+								<use	opacity='.9'	href='#thumbnail-${thIx}-r' />
+								<path	opacity='.4'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
+								<path	opacity='.4'	d='M${x2} ${y1} ${x4} ${y3} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- right -->
+								<path	opacity='.6'	d='M${x1} ${y1} ${x2} ${y1} ${x4} ${y3} ${x3} ${y3}z'	fill='white'	/> <!-- top -->
+								<path	opacity='.6'	d='M${x1} ${y2} ${x3} ${y4} ${x4} ${y4} ${x2} ${y2}z'	fill='white'	/> <!-- bottom -->
 							`, ths);
 							mk(`thumbnail-${thIx}`, 'rect', { x: x3, y: y3, width: x4-x3, height: y4-y3, fill: 'transparent', 'class': 'thumbnail' }, null, input);
 						}
@@ -1171,7 +1171,7 @@
 							{ d: 1.47 },
 							() => {
 								for (let tn of document.querySelectorAll('.thumbnail'))
-									setThumbnailOverlay(tn.id, false);
+									setThumbnailOverlay(tn.id, 0);
 							},
 							{ d: 3.47, v: { o: [1, 0], f: [70, 120], y: [0, -175] }, e: Easing.InOutQuad, fn: t => {
 								for (let e of document.querySelectorAll('#vis *'))
@@ -1535,20 +1535,27 @@
 			async function setUndo(ptr)
 			{
 				if (ptr < 0 || ptr >= state.undo.length)
-					return false;
-				let p = state.undoptr, fwd = ptr > state.undoptr, s = state.step;
+					return;
+				let p = state.undoptr, redoing = ptr > state.undoptr, s = state.step;
+				if (!redoing && state.undo.slice(ptr+1, p+1).some(u => u.n))
+				{
+					p = -1;
+					redoing = true;
+				}
 				while (p != ptr)
 				{
-					if (state.undo[p].n && !fwd)
-						state.steps.splice(state.undo[p].s, 1);
-					p += (fwd ? 1 : -1);
+					p += (redoing ? 1 : -1);
 					state.step = state.undo[p].s;
 					if (state.undo[p].n)
+					{
+						state.steps.splice(state.step);
 						state.steps[state.step] = JSON.parse(JSON.stringify(state.undo[p].v));
+					}
 					else
 						state.steps[state.step].v = JSON.parse(JSON.stringify(state.undo[p].v));
 				}
 				state.undoptr = ptr;
+				localStorage.setItem('ppp-state', JSON.stringify(state));
 				if (s !== state.step)
 					await setupStepMaybe(await loadStep(state.step ?? 0));
 				else
@@ -1572,7 +1579,7 @@
 				if (changes && state.step < state.steps.length - 1)
 					state.steps[state.step].v = JSON.parse(last);
 				else if (changes)
-					saveUndo(false);
+					saveUndo();
 				await updateView();
 			}
 
@@ -1872,6 +1879,8 @@
 
 			document.body.addEventListener('mousedown', async function(e)
 			{
+				if (!inputBlocked && e.target.classList.contains('thumbnail'))
+					return setThumbnailOverlay(e.target.id, 1);
 				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
 					return true;
 				if (inputBlocked || Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(e.target)))
@@ -1886,6 +1895,8 @@
 			});
 			document.body.addEventListener('mouseup', async function(e)
 			{
+				if (!inputBlocked && e.target.classList.contains('thumbnail'))
+					return setThumbnailOverlay(e.target.id, .5);
 				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
 					return true;
 				if (inputBlocked || Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(e.target)))
@@ -1902,17 +1913,15 @@
 			function setThumbnailOverlay(id, on)
 			{
 				let el = document.getElementById(`show-${id}`);
-				el.style.opacity = !inputBlocked && on ? 1 : 0;
-				el.style.transform = on ? 'none' : el.dataset.transform;
+				el.style.opacity = inputBlocked ? 0 : on;
+				el.style.transform = on === 0 ? el.dataset.transform : 'none';
 				return true;
 			}
 
 			document.body.addEventListener('mouseover', function(e)
 			{
-				if (!inputBlocked)
-					for (let tn of document.querySelectorAll('.thumbnail'))
-						if (tn.contains(e.target))
-							return setThumbnailOverlay(tn.id, true);
+				if (!inputBlocked && e.target.classList.contains('thumbnail'))
+					return setThumbnailOverlay(e.target.id, .5);
 				if (mouseX === null || (!('x' in e.target.dataset) && !('e' in e.target.dataset)))
 					return true;
 				let x = e.target.dataset.x|0, y = e.target.dataset.y|0, ex = 'e' in e.target.dataset ? e.target.dataset.e|0 : null;
@@ -1924,10 +1933,8 @@
 			});
 			document.body.addEventListener('mouseout', function(e)
 			{
-				if (!inputBlocked)
-					for (let tn of document.querySelectorAll('.thumbnail'))
-						if (tn.contains(e.target))
-							return setThumbnailOverlay(tn.id, false);
+				if (!inputBlocked && e.target.classList.contains('thumbnail'))
+					return setThumbnailOverlay(e.target.id, 0);
 				mouseC = null;
 			});
 
@@ -1950,6 +1957,12 @@
 					}
 					document.body.removeChild(textArea);
 				}
+				let msg = make(null, '*text', { x: 175, y: 1413, fill: 'hsl(220, 10%, 70%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 70, 'text-anchor': 'start' }, ['copied']);
+				coroutine('check-mom', [
+					{ d: .47 },
+					{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuad, fn: t => { msg.setAttribute('opacity',	t.o); } },
+					() => { msg.remove(); }
+				]);
 			};
 
 			document.getElementById('reset').onclick = async function()
@@ -1971,6 +1984,7 @@
 						{
 							let undo = Array.isArray(j.undo) ? j.undo : [{s: 0}];
 							state = { steps: j.steps, step: Math.max(0, Math.min(j.steps.length-1, j.step|0)), undo: undo, undoptr: Math.max(0, Math.min(undo.length-1, j.undoptr|0)), j: 'j' in j && !!j.j };
+							localStorage.setItem('ppp-state', JSON.stringify(state));
 							await setupStepMaybe(await loadStep(state.step));
 						}
 					}
