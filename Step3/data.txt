@@ -14,7 +14,7 @@
 	<li>In this step, nuns do not ever cross parcel boundaries.</li>
 	<li>All nuns that can move 3 spaces in an orthogonal direction, do so.</li>
 	<li>Then, all nuns that can move in an orthogonal direction until they are diagonally adjacent to a nun that has already moved in this step, do so.</li>
-	<li>Then, all nuns that have a parcel boundary to their north but not their east, mirror the same movement as another nun that already moved.</li>
+	<li>Then, all nuns that have a parcel boundary to their north but not their east, copy the same movement as another nun that already moved.</li>
 	<li>A tenth nun walks onto the land from the left in a row that has not seen any nun movement yet and where she is not adjacent to another nun and picks up a letter from the crossword.</li>
 	<li>Contrary to what I said earlier, the new nun crosses a parcel boundary by walking one space in an orthogonal direction.</li>
 </ul>

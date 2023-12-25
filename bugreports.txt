@@ -1,0 +1,3 @@
+• thumbnail opacity on mouse hold
+• make the copy button react
+• nun movement puzzle: prevent two nuns in the same square

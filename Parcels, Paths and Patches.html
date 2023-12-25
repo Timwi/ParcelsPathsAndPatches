@@ -2,426 +2,40 @@
 <html>
 <head>
 	<link rel='stylesheet' type='text/css' href='Parcels,%20Paths%20and%20Patches.css'>
-	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua.ttf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua%20Italics.ttf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua%20Bold.ttf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Book%20Antiqua%20Bold%20Italics.ttf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Thin.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Thin%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Light.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Light%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Regular.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Regular%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20SemiBold.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20SemiBold%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Bold.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Bold%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Extrabold.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Extrabold%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Black.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='Proxima%20Nova%20Extra%20Condensed%20Black%20Italic.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Thin.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-ExtraLight.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Light.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Regular.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Medium.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-SemiBold.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Bold.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-ExtraBold.otf' />
-	<link rel='preload' as='font' crossorigin='anonymous' href='WorkSans-Black.otf' />
 	<script>
-		let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 12, 13],
-			t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';'),
-			ccs = [355, 30, 50, 100, 170, 200, 240, 280, 320];
-		function getCounter() { let c = counter++; counter %= 2147483647; return c; }
-
-		let Easing = {
-			InQuad:	t => t * t,
-			OutQuad:	t => -t * (t - 2),
-			InOutQuad:	t => t < .5 ? 2 * t * t : (4 - 2 * t) * t - 1,
-			InCubic:	t => t * t * t,
-			OutCubic:	t => ((t - 3) * t + 3) * t,
-			InOutCubic:	t => t < .5 ? 4 * t * t * t : ((4 * t - 12) * t + 12) * t - 3,
-			InQuart:	t => t * t * t * t,
-			OutQuart:	t => (((4 - t) * t - 6) * t + 4) * t,
-			InOutQuart:	t => t < .5 ? 8 * t * t * t * t : (((32 - 8 * t) * t - 48) * t + 32) * t - 7,
-			InQuint:	t => t * t * t * t * t,
-			OutQuint:	t => ((((t - 5) * t + 10) * t - 10) * t + 5) * t,
-			InOutQuint:	t => t < .5 ? 16 * t * t * t * t * t : ((((16 * t - 80) * t + 160) * t - 160) * t + 80) * t - 15,
-			InSine:	t => -Math.cos(t * Math.PI / 2) + 1,
-			OutSine:	t => Math.sin(t * Math.PI / 2),
-			InOutSine:	t => .5 - Math.cos(Math.PI * t) / 2,
-			InExpo:	t => Math.pow(2, 10 * (t - 1)),
-			OutExpo:	t => 1 - Math.pow(2, -10 * t),
-			InOutExpo:	t => t < .5 ? Math.pow(2, 10 * (2*t - 1))/2 : 1 - Math.pow(2, -10 * (2*t - 1))/2,
-			InCirc:	t => 1 - Math.sqrt(1 - t * t),
-			OutCirc:	t => Math.sqrt((2 - t)*t),
-			InOutCirc:	t => t < .5 ? (1 - Math.sqrt(1 - 4*t*t))/2 : (Math.sqrt((8 - 4*t) * t - 3) + 1)/2
-		};
-
-		async function coroutine(id, data, fnc)
-		{
-			let val = id === null ? null : (coroutines[id] = getCounter());
-			for (let ix = 0; ix < data.length; ix++)
-			{
-				if (typeof data[ix] === 'function')
-				{
-					await data[ix]();
-					continue;
-				}
-				let startTime = await new Promise(requestAnimationFrame), elapsed = 0, dur = data[ix].d * 1000, ea = data[ix].e ?? (t => t), obj;
-				if (id !== null && coroutines[id] !== val)
-					return;
-				while (elapsed < dur)
-				{
-					obj = data[ix].v ? Object.fromEntries(Object.entries(data[ix].v).map(([k, [s, e]]) => [k, (e-s)*ea(elapsed/dur) + s])) : null;
-					if (fnc)
-						fnc(obj, ix, false);
-					if (data[ix].fn)
-						data[ix].fn(obj, ix, false);
-					elapsed = (await new Promise(requestAnimationFrame)) - startTime;
-					if (id !== null && coroutines[id] !== val)
-						return;
-				}
-				obj = data[ix].v ? Object.fromEntries(Object.entries(data[ix].v).map(([k, v]) => [k, v[1]])) : null;
-				if (fnc)
-					fnc(obj, ix, true);
-				if (data[ix].fn)
-					data[ix].fn(obj, ix, false);
-			}
-		}
-
-		let fetchCache = {};
-		async function doFetch(url, fn)
-		{
-			if (url in fetchCache)
-				return fn ? fn(fetchCache[url]) : fetchCache[url];
-			let response = await fetch(url);
-			return	response.status === 403 || response.status === 404 ? false :
-				response.status === 200 ? (r => fn ? fn(r) : r)(fetchCache[url] = await response.text()) :
-				alert('Data could not be loaded. Contact your santa!') ?? null;
-		}
-
-		function setChar(str, ix, ch)
-		{
-			return `${str.substring(0, ix)}${ch}${str.substring(ix + 1)}`;
-		}
-
-		function joinSegments(segs, fn)
-		{
-			let svg = [];
-			while (segs.length > 0)
-			{
-				let seg = segs.pop();
-				while (true)
-				{
-					let extIx = segs.findIndex(sg =>
-						((sg.d1 ^ 2) === seg.d1 && sg.c[0] === seg.c[0]) ||
-						((sg.d1 ^ 2) === seg.d2 && sg.c[0] === seg.c[seg.c.length - 1]) ||
-						((sg.d2 ^ 2) === seg.d1 && sg.c[sg.c.length - 1] === seg.c[0]) ||
-						((sg.d2 ^ 2) === seg.d2 && sg.c[sg.c.length - 1] === seg.c[seg.c.length - 1]));
-					if (extIx === -1)
-					{
-						extIx = segs.findIndex(sg =>
-							((sg.c[0] === seg.c[0] || sg.c[0] === seg.c[seg.c.length - 1]) &&
-								!segs.some(s => (s.c[0] === sg.c[0] && (s.d1 ^ 2) === sg.d1) || (s.c[s.c.length - 1] === sg.c[0] && (s.d2 ^ 2) === sg.d1))) ||
-							((sg.c[sg.c.length - 1] === seg.c[0] || sg.c[sg.c.length - 1] === seg.c[seg.c.length - 1]) &&
-								!segs.some(s => (s.c[0] === sg.c[sg.c.length - 1] && (s.d1 ^ 2) === sg.d2) ||
-								(s.c[s.c.length - 1] === sg.c[sg.c.length - 1] && (s.d2 ^ 2) === sg.d2)))
-						);
-					}
-					if (extIx === -1)
-						break;
-					let ext = segs[extIx];
-					segs.splice(extIx, 1);
-					if (seg.c[0] === ext.c[0])
-					{
-						seg.c.reverse();
-						seg.c.pop();
-						if (seg.d1 === (ext.d1 ^ 2))
-							ext.c.shift();
-						seg.c.push(...ext.c);
-						seg.d1 = seg.d2;
-						seg.d2 = ext.d2;
-					}
-					else if (seg.c[0] === ext.c[ext.c.length - 1])
-					{
-						ext.c.pop();
-						if (seg.d1 === (ext.d2 ^ 2))
-							seg.c.shift();
-						ext.c.push(...seg.c);
-						ext.d2 = seg.d2;
-						seg = ext;
-					}
-					else if (seg.c[seg.c.length - 1] === ext.c[0])
-					{
-						seg.c.pop();
-						if (ext.d1 === (seg.d2 ^ 2))
-							ext.c.shift();
-						seg.c.push(...ext.c);
-						seg.d2 = ext.d2;
-					}
-					else if (seg.c[seg.c.length - 1] === ext.c[ext.c.length - 1])
-					{
-						ext.c.reverse();
-						seg.c.pop();
-						if (seg.d2 === (ext.d2 ^ 2))
-							ext.c.shift();
-						seg.c.push(...ext.c);
-						seg.d2 = ext.d1;
-					}
-				}
-				let isClosed = seg.c[0] === seg.c[seg.c.length - 1];
-				svg.push(`M${seg.c.slice(isClosed ? 1 : 0).map(fn).join(' ')}${isClosed ? 'z' : ''}`);
-			}
-			return svg.join('');
-		}
-
-		function followPathI(i, str, fn)
-		{
-			if (fn) fn(i);
-			for (let ch of str)
-			{
-				if (ch === '↑') { if (i < w	) return null; i -= w;	}
-				if (ch === '→') { if (i%w >= w-1	) return null; i++;	}
-				if (ch === '↓') { if (i >= w*(h-1)	) return null; i += w;	}
-				if (ch === '←') { if (i%w < 1	) return null; i--;	}
-				if (fn) fn(i);
-			}
-			return i;
-		}
-
-		function followPathXY(x, y, str, fn)
-		{
-			if (fn) fn(x, y);
-			for (let ch of str)
-			{
-				if (ch === '↑') y--;
-				if (ch === '→') x++;
-				if (ch === '↓') y++;
-				if (ch === '←') x--;
-				if (fn) fn(x, y);
-			}
-			return [x, y];
-		}
-
-		function hasPath(b, i)
-		{
-			return b.charCodeAt(i) - 65 !== 0	|| (i % w > 0	&& ((b.charCodeAt(i-1)-65) & 1) !== 0)
-				|| (i >= w	&& ((b.charCodeAt(i-w)-65) & 2) !== 0);
-		}
-
-		function pathFillsGrid(b, fn)
-		{
-			let good = Array(w*h).fill(false);
-			for (let i = 0; i < w*h; i++)
-			{
-				if (fn && fn(i))
-					good[i] = true;
-				let v = b.charCodeAt(i) - 65;
-				if (i % w < w-1	&& (v & 1)) { good[i] = true; good[i + 1] = true; }
-				if (i < w*(h-1)	&& (v & 2)) { good[i] = true; good[i + w] = true; }
-			}
-			return !good.includes(false);
-		}
-
-		let lastMade = 0;
-		function make(id, elemName, attrs, content, parent, nodom)
-		{
-			parent = parent ?? vis;
-			let force = elemName.startsWith('*'), isn = false;
-			if (force) elemName = elemName.substring(1);
-			let elem = document.getElementById(id) ?? (function()
-			{
-				isn = true;
-				let e = document.createElementNS('http://www.w3.org/2000/svg', elemName);
-				if (id !== null)
-					e.id = id;
-				if (!force)
-					for (let key in attrs)
-						if (attrs.hasOwnProperty(key) && !key.startsWith('*'))
-						{
-							if (typeof attrs[key] === 'function' && key.startsWith('on'))
-								e[key] = attrs[key];
-							else if (typeof attrs[key] === 'function')
-								e.setAttribute(key, attrs[key]());
-							else
-								e.setAttribute(key, attrs[key]);
-						}
-				return e;
-			})();
-			for (let key in attrs)
-				if (attrs.hasOwnProperty(key) && (key.startsWith('*') || force))
-				{
-					if (typeof attrs[key] === 'function' && /^\*?on/.test(key))
-						elem[key.replace(/^\*/, '')] = attrs[key];
-					else if (typeof attrs[key] === 'function')
-						elem.setAttribute(key.replace(/^\*/, ''), attrs[key]());
-					else
-						elem.setAttribute(key.replace(/^\*/, ''), attrs[key]);
-				}
-
-			for (let restore of ['opacity', 'transform'])
-				if (elem.hasAttribute(restore) && (!attrs || !(restore in attrs || `*${restore}` in attrs)))
-					elem.removeAttribute(restore);
-
-			if (content !== undefined)
-			{
-				if (Array.isArray(content))
-					elem.textContent = content[0];
-				else if (elem.PPPSauce !== content)
-				{
-					elem.PPPSauce = content;
-					elem.innerHTML = content;
-				}
-			}
-			if (!nodom && isn && elem.getBBox && !elem.classList.contains('anim-none') && !elem.classList.contains('at') && parent.classList.contains('at'))
-			{
-				let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-				g.classList.add('nd');
-				g.classList.add('aa');
-				g.appendChild(elem);
-				parent.appendChild(g);
-				function animDone()
-				{
-					if (!elem.PPPDisappear)
-						g.parentNode.insertBefore(elem, g);
-					g.remove();
-				}
-
-				if (elem.classList.contains('anim-sw'))
-				{
-					let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { primitiveUnits: 'objectBoundingBox' }, null, defs, true);
-					let fi = make(null, 'feImage', { result: 'lingrad' }, null, f, true);
-					let fc = make(null, 'feComposite', { 'in': 'lingrad', in2: 'SourceGraphic', operator: 'atop' }, null, f, true);
-					let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { gradientTransform: 'rotate(20)' }, null, defs, true);
-					let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
-					let msid = `swfm=${getCounter()}`, ms = make(msid, 'mask', {}, null, defs, true);
-					make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms, true);
-					g.setAttribute('filter', `url(#${fid})`);
-					g.setAttribute('mask', `url(#${msid})`);
-					let fn = t => {
-						fi.setAttribute('href', `data:image/svg+xml,
-							%3Csvg width%3D%222672%22 height%3D%221503%22 xmlns%3D'http%3A//www.w3.org/2000/svg' xmlns%3Axlink%3D'http%3A//www.w3.org/1999/xlink'%3E
-							%3Cdefs%3E
-								%3ClinearGradient id%3D'lightGradient' gradientTransform%3D'rotate(20)'%3E
-									%3Cstop	stop-color%3D'white'	stop-opacity%3D'0'	offset%3D'0%25'/%3E
-									%3Cstop	stop-color%3D'white'	stop-opacity%3D'0'	offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
-									%3Cstop	stop-color%3D'white'	stop-opacity%3D'1'	offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
-									%3Cstop	stop-color%3D'white'	stop-opacity%3D'1'	offset%3D'100%25'/%3E
-								%3C/linearGradient%3E
-							%3C/defs%3E%0A
-							%3Crect x%3D'0%25' y%3D'0%25' width%3D'100' height%3D'100' fill%3D'url(%23lightGradient)'/%3E
-							%3C/svg%3E`);
-						lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
-						lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
-					};
-					coroutine(null, [
-						{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-						{ d: 3,	v: { v: [-20, 120] }, fn: fn },
-						() => { animDone(); f.remove(); ms.remove(); lg.remove(); }
-					]);
-				}
-				else
-				{
-					let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
-					fn({ s: 1, o: 0 });
-					coroutine(null, [
-						{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-						() => {
-							let bb = g.getBBox();
-							g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
-						},
-						{ d: .2,	v: { s: [0.9, 1], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
-						//{ d: .2,	v: { s: [1.2, 1], o: [1, 1] }, e: Easing.InQuad,	fn: fn },
-						animDone
-					]);
-				}
-				lastMade = document.timeline.currentTime;
-			}
-			else
-			{
-				let rElem = elem;
-				if (!nodom)
-					if (elem.parentNode && elem.parentNode.classList.contains('aa'))
-						rElem = elem.parentNode;
-				parent.appendChild(rElem);
-			}
-			return elem;
-		}
-
-		let lastRemoved = 0;
-		function removeUnused(updated)
-		{
-			function process(elem)
-			{
-				if (elem.classList.contains('aa'))
-					process(elem.querySelector(':scope>*'));
-				else if (elem.classList.contains('at'))
-					for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
-						process(subelem);
-				else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd') && elem.classList.contains('anim-none'))
-					elem.remove();
-				else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd'))
-				{
-					let ei = elem.id, sw = elem.classList.contains('anim-sw');
-					elem.removeAttribute('id');
-					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-					g.classList.add('nd');
-					g.classList.add('da');
-					das.appendChild(g);
-					g.appendChild(elem.parentNode && elem.parentNode.classList.contains('aa') ? elem.parentNode : elem);
-					let bb = g.getBBox();
-					g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
-					let b = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-					let fgbid = `fgb-${getCounter()}`;
-					b.id = fgbid;
-					b.setAttribute('x', '-100%');
-					b.setAttribute('y', '-100%');
-					b.setAttribute('width', '300%');
-					b.setAttribute('height', '300%');
-					let b2 = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-					b2.setAttribute('result', 'fbSourceGraphic');
-					b2.setAttribute('stdDeviation', '0 0');
-					b.appendChild(b2);
-					defs.appendChild(b);
-					g.setAttribute('filter', `url(#${fgbid})`);
-					let fn = t => {
-						b2.setAttribute('stdDeviation', `${t.b} ${t.b}`);
-						g.setAttribute('opacity', t.o);
-						g.setAttribute('transform', `scale(${t.s})`);
-					};
-					fn({ b: 0, o: 1, s: 1 });
-					coroutine(null, [
-						{ d: lastRemoved !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-						{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, sw ? 1 : 1.2] }, e: Easing.OutQuad,	fn: fn },
-						() => { elem.PPPDisappear = true; g.remove(); b.remove(); }
-					]);
-					lastRemoved = document.timeline.currentTime;
-				}
-				else if (elem.id && !elem.classList.contains('nd'))
-					for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
-						process(subelem);
-			}
-
-			for (let subelem of Array.from(document.querySelectorAll('#input>*,#vis>*')))
-				process(subelem);
-		}
-
-		function sqxx(x)	{ return 400 + 100*x;	}
-		function sqx(i)	{ return i < 0 ? 100 : sqxx(i%w);	}
-		function sqyy(y)	{ return 150 + 100*y;	}
-		function sqy(i)	{ return i < 0 ? 100 + 200*~i : sqyy((i/w)|0);	}
-		function edxx(i)	{ return i < 0 ? null : i < 10 ? i-1 : i < 20 ? 9 : i < 30 ? 29-i : i < 40 ? -1 : null;	}
-		function edyy(i)	{ return i < 0 ? null : i < 10 ? -1 : i < 20 ? i-11 : i < 30 ? 9 : i < 40 ? 39-i : null;	}
-		function edx(i)	{ let r = edxx(i); return r === null ? null : 400 + 100*r;	}
-		function edy(i)	{ let r = edyy(i); return r === null ? null : 150 + 100*r;	}
-		function ed(x, y)	{ return y === -1 ? x+1 : x === w ? y+11 : y === h ? 29-x : x === -1 ? 39-y : null;	}
-
 		document.addEventListener('DOMContentLoaded', async function()
 		{
 			if (!localStorage || !localStorage.getItem || !localStorage.setItem)
 				return alert('This page requires access to local storage.');
+
+			let w = 9, h = 9, coroutines = {}, counter = 0, inputBlocked = false, stepsWithThumbnails = [1, 3, 5, 12, 13],
+				t3as = '300,925;1375,1275;275,1175;1375,175;300,625;1375,700;1075,1125;325,75;425,1125;150,475'.split(';'),
+				ccs = [355, 30, 50, 100, 170, 200, 240, 280, 320];
+			function getCounter() { let c = counter++; counter %= 2147483647; return c; }
+
+			let Easing = {
+				InQuad:	t => t * t,
+				OutQuad:	t => -t * (t - 2),
+				InOutQuad:	t => t < .5 ? 2 * t * t : (4 - 2 * t) * t - 1,
+				InCubic:	t => t * t * t,
+				OutCubic:	t => ((t - 3) * t + 3) * t,
+				InOutCubic:	t => t < .5 ? 4 * t * t * t : ((4 * t - 12) * t + 12) * t - 3,
+				InQuart:	t => t * t * t * t,
+				OutQuart:	t => (((4 - t) * t - 6) * t + 4) * t,
+				InOutQuart:	t => t < .5 ? 8 * t * t * t * t : (((32 - 8 * t) * t - 48) * t + 32) * t - 7,
+				InQuint:	t => t * t * t * t * t,
+				OutQuint:	t => ((((t - 5) * t + 10) * t - 10) * t + 5) * t,
+				InOutQuint:	t => t < .5 ? 16 * t * t * t * t * t : ((((16 * t - 80) * t + 160) * t - 160) * t + 80) * t - 15,
+				InSine:	t => -Math.cos(t * Math.PI / 2) + 1,
+				OutSine:	t => Math.sin(t * Math.PI / 2),
+				InOutSine:	t => .5 - Math.cos(Math.PI * t) / 2,
+				InExpo:	t => Math.pow(2, 10 * (t - 1)),
+				OutExpo:	t => 1 - Math.pow(2, -10 * t),
+				InOutExpo:	t => t < .5 ? Math.pow(2, 10 * (2*t - 1))/2 : 1 - Math.pow(2, -10 * (2*t - 1))/2,
+				InCirc:	t => 1 - Math.sqrt(1 - t * t),
+				OutCirc:	t => Math.sqrt((2 - t)*t),
+				InOutCirc:	t => t < .5 ? (1 - Math.sqrt(1 - 4*t*t))/2 : (Math.sqrt((8 - 4*t) * t - 3) + 1)/2
+			};
 
 			let lights = [[0, 1, 2, 3], [5, 6, 7, 8], [9, 10, 11, 12], [14, 15, 16, 17], [18, 19, 20, 21], [23, 24, 25, 26], [27, 28, 29, 30, 31, 32, 33, 34, 35], [39, 40, 41], [45, 46, 47, 48, 49, 50, 51, 52, 53], [54, 55, 56, 57], [59, 60, 61, 62], [63, 64, 65, 66], [68, 69, 70, 71], [72, 73, 74, 75], [77, 78, 79, 80], [0, 9, 18, 27], [1, 10, 19, 28], [2, 11, 20, 29], [3, 12, 21, 30, 39, 48, 57, 66, 75], [5, 14, 23, 32, 41, 50, 59, 68, 77], [6, 15, 24, 33], [7, 16, 25, 34], [8, 17, 26, 35], [31, 40, 49], [45, 54, 63, 72], [46, 55, 64, 73], [47, 56, 65, 74], [51, 60, 69, 78], [52, 61, 70, 79], [53, 62, 71, 80]];
 			function findLightIx(sv) { return lights.findIndex(lg => (lg[0] % w === lg[1] % w) === sv.v && lg.includes(sv.i)); }
@@ -438,12 +52,317 @@
 			let state, stateRaw = localStorage.getItem('ppp-state');
 			try { state = JSON.parse(stateRaw); } catch { }
 			if (Object.prototype.toString.call(state) !== "[object Object]")
-				state = {};
-			if (!('steps' in state)) state.steps = [];
+				state = { step: 0, undo: [], undoptr: -1 };
+			if (!('steps' in state) || !Array.isArray(state.steps)) state.steps = [];
 
-			let last = JSON.stringify(state.steps[state.step]);
 			let mouseX = null, mouseY = null, mouseE = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
 			let mouseC = null, mouseI = null, mouseM = null, mouseK = null;
+			let lastMade = 0, lastRemoved = 0, fetchCache = {}, last;
+
+			await setupStepMaybe(await loadStep(state.step ?? 0));
+
+			async function coroutine(id, data, fnc)
+			{
+				let val = id === null ? null : (coroutines[id] = getCounter());
+				for (let ix = 0; ix < data.length; ix++)
+				{
+					if (typeof data[ix] === 'function')
+					{
+						await data[ix]();
+						continue;
+					}
+					let startTime = await new Promise(requestAnimationFrame), elapsed = 0, dur = data[ix].d * 1000, ea = data[ix].e ?? (t => t), obj;
+					if (id !== null && coroutines[id] !== val)
+						return;
+					while (elapsed < dur)
+					{
+						obj = data[ix].v ? Object.fromEntries(Object.entries(data[ix].v).map(([k, [s, e]]) => [k, (e-s)*ea(elapsed/dur) + s])) : null;
+						if (fnc)
+							fnc(obj, ix, false);
+						if (data[ix].fn)
+							data[ix].fn(obj, ix, false);
+						elapsed = (await new Promise(requestAnimationFrame)) - startTime;
+						if (id !== null && coroutines[id] !== val)
+							return;
+					}
+					obj = data[ix].v ? Object.fromEntries(Object.entries(data[ix].v).map(([k, v]) => [k, v[1]])) : null;
+					if (fnc)
+						fnc(obj, ix, true);
+					if (data[ix].fn)
+						data[ix].fn(obj, ix, false);
+				}
+			}
+
+			async function doFetch(url, fn)
+			{
+				if (url in fetchCache)
+					return fn ? fn(fetchCache[url]) : fetchCache[url];
+				let response = await fetch(url);
+				return	response.status === 403 || response.status === 404 ? false :
+					response.status === 200 ? (r => fn ? fn(r) : r)(fetchCache[url] = await response.text()) :
+					alert('Data could not be loaded. Contact your santa!') ?? null;
+			}
+
+			function setChar(str, ix, ch)
+			{
+				return `${str.substring(0, ix)}${ch}${str.substring(ix + 1)}`;
+			}
+
+			function joinSegments(segs, fn)
+			{
+				let svg = [];
+				while (segs.length > 0)
+				{
+					let seg = segs.pop();
+					while (true)
+					{
+						let extIx = segs.findIndex(sg =>
+							((sg.d1 ^ 2) === seg.d1 && sg.c[0] === seg.c[0]) ||
+							((sg.d1 ^ 2) === seg.d2 && sg.c[0] === seg.c[seg.c.length - 1]) ||
+							((sg.d2 ^ 2) === seg.d1 && sg.c[sg.c.length - 1] === seg.c[0]) ||
+							((sg.d2 ^ 2) === seg.d2 && sg.c[sg.c.length - 1] === seg.c[seg.c.length - 1]));
+						if (extIx === -1)
+						{
+							extIx = segs.findIndex(sg =>
+								((sg.c[0] === seg.c[0] || sg.c[0] === seg.c[seg.c.length - 1]) &&
+									!segs.some(s => (s.c[0] === sg.c[0] && (s.d1 ^ 2) === sg.d1) || (s.c[s.c.length - 1] === sg.c[0] && (s.d2 ^ 2) === sg.d1))) ||
+								((sg.c[sg.c.length - 1] === seg.c[0] || sg.c[sg.c.length - 1] === seg.c[seg.c.length - 1]) &&
+									!segs.some(s => (s.c[0] === sg.c[sg.c.length - 1] && (s.d1 ^ 2) === sg.d2) ||
+									(s.c[s.c.length - 1] === sg.c[sg.c.length - 1] && (s.d2 ^ 2) === sg.d2)))
+							);
+						}
+						if (extIx === -1)
+							break;
+						let ext = segs[extIx];
+						segs.splice(extIx, 1);
+						if (seg.c[0] === ext.c[0])
+						{
+							seg.c.reverse();
+							seg.c.pop();
+							if (seg.d1 === (ext.d1 ^ 2))
+								ext.c.shift();
+							seg.c.push(...ext.c);
+							seg.d1 = seg.d2;
+							seg.d2 = ext.d2;
+						}
+						else if (seg.c[0] === ext.c[ext.c.length - 1])
+						{
+							ext.c.pop();
+							if (seg.d1 === (ext.d2 ^ 2))
+								seg.c.shift();
+							ext.c.push(...seg.c);
+							ext.d2 = seg.d2;
+							seg = ext;
+						}
+						else if (seg.c[seg.c.length - 1] === ext.c[0])
+						{
+							seg.c.pop();
+							if (ext.d1 === (seg.d2 ^ 2))
+								ext.c.shift();
+							seg.c.push(...ext.c);
+							seg.d2 = ext.d2;
+						}
+						else if (seg.c[seg.c.length - 1] === ext.c[ext.c.length - 1])
+						{
+							ext.c.reverse();
+							seg.c.pop();
+							if (seg.d2 === (ext.d2 ^ 2))
+								ext.c.shift();
+							seg.c.push(...ext.c);
+							seg.d2 = ext.d1;
+						}
+					}
+					let isClosed = seg.c[0] === seg.c[seg.c.length - 1];
+					svg.push(`M${seg.c.slice(isClosed ? 1 : 0).map(fn).join(' ')}${isClosed ? 'z' : ''}`);
+				}
+				return svg.join('');
+			}
+
+			function followPathI(i, str, fn)
+			{
+				if (fn) fn(i);
+				for (let ch of str)
+				{
+					if (ch === '↑') { if (i < w	) return null; i -= w;	}
+					if (ch === '→') { if (i%w >= w-1	) return null; i++;	}
+					if (ch === '↓') { if (i >= w*(h-1)	) return null; i += w;	}
+					if (ch === '←') { if (i%w < 1	) return null; i--;	}
+					if (fn) fn(i);
+				}
+				return i;
+			}
+
+			function followPathXY(x, y, str, fn)
+			{
+				if (fn) fn(x, y);
+				for (let ch of str)
+				{
+					if (ch === '↑') y--;
+					if (ch === '→') x++;
+					if (ch === '↓') y++;
+					if (ch === '←') x--;
+					if (fn) fn(x, y);
+				}
+				return [x, y];
+			}
+
+			function hasPath(b, i)
+			{
+				return b.charCodeAt(i) - 65 !== 0	|| (i % w > 0	&& ((b.charCodeAt(i-1)-65) & 1) !== 0)
+					|| (i >= w	&& ((b.charCodeAt(i-w)-65) & 2) !== 0);
+			}
+
+			function pathFillsGrid(b, fn)
+			{
+				let good = Array(w*h).fill(false);
+				for (let i = 0; i < w*h; i++)
+				{
+					if (fn && fn(i))
+						good[i] = true;
+					let v = b.charCodeAt(i) - 65;
+					if (i % w < w-1	&& (v & 1)) { good[i] = true; good[i + 1] = true; }
+					if (i < w*(h-1)	&& (v & 2)) { good[i] = true; good[i + w] = true; }
+				}
+				return !good.includes(false);
+			}
+
+			function make(id, elemName, attrs, content, parent, nodom)
+			{
+				parent = parent ?? vis;
+				let force = elemName.startsWith('*'), isn = false;
+				if (force) elemName = elemName.substring(1);
+				let elem = document.getElementById(id) ?? (function()
+				{
+					isn = true;
+					let e = document.createElementNS('http://www.w3.org/2000/svg', elemName);
+					if (id !== null)
+						e.id = id;
+					if (!force)
+						for (let key in attrs)
+							if (attrs.hasOwnProperty(key) && !key.startsWith('*'))
+							{
+								if (typeof attrs[key] === 'function' && key.startsWith('on'))
+									e[key] = attrs[key];
+								else if (typeof attrs[key] === 'function')
+									e.setAttribute(key, attrs[key]());
+								else
+									e.setAttribute(key, attrs[key]);
+							}
+					return e;
+				})();
+				for (let key in attrs)
+					if (attrs.hasOwnProperty(key) && (key.startsWith('*') || force))
+					{
+						if (typeof attrs[key] === 'function' && /^\*?on/.test(key))
+							elem[key.replace(/^\*/, '')] = attrs[key];
+						else if (typeof attrs[key] === 'function')
+							elem.setAttribute(key.replace(/^\*/, ''), attrs[key]());
+						else
+							elem.setAttribute(key.replace(/^\*/, ''), attrs[key]);
+					}
+
+				for (let restore of ['opacity', 'transform'])
+					if (elem.hasAttribute(restore) && (!attrs || !(restore in attrs || `*${restore}` in attrs)))
+						elem.removeAttribute(restore);
+
+				if (content !== undefined)
+				{
+					if (Array.isArray(content))
+						elem.textContent = content[0];
+					else if (elem.PPPSauce !== content)
+					{
+						elem.PPPSauce = content;
+						elem.innerHTML = content;
+					}
+				}
+				if (!nodom && isn && elem.getBBox && !elem.classList.contains('anim-none') && !elem.classList.contains('at') && parent.classList.contains('at'))
+				{
+					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+					g.classList.add('nd');
+					g.classList.add('aa');
+					g.appendChild(elem);
+					parent.appendChild(g);
+					function animDone()
+					{
+						if (!elem.PPPDisappear)
+							g.parentNode.insertBefore(elem, g);
+						g.remove();
+					}
+
+					if (elem.classList.contains('anim-sw'))
+					{
+						let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { x: 0, y: 0, width: 2672, height: 1503, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse' }, null, defs, true);
+						let fi = make(null, 'feImage', { result: 'lingrad' }, null, f, true);
+						make(null, 'feBlend', { 'in': 'lingrad', in2: 'SourceGraphic', result: 'resgrad', mode: 'screen' }, null, f, true);
+						make(null, 'feComposite', { 'in': 'resgrad', in2: 'SourceGraphic', operator: 'in' }, null, f, true);
+						let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { x1: -86, y1: 234, x2: 2758, y2: 1270, gradientUnits: 'userSpaceOnUse' }, null, defs, true);
+						let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
+						let msid = `swfm-${getCounter()}`, ms = make(msid, 'mask', { maskUnits: 'userSpaceOnUse' }, null, defs, true);
+						make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms, true);
+						g.setAttribute('filter', `url(#${fid})`);
+						g.setAttribute('mask', `url(#${msid})`);
+						let fn = t => {
+							fi.setAttribute('href', `data:image/svg+xml,
+								%3Csvg width%3D'2672' height%3D'1503' xmlns%3D'http%3A//www.w3.org/2000/svg'%3E
+								%3Cdefs%3E
+									%3ClinearGradient id%3D'grad' x1%3D'-86' y1%3D'234' x2%3D'2758' y2%3D'1270' gradientUnits%3D'userSpaceOnUse'%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'0%25'/%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'100%25'/%3E
+									%3C/linearGradient%3E
+								%3C/defs%3E%0A
+								%3Crect x%3D'0' y%3D'0' width%3D'2672' height%3D'1503' fill%3D'url(%23grad)'/%3E
+								%3C/svg%3E`);
+							lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
+							lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
+						};
+						coroutine(null, [
+							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+							{ d: 3,	v: { v: [-20, 120] }, fn: fn },
+							() => {
+								animDone();
+								f.remove(); ms.remove(); lg.remove();
+							}
+						]);
+					}
+					else
+					{
+						let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
+						fn({ s: 1, o: 0 });
+						coroutine(null, [
+							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+							() => {
+								let bb = g.getBBox();
+								g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+							},
+							{ d: .2,	v: { s: [0.9, 1], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
+							//{ d: .2,	v: { s: [1.2, 1], o: [1, 1] }, e: Easing.InQuad,	fn: fn },
+							animDone
+						]);
+					}
+					lastMade = document.timeline.currentTime;
+				}
+				else
+				{
+					let rElem = elem;
+					if (!nodom)
+						if (elem.parentNode && elem.parentNode.classList.contains('aa'))
+							rElem = elem.parentNode;
+					parent.appendChild(rElem);
+				}
+				return elem;
+			}
+
+			function sqxx(x)	{ return 400 + 100*x;	}
+			function sqx(i)	{ return i < 0 ? 100 : sqxx(i%w);	}
+			function sqyy(y)	{ return 150 + 100*y;	}
+			function sqy(i)	{ return i < 0 ? 100 + 200*~i : sqyy((i/w)|0);	}
+			function edxx(i)	{ return i < 0 ? null : i < 10 ? i-1 : i < 20 ? 9 : i < 30 ? 29-i : i < 40 ? -1 : null;	}
+			function edyy(i)	{ return i < 0 ? null : i < 10 ? -1 : i < 20 ? i-11 : i < 30 ? 9 : i < 40 ? 39-i : null;	}
+			function edx(i)	{ let r = edxx(i); return r === null ? null : 400 + 100*r;	}
+			function edy(i)	{ let r = edyy(i); return r === null ? null : 150 + 100*r;	}
+			function ed(x, y)	{ return y === -1 ? x+1 : x === w ? y+11 : y === h ? 29-x : x === -1 ? 39-y : null;	}
 
 			async function updateView(changes)
 			{
@@ -479,7 +398,6 @@
 
 				vis.removeAttribute('transform');
 
-				// Grid
 				if (sc.type !== 5)
 					for (let i = 0; i < w*h; i++)
 					{
@@ -536,7 +454,7 @@
 					{
 						let l = mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
 							'*transform-origin': `${x+50} ${y+60}`,
-							'*class':	ltr === '?' ? 'q' : '',
+							'*class':	ltr === '?' ? 'q anim-none' : '',
 							'*y':	ltr === '?' ? y+110 : y+90,
 							'*font-size':	ltr === '?' ? 110 : 70,
 							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
@@ -557,7 +475,7 @@
 					else if (hasLetter)
 						mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
 							'*transform-origin': `${x+50} ${y+60}`,
-							'*class':	ltr === '?' ? 'q' : '',
+							'*class':	ltr === '?' ? 'q anim-none' : '',
 							'*y':	ltr === '?' ? y+110 : y+90,
 							'*font-size':	ltr === '?' ? 110 : 70,
 							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
@@ -645,7 +563,7 @@
 							if (sc.subtype === 1)
 								for (let d of s.d)
 									mk(`cl-d-${d.i}${d.n === '?' ? 'q' : ''}`, 'text', d.n === '?'
-										? { x: sqx(d.i)+50, y: sqy(d.i)+80, 'font-family': 'Proxima', 'font-size': 90, 'class': 'q', 'transform-origin': `${sqx(d.i)+50} ${sqy(d.i)+60}` }
+										? { x: sqx(d.i)+50, y: sqy(d.i)+80, 'font-family': 'Proxima', 'font-size': 90, 'class': 'q anim-none', 'transform-origin': `${sqx(d.i)+50} ${sqy(d.i)+60}` }
 										: { x: sqx(d.i)+50, y: sqy(d.i)+80, 'text-anchor': 'middle', 'font-size': 90, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 70%)', stroke: 'hsl(220, 10%, 10%)', 'stroke-width': 10, 'paint-order': 'stroke' },
 										[d.n]);
 							if (state.step === 1)
@@ -678,7 +596,7 @@
 								{
 									mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z',
 										'*transform': `translate(${sqx(fi)+20}, ${sqy(fi)-90})`, stroke: 'black', 'stroke-width': 5, fill: 'white' });
-									let lines = (sc.a[s.k[i]] ?? sc.k[s.k[i]]).split(' ');
+									let lines = (s.a[s.k[i]] ?? sc.k[s.k[i]]).split(' ');
 									let sbg = mk(`n-${i}-sbt`, 'g', { fill: 'black', stroke: 'none', 'text-anchor': 'middle', 'font-family': 'Proxima', 'font-size': 18, 'font-weight': 200, 'letter-spacing': 1 },
 										lines.map((l, lx) => `<text y='${17*lx}'>${l}<${''}/text>`).join(''));
 									await document.fonts.ready;
@@ -693,7 +611,7 @@
 									<div class='ans-chk'>
 										<div><strong class='h'>Answer checker:<${''}/strong><${''}/div>
 										<div>
-											<select accesskey=','>${sc.k.map((k, kx) => `<option>${sc.a[kx] ? `${sc.a[kx]} (${k})` : k}<${''}/option>`).join('')}<${''}/select>
+											<select accesskey=','>${sc.k.map((k, kx) => `<option>${s.a[kx] ? `${s.a[kx]} (${k})` : k}<${''}/option>`).join('')}<${''}/select>
 											<input type='text' accesskey='.' />
 											<button accesskey='/'>Check<${''}/button>
 										<${''}/div>
@@ -738,8 +656,8 @@
 									}
 									else
 									{
-										sc.a[k] = r;
-										localStorage.setItem('ppp-state', JSON.stringify(state));
+										s.a[k] = r;
+										saveUndo();
 										await updateView();
 										document.querySelector('#ans-chk select').selectedIndex = k;
 										document.querySelector('#ans-chk input').focus();
@@ -761,18 +679,19 @@
 							break;
 
 						case 4:
-							let bt = makePath(state.steps[state.step-3].v.b, 'hsl(120, 15%, 40%)');
-							await makeItemWithLetter('c', 'c-e', 100, 100, '', {}, vis, s.c.length);
+							let bt = makePath(state.steps[state.step-3].v.b, 'hsl(120, 15%, 40%)'), fn = s.c.findIndex(c => c === null);
+							await makeItemWithLetter('c', 'c-e', 100, 100, '', {}, vis, fn < 0 ? s.c.length : fn);
 							for (let i = 0; i < s.c.length; i++)
-							{
-								if (s.c[i].i !== -1 && mouseI !== i)
+								if (s.c[i] !== null)
 								{
-									let r = s.c[i].r, dx = [0, 1, 1, 1, 0, -1, -1, -1][r], dy = [-1, -1, 0, 1, 1, 1, 0, -1][r], x = edxx(s.c[i].i)+dx, y = edyy(s.c[i].i)+dy;
-									while (x >= 0 && x < w && y >= 0 && y < h && !sc.n.includes(x+w*y) && !sc.d.includes(x+w*y)) { x += dx; y += dy; }
-									mkArrow(`c-${i}-a`, [[edx(s.c[i].i)+50, edy(s.c[i].i)+50], [sqxx(x)+50, sqyy(y)+50]], `hsl(${ccs[i%9]}, 80%, 80%)`, 25, { opacity: .5 });
+									if (s.c[i].i !== -1 && mouseI !== i)
+									{
+										let r = s.c[i].r, dx = [0, 1, 1, 1, 0, -1, -1, -1][r], dy = [-1, -1, 0, 1, 1, 1, 0, -1][r], x = edxx(s.c[i].i)+dx, y = edyy(s.c[i].i)+dy;
+										while (x >= 0 && x < w && y >= 0 && y < h && !sc.n.includes(x+w*y) && !sc.d.includes(x+w*y)) { x += dx; y += dy; }
+										mkArrow(`c-${i}-a`, [[edx(s.c[i].i)+50, edy(s.c[i].i)+50], [sqxx(x)+50, sqyy(y)+50]], `hsl(${ccs[i%9]}, 80%, 80%)`, 25, { opacity: .5 });
+									}
+									await makeItemWithLetter('c', `c-${i}`, edx(s.c[i].i) ?? 100, edy(s.c[i].i) ?? 100, '', { '*class': `movable${mouseI === i ? ' sel' : ''}` }, vis, i, s.c[i].r);
 								}
-								await makeItemWithLetter('c', `c-${i}`, edx(s.c[i].i) ?? 100, edy(s.c[i].i) ?? 100, '', { '*class': `movable${mouseI === i ? ' sel' : ''}` }, vis, i, s.c[i].r);
-							}
 							for (let i = 0; i < sc.n.length; i++)
 								await makeItemWithLetter('n', `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
 							for (let i = 0; i < sc.d.length; i++)
@@ -846,7 +765,7 @@
 									let x = sqx(sc.n[ni]), y = sqy(sc.n[ni]);
 									switch (s.r[ni])
 									{
-										case '?': mk(`n-${ni}-yrq`, 'text', { 'class': 'q', x: x+75, y: y+90, '*transform-origin': `${x+75} ${y+90}`, 'font-size': 60, 'font-family': 'Work Sans', 'font-weight': 700 }, ['?']); break;
+										case '?': mk(`n-${ni}-yrq`, 'text', { 'class': 'q anim-none', x: x+75, y: y+90, '*transform-origin': `${x+75} ${y+90}`, 'font-size': 60, 'font-family': 'Work Sans', 'font-weight': 700 }, ['?']); break;
 										case '0': mkArrow(`n-${ni}-yr`, [[x+80, y+80], [x+80, y+20]], 'white', 5); break;
 										case '1': mkArrow(`n-${ni}-yr`, [[x+20, y+80], [x+80, y+80]], 'white', 5); break;
 										case '2': mkArrow(`n-${ni}-yr`, [[x+20, y+20], [x+20, y+80]], 'white', 5); break;
@@ -855,7 +774,7 @@
 									switch (s.a[ni])
 									{
 										case ' ': break;
-										case '?': mk(`n-${ni}-ynq`, '*text', { 'class': 'q', x: x+25, y: y+90, '*transform-origin': `${x+25} ${y+90}`, 'font-size': 60, 'font-family': 'Work Sans', 'font-weight': 700 }, ['?']); break;
+										case '?': mk(`n-${ni}-ynq`, '*text', { 'class': 'q anim-none', x: x+25, y: y+90, '*transform-origin': `${x+25} ${y+90}`, 'font-size': 60, 'font-family': 'Work Sans', 'font-weight': 700 }, ['?']); break;
 										default:
 											let yx = '23'.includes(s.r[ni]) ? 80 : 20;
 											mk(`n-${ni}-yn`, '*text', {
@@ -922,13 +841,13 @@
 
 					case 3:
 						setupGridInput((x, y) => x >= 0 && x < w && y >= 0 && y < h);
-						showCheckBtn = s.m.every(m => m !== null) && s.k.every(k => k !== null) && s.k.every((_, ix) => typeof sc.a[ix] === 'string');
+						showCheckBtn = s.m.every(m => m !== null) && s.k.every(k => k !== null) && s.k.every((_, ix) => typeof s.a[ix] === 'string');
 						checkBtnTransform = 'translate(275, -125)';
 						break;
 
 					case 4:
 						setupGridInput((x, y) => x === -1 || x === w || y === -1 || y === h, 1);
-						showCheckBtn = s.c.length === 9;
+						showCheckBtn = s.c.filter(c => c !== null).length === 9;
 						checkBtnTransform = 'translate(200, 0)';
 						break;
 
@@ -992,16 +911,57 @@
 						}
 				}
 
-				removeUnused(updated);
-
-				if (changes)
+				function process(elem)
 				{
-					localStorage.removeItem(`ppp-${state.step}-redo`);
-					let undo = localStorage.getItem(`ppp-${state.step}-undo`);
-					localStorage.setItem(`ppp-${state.step}-undo`, undo ? `${last}\b${undo}` : last);
-					last = JSON.stringify(s);
-					localStorage.setItem('ppp-state', JSON.stringify(state));
+					if (elem.classList.contains('aa') || elem.classList.contains('at'))
+						for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
+							process(subelem);
+					else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd') && elem.classList.contains('anim-none'))
+						elem.remove();
+					else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd'))
+					{
+						let ei = elem.id, sw = elem.classList.contains('anim-sw');
+						elem.removeAttribute('id');
+						let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+						g.classList.add('nd');
+						g.classList.add('da');
+						das.appendChild(g);
+						g.appendChild(elem.parentNode && elem.parentNode.classList.contains('aa') ? elem.parentNode : elem);
+						let bb = g.getBBox();
+						g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+						let b = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+						let fgbid = `fgb-${getCounter()}`;
+						b.id = fgbid;
+						b.setAttribute('x', '-100%');
+						b.setAttribute('y', '-100%');
+						b.setAttribute('width', '300%');
+						b.setAttribute('height', '300%');
+						let b2 = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+						b2.setAttribute('result', 'fbSourceGraphic');
+						b2.setAttribute('stdDeviation', '0 0');
+						b.appendChild(b2);
+						defs.appendChild(b);
+						g.setAttribute('filter', `url(#${fgbid})`);
+						let fn = t => {
+							b2.setAttribute('stdDeviation', `${t.b} ${t.b}`);
+							g.setAttribute('opacity', t.o);
+							g.setAttribute('transform', `scale(${t.s})`);
+						};
+						fn({ b: 0, o: 1, s: 1 });
+						coroutine(null, [
+							{ d: lastRemoved !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+							{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, sw ? 1 : 1.2] }, e: Easing.OutQuad,	fn: fn },
+							() => { elem.PPPDisappear = true; g.remove(); b.remove(); }
+						]);
+						lastRemoved = document.timeline.currentTime;
+					}
+					else if (elem.id && !elem.classList.contains('nd'))
+						for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
+							process(subelem);
 				}
+
+				for (let subelem of Array.from(document.querySelectorAll('#input>*,#vis>*')))
+					process(subelem);
 			}
 
 			async function fw()
@@ -1058,7 +1018,10 @@
 			{
 				state.step = step;
 				if (!state.steps[step])
+				{
 					state.steps[step] = JSON.parse(json);
+					saveUndo(true);
+				}
 				let sc = state.steps[step], s = sc.v;
 				last = JSON.stringify(s);
 
@@ -1103,9 +1066,10 @@
 						for (let e of Array.from(div.querySelectorAll('div.cw-c')))
 							e.onclick = function()
 							{
-								if (inputBlocked)
-									return false;
 								let m = /^([→↓])(\d+)$/.exec(e.dataset.cell);
+								if (inputBlocked || !m)
+									return false;
+								let s = state.steps[step].v;
 								s.i = m[2]|0;
 								s.v = m[1] === '↓';
 								updateView();
@@ -1132,14 +1096,15 @@
 						{
 							li.onclick = function()
 							{
+								let s = state.steps[step].v;
 								s.j = (s.j ?? 0) ^ (1 << ix);
-								updateView(true);
+								saveUndo();
+								updateView();
 							};
 						});
 						break;
 				}
 
-				localStorage.setItem('ppp-state', JSON.stringify(state));
 				await updateView();
 			}
 
@@ -1149,8 +1114,8 @@
 				switch (sc.type)
 				{
 					case 1:	return s.b.replace(/ /g, '_');
-					case 3:	return [...s.m, ...s.k, s.l].join('-');
-					case 4:	let t = s.c.slice(0); t.sort((a, b) => a.i-b.i); return t.map(c => `${c.i}-${c.r}`).join('-');
+					case 3:	return [...s.m, ...s.k, ...s.a.map(s => s.replace(/ /g, '')), s.l].join('-');
+					case 4:	let t = s.c.filter(c => c !== null); t.sort((a, b) => a.i-b.i); return t.map(c => `${c.i}-${c.r}`).join('-');
 					case 26:	let u = []; for (let k of sc.a) if (k in s) u.push(...s[k]); if ('l' in s) u.push(s.l.replace(/ /g, '_')); return u.join('-');
 					case 42:
 						switch (sc.subtype)
@@ -1179,8 +1144,7 @@
 				let th = document.getElementById(`thumbnail-${thIx}-r`);
 				if (th.PPPLoaded)
 					return;
-				let svg = await doFetch(thumbnailUrl(stepsWithThumbnails[thIx]));
-				th.innerHTML = svg;
+				th.innerHTML = await doFetch(thumbnailUrl(stepsWithThumbnails[thIx]));
 				th.PPPLoaded = true;
 			}
 
@@ -1386,8 +1350,6 @@
 				await setupStep(...result);
 			}
 
-			await setupStepMaybe(await loadStep(state.step ?? 0));
-
 			document.body.addEventListener('keydown', async function(e)
 			{
 				if (Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(document.activeElement)) || inputBlocked)
@@ -1395,31 +1357,23 @@
 
 				let keycombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.code}`;
 
-				if (	keycombo === 'Ctrl+KeyZ'	|| keycombo === 'Alt+Backspace'	||	// Undo
-					keycombo === 'Ctrl+KeyY'	|| keycombo === 'Ctrl+Shift+KeyZ'	|| keycombo === 'Alt+Shift+Backspace')	// Redo
+				if (keycombo === 'Ctrl+KeyZ' || keycombo === 'Alt+Backspace')
 				{
-					let [un, re] = keycombo === 'Ctrl+KeyZ' || keycombo === 'Alt+Backspace' ? ['undo', 'redo'] : ['redo', 'undo'];
-					let undo = localStorage.getItem(`ppp-${state.step}-${un}`);
-					if (undo !== null)
-					{
-						let split = undo.split('\b'), redo = localStorage.getItem(`ppp-${state.step}-${re}`), cur = JSON.stringify(state.steps[state.step].v);
-						localStorage.setItem(`ppp-${state.step}-${re}`, redo === null ? cur : `${cur}\b${redo}`);
-						state.steps[state.step].v = JSON.parse(last = split[0]);
-						if (split.length === 1)
-							localStorage.removeItem(`ppp-${state.step}-${un}`);
-						else
-							localStorage.setItem(`ppp-${state.step}-${un}`, split.slice(1).join('\b'));
-						localStorage.setItem('ppp-state', JSON.stringify(state));
-					}
-					updateView();
+					setUndo(state.undoptr - 1);
+					e.preventDefault();
+					return false;
+				}
+				else if (keycombo === 'Ctrl+KeyY' || keycombo === 'Ctrl+Shift+KeyZ' || keycombo === 'Alt+Shift+Backspace')
+				{
+					setUndo(state.undoptr + 1);
 					e.preventDefault();
 					return false;
 				}
 				else if (keycombo === 'Escape')
 				{
 					state.steps[state.step].v = JSON.parse(last);
-					updateView();
 					e.preventDefault();
+					updateView();
 					return false;
 				}
 
@@ -1578,15 +1532,48 @@
 				return false;
 			});
 
+			async function setUndo(ptr)
+			{
+				if (ptr < 0 || ptr >= state.undo.length)
+					return false;
+				let p = state.undoptr, fwd = ptr > state.undoptr, s = state.step;
+				while (p != ptr)
+				{
+					if (state.undo[p].n && !fwd)
+						state.steps.splice(state.undo[p].s, 1);
+					p += (fwd ? 1 : -1);
+					state.step = state.undo[p].s;
+					if (state.undo[p].n)
+						state.steps[state.step] = JSON.parse(JSON.stringify(state.undo[p].v));
+					else
+						state.steps[state.step].v = JSON.parse(JSON.stringify(state.undo[p].v));
+				}
+				state.undoptr = ptr;
+				if (s !== state.step)
+					await setupStepMaybe(await loadStep(state.step ?? 0));
+				else
+					await updateView();
+			}
+
+			function saveUndo(newStep)
+			{
+				last = JSON.stringify(state.steps[state.step].v);
+				let o = { s: state.step, v: JSON.parse(newStep ? JSON.stringify(state.steps[state.step]) : last) };
+				if (newStep) o.n = true;
+				state.undoptr++;
+				state.undo.splice(state.undoptr);
+				state.undo.push(o);
+				localStorage.setItem('ppp-state', JSON.stringify(state));
+			}
+
 			async function maybeUpdateView(changes)
 			{
 				// Sneaky: if the user is viewing an already completed step, pretend no changes were made
 				if (changes && state.step < state.steps.length - 1)
-				{
 					state.steps[state.step].v = JSON.parse(last);
-					changes = false;
-				}
-				await updateView(changes);
+				else if (changes)
+					saveUndo(false);
+				await updateView();
 			}
 
 			function get(s, sc, i)
@@ -1612,10 +1599,10 @@
 						let ri = sc.b.indexOf(sc.b[i]);
 						if (sc.subtype === 1 && (btns & 4) && ri >= 0)
 						{
-							sc.v = JSON.parse(last);
+							sc.v = s = JSON.parse(last);
 							let ai = s.d.findIndex(d => d.i === ri);
-							if (ai >= 0) sc.v.d[ai].n = '?';
-							else sc.v.d.push({ i: ri, n: '?' });
+							if (ai >= 0) s.d[ai].n = '?';
+							else s.d.push({ i: ri, n: '?' });
 						}
 						break;
 
@@ -1623,11 +1610,11 @@
 						ni = s.m.findIndex((a, ix) => (a === null ? sc.n[ix] : followPathI(sc.n[ix], sc.m[a])) === i);
 						if (ni >= 0 && (btns & 1)) { s.k[ni] = s.k[ni] === null ? document.querySelector('#ans-chk select').selectedIndex : null; changes = true; }
 						if (ni >= 0 && (btns & 2)) { s.m[ni] = null; changes = true; }
-						if (ni >= 0 && (btns & 4)) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ni, '?'); }
+						if (ni >= 0 && (btns & 4)) { sc.v = s = JSON.parse(last); s.l = setChar(s.l, ni, '?'); }
 						break;
 
 					case 4:
-						if (e === null && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c.i === i)) >= 0)
+						if (e === null && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c !== null && c.i === i)) >= 0)
 						{
 							if (btns & 1)
 							{
@@ -1644,7 +1631,9 @@
 							}
 							if (btns & 2)
 							{
-								s.c.splice(ni, 1);
+								s.c[ni] = null;
+								if (s.c.slice(ni).every(c => c === null))
+									s.c.splice(ni);
 								changes = true;
 							}
 						}
@@ -1653,7 +1642,7 @@
 					case 26:
 						let [j, k, ai, ii] = get(s, sc, i);
 						if (ai >= 0 && (btns & 2) && k in s) { s[k][ii] = sc[k][ii]; changes = true; }
-						if (ai >= 0 && (btns & 4) && 'l' in s) { sc.v = JSON.parse(last); sc.v.l = setChar(sc.v.l, ai, '?'); }
+						if (ai >= 0 && (btns & 4) && 'l' in s) { sc.v = s = JSON.parse(last); s.l = setChar(s.l, ai, '?'); }
 						break;
 
 					case 42:
@@ -1680,9 +1669,9 @@
 								}
 								if (ni >= 0 && (btns & 4))
 								{
-									sc.v = JSON.parse(last);
-									sc.v.a = setChar(sc.v.a, ni, '?');
-									sc.v.r = setChar(sc.v.r, ni, '?');
+									sc.v = s = JSON.parse(last);
+									s.a = setChar(s.a, ni, '?');
+									s.r = setChar(s.r, ni, '?');
 								}
 								break;
 						}
@@ -1727,8 +1716,8 @@
 					case 4:
 						if ((btns & 1) && e === -1)
 						{
-							mouseI = s.c.length;
-							s.c.push({ i: mouseM = -1, r: 2 });
+							ni = s.c.findIndex(c => c === null);
+							s.c[mouseI = ni < 0 ? s.c.length : ni] = { i: mouseM = -1, r: 2 };
 						}
 						else if ((btns & 1) && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c.i === i)) >= 0)
 						{
@@ -1903,7 +1892,7 @@
 					return true;
 				await endDrag(mouseStartX, mouseStartY, mouseStartE, mouseX, mouseY, mouseE);
 				if (mouseC !== null)
-					await click(mouseX, mouseY, mouseE, mouseC);
+					click(mouseX, mouseY, mouseE, mouseC);
 				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = mouseC = null;
 			});
 
@@ -1913,7 +1902,7 @@
 			function setThumbnailOverlay(id, on)
 			{
 				let el = document.getElementById(`show-${id}`);
-				el.style.opacity = on && !inputBlocked ? 1 : 0;
+				el.style.opacity = !inputBlocked && on ? 1 : 0;
 				el.style.transform = on ? 'none' : el.dataset.transform;
 				return true;
 			}
@@ -1944,7 +1933,7 @@
 
 			document.getElementById('copy').onclick = function()
 			{
-				let text = JSON.stringify(state, null, 4);
+				let text = JSON.stringify(state);
 				if (navigator.clipboard)
 					navigator.clipboard.writeText(text);
 				else
@@ -1978,9 +1967,10 @@
 					try
 					{
 						let j = JSON.parse((e.clipboardData || window.clipboardData).getData("text"));
-						if ('steps' in j && 'step' in j)
+						if ('steps' in j && 'step' in j && 'undo' in j && 'undoptr' in j)
 						{
-							state = { steps: j.steps, step: j.step };
+							let undo = Array.isArray(j.undo) ? j.undo : [{s: 0}];
+							state = { steps: j.steps, step: Math.max(0, Math.min(j.steps.length-1, j.step|0)), undo: undo, undoptr: Math.max(0, Math.min(undo.length-1, j.undoptr|0)), j: 'j' in j && !!j.j };
 							await setupStepMaybe(await loadStep(state.step));
 						}
 					}

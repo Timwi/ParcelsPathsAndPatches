@@ -18,7 +18,7 @@
 	<li>D4 moves as far as she can in a straight line diagonally while staying on seeded squares.</li>
 	<li>The nun now immediately to her south makes a knight’s move to a “┌─” piece of the nun-bear link.</li>
 	<li>A nun currently standing on a vowel in the crossword moves immediately north of the previous via a knight’s move.</li>
-	<li>The only nun who sees a car somewhere east of her moves to the last vacated square.</li>
+	<li>The only remaining nun who sees a car somewhere east of her moves to the last vacated square.</li>
 	<li>The drum kit with the same letter as the previous move, moves to B7.</li>
 	<li>A1 moves in an orthogonal direction to the furthest unoccupied seeded square.</li>
 	<li>The only unlettered drum kit does likewise.</li>
