@@ -1364,7 +1364,7 @@
 					let re = make(`thumbnail-${thIx}-x`, 'rect', { 'class': 'anim-none', x: sp ? 275 : 375, y: sp ? 25 : 125, width: sp ? 1150 : 950, height: sp ? 1150 : 950, fill: 'white', '*fill-opacity': 0 });
 					await coroutine('swoop-thumbnail', [
 						{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuart, fn: t => { re.setAttribute('fill-opacity', t.o); } },
-						{ d: .87, v: { x: [850, 1600], y: [600, 250 + 250*thIx], s: [1, 2/(thIx === 4 ? 11 : 9)] }, e: Easing.OutQuart,
+						{ d: .87, v: { x: [850, 1600], y: [600, 225 + 225*thIx], s: [1, 2/(thIx === 4 ? 11 : 9)] }, e: Easing.OutQuart,
 							fn: t => { tt.setAttribute('transform', `translate(${t.x}, ${t.y}) scale(${t.s}) translate(-850, -600)`); } }
 					]);
 					tt.classList.remove('anim-none');

@@ -41,7 +41,7 @@
 		<div class='cw-c' data-cell='↓46'><div>17.	</div><div>Close&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓47'><div>18.	</div><div>Cheese&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓51'><div>19.	</div><div>Thump&nbsp;<span class='e'>(4)</span>	</div></div>
-		<div class='cw-c' data-cell='↓52'><div>20.	</div><div>Crosswords’ favorite color besides tan&nbsp;<span class='e'>(4)</span>	</div></div>
+		<div class='cw-c' data-cell='↓52'><div>20.	</div><div>Crosswords’ favorite colour besides tan&nbsp;<span class='e'>(4)</span>	</div></div>
 		<div class='cw-c' data-cell='↓53'><div>21.	</div><div>Howard and Weasley, etc.&nbsp;<span class='e'>(4)</span>	</div></div>
 	</div>
 </div>
