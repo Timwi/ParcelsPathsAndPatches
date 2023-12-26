@@ -20,4 +20,5 @@
 	<span><kbd>left-click/drag</kbd>	<span>place seeds</span></span>
 	<span><kbd>right-click/drag</kbd>	<span>cross out</span></span>
 	<span><kbd>middle-click</kbd>	<span>place number</span></span>
+	<span><kbd>space</kbd>	<span>remove number</span></span>
 </p>

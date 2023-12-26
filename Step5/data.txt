@@ -9,7 +9,7 @@
 }
 #
 <ul>
-	<li>Each nun Caesar-shifts their letter according to the following table.</li>
+	<li>Each nun Caesar-shifts her letter according to the following table.</li>
 </ul>
 <table class='cs'>
 <tr><td class='h' colspan='2'>		</td><td class='h' colspan='3' style='text-align: left'>← smallest			</td><td class='h' colspan='3'>	Parcel size			</td><td class='h' colspan='3' style='text-align: right'>largest →		</td></tr>

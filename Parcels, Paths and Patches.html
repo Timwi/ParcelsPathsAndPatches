@@ -56,7 +56,7 @@
 			if (!('steps' in state) || !Array.isArray(state.steps)) state.steps = [];
 
 			let mouseX = null, mouseY = null, mouseE = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
-			let mouseC = null, mouseI = null, mouseM = null, mouseK = null;
+			let mouseI = null, mouseM = null, mouseK = null, mouseB = 0;
 			let lastMade = 0, lastRemoved = 0, fetchCache = {}, last;
 
 			await setupStepMaybe(await loadStep(state.step ?? 0));
@@ -337,7 +337,6 @@
 								g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
 							},
 							{ d: .2,	v: { s: [0.9, 1], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
-							//{ d: .2,	v: { s: [1.2, 1], o: [1, 1] }, e: Easing.InQuad,	fn: fn },
 							animDone
 						]);
 					}
@@ -528,7 +527,7 @@
 
 				async function render(step)
 				{
-					let sc = state.steps[step], s = sc.v;
+					let sc = state.steps[step], s = sc.v, g;
 					switch (sc.type)
 					{
 						case 0:
@@ -578,30 +577,28 @@
 							for (let i = 0; i < sc.n.length; i++)
 							{
 								let a = [], q = '';
-								let g = mk(`ar-${i}-g`, 'g', { '*class': `ar${s.m.includes(i) ? ' u' : ''}`, transform: `translate(${t3as[i]}) scale(100)` });
+								g = mk(`ar-${i}-g`, 'g', { '*class': `ar${s.m.includes(i) ? ' u' : ''}`, transform: `translate(${t3as[i]}) scale(100)` });
 								followPathXY(0, 0, sc.m[i], (x, y) => { a.push([x, y]); q += `M${x-.47} ${y-.47}h.94v.94h-.94z`; });
 								mk(`ar-${i}-q`, 'path', { 'class': 'q', 'd': q }, null, g);
 								mkArrow(`ar-${i}-a`, a, null, .3, { 'class': 'a' }, g);
 								mk(`ar-${i}-t`, 'text', { x: a[a.length >> 1][0], y: a[a.length >> 1][1]+.35 }, ['✓'], g);
 							}
+							g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g', { 'class': 'at' }));
 							for (let i = 0; i < sc.n.length; i++)
 							{
 								let fi = sc.n[i], ar = [], sel = mouseI === i;
 								if (s.m[i] !== null)
 								{
-									await makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25, 'class': 'anim-none' });
+									await makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25, 'class': 'anim-none' }, g[0]);
 									fi = followPathI(fi, sc.m[s.m[i]], j => { ar.push([sqx(j)+50, sqy(j)+50]); });
-									mkArrow(`n-${i}-a`, ar, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' });
+									mkArrow(`n-${i}-a`, ar, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' }, g[sel ? 3 : 1]);
 								}
-								await makeItemWithLetter('n', `n-${i}-t`, sqx(fi), sqy(fi), s.l[i],
-									{ 'class': 'movable', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` });
+								await makeItemWithLetter('n', `n-${i}-t`, sqx(fi), sqy(fi), s.l[i], { 'class': 'movable', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` }, g[sel ? 4 : 2]);
 								if (s.k[i] !== null)
 								{
-									mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z',
-										'*transform': `translate(${sqx(fi)+20}, ${sqy(fi)-90})`, stroke: 'black', 'stroke-width': 5, fill: 'white' });
+									mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z', '*transform': `translate(${sqx(fi)+20}, ${sqy(fi)-90})`, stroke: 'black', 'stroke-width': 5, fill: 'white' }, null, g[5]);
 									let lines = (s.a[s.k[i]] ?? sc.k[s.k[i]]).split(' ');
-									let sbg = mk(`n-${i}-sbt`, 'g', { fill: 'black', stroke: 'none', 'text-anchor': 'middle', 'font-family': 'Proxima', 'font-size': 18, 'font-weight': 200, 'letter-spacing': 1 },
-										lines.map((l, lx) => `<text y='${17*lx}'>${l}<${''}/text>`).join(''));
+									let sbg = mk(`n-${i}-sbt`, 'g', { fill: 'black', stroke: 'none', 'text-anchor': 'middle', 'font-family': 'Proxima', 'font-size': 18, 'font-weight': 200, 'letter-spacing': 1 }, lines.map((l, lx) => `<text y='${17*lx}'>${l}<${''}/text>`).join(''), g[5]);
 									await document.fonts.ready;
 									let bb = sbg.getBBox();
 									sbg.setAttribute('transform', `translate(${sqx(fi)+70-bb.x-bb.width/2}, ${sqy(fi)-40-bb.y-bb.height/2})`);
@@ -653,6 +650,18 @@
 											{ d: 1.47 },
 											() => { h.innerHTML = 'Answer checker:'; },
 											{ d: 1.47, v: { r: [0xff, 0xdb], g: [0x66, 0xde], b: [0x66, 0xe1] }, fn: t => {
+												h.style.color = `#${(t.r|0).toString(16).padStart(2, '0')}${(t.g|0).toString(16).padStart(2, '0')}${(t.b|0).toString(16).padStart(2, '0')}`;
+											} }
+										]);
+									}
+									else if (r.startsWith('+'))
+									{
+										h.innerHTML = r.substring(1);
+										h.style.color = 'hsl(60, 100%, 70%)';
+										coroutine('ans-chk', [
+											{ d: 1.47 },
+											() => { h.innerHTML = 'Answer checker:'; },
+											{ d: 1.47, v: { r: [0xff, 0xdb], g: [0xff, 0xde], b: [0x66, 0xe1] }, fn: t => {
 												h.style.color = `#${(t.r|0).toString(16).padStart(2, '0')}${(t.g|0).toString(16).padStart(2, '0')}${(t.b|0).toString(16).padStart(2, '0')}`;
 											} }
 										]);
@@ -715,7 +724,7 @@
 									mk(`rh-${y}`, 'text', { y: sqyy(y)+55, x: 385, 'font-size': 32, 'font-family': 'Proxima', 'text-anchor': 'end', fill: 'hsl(220, 15%, 60%)' }, [y + 1]);
 							}
 
-							let g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g', { 'class': 'at' }));
+							g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g', { 'class': 'at' }));
 							for (let ai = 0, k = 0; k < sc.a.length; ai += sc[sc.a[k]].length, k++)
 								for (let i = 0, cn = sc[sc.a[k]], n = s[sc.a[k]]; i < cn.length; i++)
 								{
@@ -745,11 +754,11 @@
 								let f = Array.from(zc.a).map(k => zc[k]).flat(), t = Array.from(zc.a).map(k => z[k]).flat(), y = 75;
 								for (let i = 0; i < o.length; i++)
 								{
-									mk(`i-${i}-n`, 'text', { x: 160, y: y + 60*i, 'text-anchor': 'end', 'font-size': 52, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 50%)' }, [`${i+1}.`]);
+									mk(`o-${i}-n`, 'text', { x: 160, y: y + 60*i, 'text-anchor': 'end', 'font-size': 52, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 50%)' }, [`${i+1}.`]);
 									function coord(i) { return `${String.fromCharCode(65+i%w)}${((i/w)|0)+1}`; }
-									mk(`i-${i}-m`, 'text', { '*x': 185, '*y': y + 60*i, 'text-anchor': 'start', 'font-size': 58, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 70%)' }, [`${coord(f[o[i]])} → ${coord(t[o[i]])}`]);
+									mk(`o-${i}-m`, 'text', { '*x': 185, '*y': y + 60*i, 'text-anchor': 'start', 'font-size': 58, 'font-family': 'Proxima', fill: 'hsl(220, 10%, 70%)' }, [`${coord(f[o[i]])} → ${coord(t[o[i]])}`]);
 									if (i < o.length - 1 && state.step === state.steps.length-1 && !p)
-										mk(`i-${i}-s`, 'g', { transform: `translate(70 ${y+12 + 60*i}) scale(.6)`, 'class': 'swapper', 'data-i': i }, `
+										mk(`o-${i}-s`, 'g', { transform: `translate(70 ${y+12 + 60*i}) scale(.6)`, 'class': 'swapper', 'data-i': i }, `
 											<circle cx='20' r='45' fill='transparent' />
 											<path class='s' d='m 17.53125,-41.076 3.0625,9.189453 C 9.963086,-27.607464 3.596156,-23.128036 -0.25,-17.999828 -4.95999,-11.71984 -5,-4.9998181 -5,1.719e-4 c 0,4.99999 0.04002,11.7200121 4.75,18.0000001 3.846156,5.128208 10.213086,9.607636 20.84375,13.886719 L 17.53125,41.076344 45.818359,35.27361 26.669922,13.658375 23.769531,22.359547 C 14.600726,18.565718 9.978856,14.971979 7.75,12.000172 4.960006,8.2801799 5,5.0001619 5,1.719e-4 c 0,-4.99999 -0.04,-8.280008 2.75,-11.9999999 2.228856,-2.971807 6.850726,-6.565546 16.019531,-10.359375 l 2.900391,8.701172 19.148437,-21.615235 z' />
 										`, input);
@@ -1515,6 +1524,11 @@
 							s.d[ri].n = m[1]|0;
 							changes = true;
 						}
+						else if (sc.subtype === 1 && ri >= 0 && keycombo === 'Space')
+						{
+							s.d.splice(ri, 1);
+							changes = true;
+						}
 						break;
 
 					case 3:
@@ -1645,7 +1659,7 @@
 				return q;
 			}
 
-			async function click(x, y, e, btns)
+			function click(x, y, e, btns)
 			{
 				//console.log('click', arguments);
 				let sc = state.steps[state.step], s = sc.v, changes = false, i = e ?? x + w*y;
@@ -1734,7 +1748,7 @@
 						}
 						break;
 				}
-				await maybeUpdateView(changes);
+				return changes;
 			}
 			async function startDrag(x, y, e, btns)
 			{
@@ -1773,10 +1787,10 @@
 					case 4:
 						if ((btns & 1) && e === -1)
 						{
-							ni = s.c.findIndex(c => c === null);
+							ni = s.c.findIndex(c => c === null || c.i === -1);
 							s.c[mouseI = ni < 0 ? s.c.length : ni] = { i: mouseM = -1, r: 2 };
 						}
-						else if ((btns & 1) && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c.i === i)) >= 0)
+						else if ((btns & 1) && (i = ed(x, y)) !== null && (ni = s.c.findLastIndex(c => c !== null && c.i === i)) >= 0)
 						{
 							mouseI = ni;
 							mouseM = i;
@@ -1797,8 +1811,8 @@
 						if (sc.subtype === 1 && (btns & 2))
 						{
 							mouseM = !s.m.includes(i);
-							if (mouseM) { s.m.push(i); s.m.sort((a, b) => a-b); changes = true; }
-							else { s.m.splice(s.m.indexOf(i), 1); changes = true; }
+							if (!mouseM) { s.m.splice(s.m.indexOf(i), 1); changes = true; }
+							else if (!sc.n.includes(i) && !s.d.includes(i) && !hasPath(s.b, i)) { s.m.push(i); s.m.sort((a, b) => a-b); changes = true; }
 						}
 						break;
 				}
@@ -1923,12 +1937,14 @@
 							let n = s.o.indexOf(ri);
 							if (n >= 0 && s[k][ii] === sc[k][ii])
 								s.o.splice(n, 1);
-							else if (n < 0 && s[k][ii] !== sc[k][ii])
+							else if (n < 0 && k !== null && s[k][ii] !== sc[k][ii])
 								s.o.push(ri);
 						}
 						changes = i !== oi;
 						break;
 				}
+				if (x === origX && y === origY && e === origE)
+					changes = click(mouseX, mouseY, mouseE, mouseB) || changes;
 				mouseI = mouseM = mouseK = null;
 				await maybeUpdateView(changes);
 				if (sc.type === 26 && 'w' in sc)
@@ -1937,6 +1953,7 @@
 
 			document.body.addEventListener('mousedown', async function(e)
 			{
+				mouseB = e.buttons;
 				if (!inputBlocked && e.target.classList.contains('thumbnail'))
 					return setThumbnailOverlay(e.target.id, 1);
 				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
@@ -1946,7 +1963,6 @@
 				mouseStartX = mouseX = e.target.dataset.x|0;
 				mouseStartY = mouseY = e.target.dataset.y|0;
 				mouseStartE = mouseE = 'e' in e.target.dataset ? e.target.dataset.e|0 : null;
-				mouseC = e.buttons;
 				e.preventDefault();
 				await startDrag(mouseX, mouseY, mouseE, e.buttons);
 				return false;
@@ -1960,9 +1976,8 @@
 				if (inputBlocked || Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(e.target)))
 					return true;
 				await endDrag(mouseStartX, mouseStartY, mouseStartE, mouseX, mouseY, mouseE);
-				if (mouseC !== null)
-					click(mouseX, mouseY, mouseE, mouseC);
-				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = mouseC = null;
+				mouseX = mouseY = mouseE = mouseStartX = mouseStartY = mouseStartE = null;
+				mouseB = 0;
 			});
 
 			document.body.addEventListener('click', async function(e)
@@ -1972,7 +1987,7 @@
 				let o = Array.from(document.querySelectorAll('.swapper')).find(o => o.contains(e.target));
 				if (o)
 				{
-					let sc = state.steps[state.step], s = sc.v, i = o.dataset.o|0;
+					let sc = state.steps[state.step], s = sc.v, i = o.dataset.i|0;
 					let t1 = document.getElementById(`o-${i}-m`), t2 = document.getElementById(`o-${i+1}-m`), y = 75;
 					if ('o' in s && i >= 0 && i < s.o.length && t1 && t2)
 					{
@@ -2021,7 +2036,6 @@
 			{
 				if (!inputBlocked && e.target.classList.contains('thumbnail'))
 					return setThumbnailOverlay(e.target.id, 0);
-				mouseC = null;
 			});
 
 			document.getElementById('copy').onclick = function()
