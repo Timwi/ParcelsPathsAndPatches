@@ -10,7 +10,7 @@
 }
 #
 <ul>
-	<li>Each nun Caesar-shifts their letter forward by the number of straight segments of barrier tape in the same row or column as she.</li>
+	<li>Each nun Caesar-shifts her letter forward by the number of straight segments of barrier tape in the same row or column as her.</li>
 </ul>
 <p class='kbd'>
 	<span><kbd>middle-click</kbd> <span>change letter</span></span>
