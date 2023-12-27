@@ -226,9 +226,8 @@
 				return !good.includes(false);
 			}
 
-			function make(id, elemName, attrs, content, parent, nodom)
+			function make(id, elemName, attrs, content, parent)
 			{
-				parent = parent ?? vis;
 				let force = elemName.startsWith('*'), isn = false;
 				if (force) elemName = elemName.substring(1);
 				let elem = document.getElementById(id) ?? (function()
@@ -275,80 +274,14 @@
 						elem.innerHTML = content;
 					}
 				}
-				if (!nodom && isn && elem.getBBox && !elem.classList.contains('anim-none') && !elem.classList.contains('at') && parent.classList.contains('at'))
-				{
-					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-					g.classList.add('nd');
-					g.classList.add('aa');
-					g.appendChild(elem);
-					parent.appendChild(g);
-					function animDone()
-					{
-						if (!elem.PPPDisappear)
-							g.parentNode.insertBefore(elem, g);
-						g.remove();
-					}
 
-					if (elem.classList.contains('anim-sw'))
-					{
-						let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { x: 0, y: 0, width: 2672, height: 1503, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse' }, null, defs, true);
-						let fi = make(null, 'feImage', { result: 'lingrad' }, null, f, true);
-						make(null, 'feBlend', { 'in': 'lingrad', in2: 'SourceGraphic', result: 'resgrad', mode: 'screen' }, null, f, true);
-						make(null, 'feComposite', { 'in': 'resgrad', in2: 'SourceGraphic', operator: 'in' }, null, f, true);
-						let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { x1: -86, y1: 234, x2: 2758, y2: 1270, gradientUnits: 'userSpaceOnUse' }, null, defs, true);
-						let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
-						let msid = `swfm-${getCounter()}`, ms = make(msid, 'mask', { maskUnits: 'userSpaceOnUse' }, null, defs, true);
-						make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms, true);
-						g.setAttribute('filter', `url(#${fid})`);
-						g.setAttribute('mask', `url(#${msid})`);
-						let fn = t => {
-							fi.setAttribute('href', `data:image/svg+xml,
-								%3Csvg width%3D'2672' height%3D'1503' xmlns%3D'http%3A//www.w3.org/2000/svg'%3E
-								%3Cdefs%3E
-									%3ClinearGradient id%3D'grad' x1%3D'-86' y1%3D'234' x2%3D'2758' y2%3D'1270' gradientUnits%3D'userSpaceOnUse'%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'0%25'/%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'100%25'/%3E
-									%3C/linearGradient%3E
-								%3C/defs%3E%0A
-								%3Crect x%3D'0' y%3D'0' width%3D'2672' height%3D'1503' fill%3D'url(%23grad)'/%3E
-								%3C/svg%3E`);
-							lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
-							lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
-						};
-						coroutine(null, [
-							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-							{ d: 3,	v: { v: [-20, 120] }, fn: fn },
-							() => {
-								animDone();
-								f.remove(); ms.remove(); lg.remove();
-							}
-						]);
-					}
-					else
-					{
-						let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
-						fn({ s: 1, o: 0 });
-						coroutine(null, [
-							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-							() => {
-								let bb = g.getBBox();
-								g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
-							},
-							{ d: .2,	v: { s: [0.9, 1], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
-							animDone
-						]);
-					}
-					lastMade = document.timeline.currentTime;
-				}
-				else
+				if (parent)
 				{
 					let rElem = elem;
-					if (!nodom)
-						if (elem.parentNode && elem.parentNode.classList.contains('aa'))
-							rElem = elem.parentNode;
-					parent.appendChild(rElem);
+					if (elem.parentNode && elem.parentNode.classList.contains('aa'))
+						rElem = elem.parentNode;
+					if (rElem.parentNode !== parent)
+						parent.appendChild(rElem);
 				}
 				return elem;
 			}
@@ -365,7 +298,7 @@
 
 			async function updateView()
 			{
-				let updated = new Set(), sc = state.steps[state.step], s = sc.v;
+				let sc = state.steps[state.step], s = sc.v, updates = { vis: [], input: [], ths: [] }, daf = [];
 
 				let lis = Array.from(div.querySelectorAll('li'));
 				if ('j' in s)
@@ -378,15 +311,19 @@
 
 				function mk(id, elemName, attrs, content, parent)
 				{
-					updated.add(id);
-					return make(id, elemName, attrs, content, parent);
+					parent = parent ?? vis;
+					if (!(parent.id in updates))
+						updates[parent.id] = [];
+					let elem = make(id, elemName, attrs, content);
+					updates[parent.id].push(elem);
+					return elem;
 				}
 
 				function mkArrow(id, pts, c, sw, attrs, p)
 				{
 					let g = mk(id, 'g', attrs, null, p), p1 = pts[pts.length-2], p2 = pts[pts.length-1], a = Math.atan2(p2[1]-p1[1], p2[0]-p1[0])*180/Math.PI;
-					let x = mk(`${id}-p`, '*path', { 'd': `M${pts.map(p => `${p[0]} ${p[1]}`).join(' ')}`, 'stroke-width': sw, fill: 'none' }, null, g);
-					let y = mk(`${id}-h`, '*path', { 'd': 'M-.2 0-1.6 .7V-.7z', transform: `translate(${p2[0]} ${p2[1]}) rotate(${a}) scale(${2*sw}) translate(.7 0)` }, null, g);
+					let x = mk(`${id}-p`, '*path', { 'class': 'anim-none', 'd': `M${pts.map(p => `${p[0]} ${p[1]}`).join(' ')}`, 'stroke-width': sw, fill: 'none' }, null, g);
+					let y = mk(`${id}-h`, '*path', { 'class': 'anim-none', 'd': 'M-.2 0-1.6 .7V-.7z', transform: `translate(${p2[0]} ${p2[1]}) rotate(${a}) scale(${2*sw}) translate(.7 0)` }, null, g);
 					if (c !== undefined && c !== null)
 					{
 						x.setAttribute('stroke', c);
@@ -443,43 +380,50 @@
 					return joinSegments(sgm, c => `${sqxx(c%W)} ${sqyy((c/W)|0)}`);
 				}
 
-				async function makeItemWithLetter(t, id, x, y, ltr, attrs, u, cc, r)
+				function makeItemWithLetter(t, id, x, y, ltr, attrs, u, cc, r)
 				{
 					let p = mk(id, 'g', { '*transform-origin': `${x+50} ${y+50}`, ...attrs }, null, u), hasLetter = !/^[_\s]*$/.test(ltr);
-					let p2 = mk(`${id}-p2`, 'g', { '*transform-origin': `${x+50} ${y+50}` }, null, p);
-					let dic = { n: hasLetter ? '#nun-no-arms-1' : '#nun-template', d: '#drumkit', c: '#car' };
-					let nm = mk(`${id}-m`, 'use', { '*href': dic[t], '*transform': `translate(${x}, ${y})` }, null, p2);
-					if (hasLetter && t === 'n')
+					let p2 = mk(`${id}-p2`, 'g', { 'class': 'anim-none', '*transform-origin': `${x+50} ${y+50}` }, null, p);
+					let dic = { n: '#nun-template', d: '#drumkit', c: '#car' };
+					let nm = mk(`${id}-m`, 'use', { 'class': 'anim-none', '*href': dic[t], '*transform': `translate(${x}, ${y})` }, null, p2), la1, la2, ra1, ra2, nu;
+					if (hasLetter)
 					{
+						if (t === 'n')
+						{
+							la1 = mk(`${id}-la1`, 'path',	{ 'class': 'anim-none', '*d': '',	stroke: 'black',	'stroke-width': 8,	fill: 'none' },	null,	p);
+							la2 = mk(`${id}-la2`, 'path',	{ 'class': 'anim-none', '*d': '',	stroke: '#272727',	'stroke-width': 5.2,	fill: 'none' },	null,	p);
+							ra1 = mk(`${id}-ra1`, 'path',	{ 'class': 'anim-none', '*d': '',	stroke: 'black',	'stroke-width': 8,	fill: 'none' },	null,	p);
+							ra2 = mk(`${id}-ra2`, 'path',	{ 'class': 'anim-none', '*d': '',	stroke: '#272727',	'stroke-width': 5.2,	fill: 'none' },	null,	p);
+							nu = mk(`${id}-m2`, 'use', { 'class': 'anim-none', '*opacity': 0, href: '#nun-no-arms-2', '*transform': `translate(${x}, ${y})` }, null, p);
+						}
 						let l = mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
 							'*transform-origin': `${x+50} ${y+60}`,
-							'*class':	ltr === '?' ? 'q anim-none' : '',
+							'*class':	ltr === '?' ? 'q anim-none' : 'anim-none',
 							'*y':	ltr === '?' ? y+110 : y+90,
 							'*font-size':	ltr === '?' ? 110 : 70,
 							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
 							'*stroke':	ltr === '?' ? 'hsl(38, 60%, 25%)' : 'black',
 							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, [ltr], p);
-						await document.fonts.ready;
-						let bb = l.getBBox();
-						p.appendChild(nm);
-						mk(`${id}-la1`, 'path', { '*d': `M${x+(2075+1142)*.02} ${y+2000*.02} C ${x+4100*.02} ${y+2750*.02} ${x+4100*.02} ${y+2750*.02} ${bb.x+bb.width} ${y+60}`, stroke: 'black', 'stroke-width': 8, fill: 'none' }, null, p);
-						mk(`${id}-la2`, 'path', { '*d': `M${x+(2075+1142)*.02} ${y+2000*.02} C ${x+4100*.02} ${y+2750*.02} ${x+4100*.02} ${y+2750*.02} ${bb.x+bb.width+5} ${y+60}`, stroke: '#272727', 'stroke-width': 5.2, fill: 'none' }, null, p);
-						mk(`${id}-ra1`, 'path', { '*d': `M${x+(608+1142)*.02} ${y+2000*.02} C ${x+900*.02} ${y+2750*.02} ${x+900*.02} ${y+2750*.02} ${bb.x} ${y+60}`, stroke: 'black', 'stroke-width': 8, fill: 'none' }, null, p);
-						mk(`${id}-ra2`, 'path', { '*d': `M${x+(608+1142)*.02} ${y+2000*.02} C ${x+900*.02} ${y+2750*.02} ${x+900*.02} ${y+2750*.02} ${bb.x-5} ${y+60}`, stroke: '#272727', 'stroke-width': 5.2, fill: 'none' }, null, p);
-						mk(`${id}-m2`, 'use', { href: '#nun-no-arms-2', '*transform': `translate(${x}, ${y})` }, null, p);
-						p.appendChild(l);
-						mk(`${id}-lh`, 'use', { href: '#nun-hand-left',	'*transform': `translate(${bb.x+bb.width},	${y+60}) rotate(90)`	}, null, p);
-						mk(`${id}-rh`, 'use', { href: '#nun-hand-right',	'*transform': `translate(${bb.x},	${y+60}) rotate(-90)`	}, null, p);
+						if (t === 'n')
+						{
+							let lh = mk(`${id}-lh`, 'use', { 'class': 'anim-none', '*opacity': 0, href: '#nun-hand-left', }, null, p);
+							let rh = mk(`${id}-rh`, 'use', { 'class': 'anim-none', '*opacity': 0, href: '#nun-hand-right', }, null, p);
+							daf.push(() =>
+							{
+								nm.setAttribute('href', '#nun-no-arms-1');
+								nu.setAttribute('opacity', 1);
+								let bb = l.getBBox();
+								la1.setAttribute('d', `M${x+(2075+1142)*.02} ${y+2000*.02} C ${x+4100*.02} ${y+2750*.02} ${x+4100*.02} ${y+2750*.02} ${bb.x+bb.width} ${y+60}`);
+								la2.setAttribute('d', `M${x+(2075+1142)*.02} ${y+2000*.02} C ${x+4100*.02} ${y+2750*.02} ${x+4100*.02} ${y+2750*.02} ${bb.x+bb.width+5} ${y+60}`);
+								ra1.setAttribute('d', `M${x+(608+1142)*.02} ${y+2000*.02} C ${x+900*.02} ${y+2750*.02} ${x+900*.02} ${y+2750*.02} ${bb.x} ${y+60}`);
+								ra2.setAttribute('d', `M${x+(608+1142)*.02} ${y+2000*.02} C ${x+900*.02} ${y+2750*.02} ${x+900*.02} ${y+2750*.02} ${bb.x-5} ${y+60}`);
+								lh.setAttribute('transform', `translate(${bb.x+bb.width},	${y+60}) rotate(90)`);
+								rh.setAttribute('transform', `translate(${bb.x},	${y+60}) rotate(-90)`);
+								lh.setAttribute('opacity', 1);
+								rh.setAttribute('opacity', 1);
+							});
+						}
 					}
-					else if (hasLetter)
-						mk(`${id}-l`, 'text', { '*x': x+50, 'font-family': 'Work Sans', 'font-weight': '700',
-							'*transform-origin': `${x+50} ${y+60}`,
-							'*class':	ltr === '?' ? 'q anim-none' : '',
-							'*y':	ltr === '?' ? y+110 : y+90,
-							'*font-size':	ltr === '?' ? 110 : 70,
-							'*fill':	ltr === '?' ? 'hsl(38, 80%, 85%)' : 'hsl(0, 0%, 85%)',
-							'*stroke':	ltr === '?' ? 'hsl(38, 60%, 25%)' : 'black',
-							'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': 'middle' }, [ltr], p);
 					if (cc !== undefined)
 						nm.setAttribute('filter', `hue-rotate(${ccs[cc % 9]-100}deg)`);
 					if (r !== undefined)
@@ -507,7 +451,7 @@
 						if (v & 2)
 							sgm.push({ c: [i, i+w], d1: 0, d2: 2 });
 					}
-					return mk('loop', 'path', { fill: 'none', '*stroke': stroke, 'stroke-width': 15, '*d': joinSegments(sgm, c => `${sqxx(c%w)+50} ${sqyy((c/w)|0)+50}`) });
+					return mk('loop', 'path', { 'class': 'anim-sw', fill: 'none', '*stroke': stroke, 'stroke-width': 15, '*d': joinSegments(sgm, c => `${sqxx(c%w)+50} ${sqyy((c/w)|0)+50}`) });
 				}
 
 				function makePathFollow(d, f, t)
@@ -525,9 +469,9 @@
 					return [s, n, (k[0] + l[0])/2, (k[1] + l[1])/2];
 				}
 
-				async function render(step)
+				function render(step)
 				{
-					let sc = state.steps[step], s = sc.v, g;
+					let sc = state.steps[step], s = sc.v;
 					switch (sc.type)
 					{
 						case 0:
@@ -577,33 +521,38 @@
 							for (let i = 0; i < sc.n.length; i++)
 							{
 								let a = [], q = '';
-								g = mk(`ar-${i}-g`, 'g', { '*class': `ar${s.m.includes(i) ? ' u' : ''}`, transform: `translate(${t3as[i]}) scale(100)` });
+								let gg = mk(`ar-${i}-g`, 'g', { '*class': `anim-none ar${s.m.includes(i) ? ' u' : ''}`, transform: `translate(${t3as[i]}) scale(100)` });
 								followPathXY(0, 0, sc.m[i], (x, y) => { a.push([x, y]); q += `M${x-.47} ${y-.47}h.94v.94h-.94z`; });
-								mk(`ar-${i}-q`, 'path', { 'class': 'q', 'd': q }, null, g);
-								mkArrow(`ar-${i}-a`, a, null, .3, { 'class': 'a' }, g);
-								mk(`ar-${i}-t`, 'text', { x: a[a.length >> 1][0], y: a[a.length >> 1][1]+.35 }, ['✓'], g);
+								mk(`ar-${i}-q`, 'path', { 'class': 'q', 'd': q }, null, gg);
+								mkArrow(`ar-${i}-a`, a, null, .3, { 'class': 'a' }, gg);
+								mk(`ar-${i}-t`, 'text', { x: a[a.length >> 1][0], y: a[a.length >> 1][1]+.35 }, ['✓'], gg);
 							}
-							g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g', { 'class': 'at' }));
-							for (let i = 0; i < sc.n.length; i++)
-							{
-								let fi = sc.n[i], ar = [], sel = mouseI === i;
-								if (s.m[i] !== null)
+							for (let g = 0; g < 6; g++)
+								for (let i = 0; i < sc.n.length; i++)
 								{
-									await makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25, 'class': 'anim-none' }, g[0]);
-									fi = followPathI(fi, sc.m[s.m[i]], j => { ar.push([sqx(j)+50, sqy(j)+50]); });
-									mkArrow(`n-${i}-a`, ar, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' }, g[sel ? 3 : 1]);
+									let fi = sc.n[i], ar = [], sel = mouseI === i;
+									if (s.m[i] !== null)
+									{
+										if (g === 0)
+											makeItemWithLetter('n', `n-${i}-f`, sqx(fi), sqy(fi), s.l[i], { opacity: .25, 'class': 'anim-none' });
+										fi = followPathI(fi, sc.m[s.m[i]], j => { ar.push([sqx(j)+50, sqy(j)+50]); });
+										if (g === (sel ? 3 : 1))
+											mkArrow(`n-${i}-a`, ar, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' });
+									}
+									if (g === (sel ? 4 : 2))
+										makeItemWithLetter('n', `n-${i}-t`, sqx(fi), sqy(fi), s.l[i], { 'class': 'movable', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` });
+									if (s.k[i] !== null && g === 5)
+									{
+										mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z', '*transform': `translate(${sqx(fi)+20}, ${sqy(fi)-90})`, stroke: 'black', 'stroke-width': 5, fill: 'white' });
+										let lines = (s.a[s.k[i]] ?? sc.k[s.k[i]]).split(' ');
+										let sbg = mk(`n-${i}-sbt`, 'g', { fill: 'black', stroke: 'none', 'text-anchor': 'middle', 'font-family': 'Proxima', 'font-size': 18, 'font-weight': 200, 'letter-spacing': 1 }, lines.map((l, lx) => `<text y='${17*lx}'>${l}<${''}/text>`).join(''));
+										daf.push(() =>
+										{
+											let bb = sbg.getBBox();
+											sbg.setAttribute('transform', `translate(${sqx(fi)+70-bb.x-bb.width/2}, ${sqy(fi)-40-bb.y-bb.height/2})`);
+										});
+									}
 								}
-								await makeItemWithLetter('n', `n-${i}-t`, sqx(fi), sqy(fi), s.l[i], { 'class': 'movable', '*transform-origin': `${sqx(fi)+50} ${sqy(fi)+50}` }, g[sel ? 4 : 2]);
-								if (s.k[i] !== null)
-								{
-									mk(`n-${i}-sb`, 'path', {	d: 'M 75,80 C 86.08,80 95,71.08 95,60 V 40 C 95,28.92 86.08,20 75,20 H 25 C 13.92,20 5,28.92 5,40 v 20 c 0,11.08 8.92,20 20,20 H 60 C 57.070558,89.494924 50,95 50,95 60.909137,93.08071 70,90 75,80 Z', '*transform': `translate(${sqx(fi)+20}, ${sqy(fi)-90})`, stroke: 'black', 'stroke-width': 5, fill: 'white' }, null, g[5]);
-									let lines = (s.a[s.k[i]] ?? sc.k[s.k[i]]).split(' ');
-									let sbg = mk(`n-${i}-sbt`, 'g', { fill: 'black', stroke: 'none', 'text-anchor': 'middle', 'font-family': 'Proxima', 'font-size': 18, 'font-weight': 200, 'letter-spacing': 1 }, lines.map((l, lx) => `<text y='${17*lx}'>${l}<${''}/text>`).join(''), g[5]);
-									await document.fonts.ready;
-									let bb = sbg.getBBox();
-									sbg.setAttribute('transform', `translate(${sqx(fi)+70-bb.x-bb.width/2}, ${sqy(fi)-40-bb.y-bb.height/2})`);
-								}
-							}
 
 							let prevDd = document.querySelector('#ans-chk select')?.selectedIndex;
 							mk('ans-chk', 'foreignObject', { x: 850, y: 1403, width: 900, height: 100 }, `
@@ -618,8 +567,6 @@
 									<${''}/div>
 								<${''}/div>
 							`, input);
-							if (prevDd !== null)
-								document.querySelector('#ans-chk select').selectedIndex = prevDd;
 							async function t3ac()
 							{
 								if (inputBlocked)
@@ -686,13 +633,18 @@
 									}
 								}
 							};
-							document.querySelector('#ans-chk button').onclick = t3ac;
-							document.querySelector('#ans-chk input').onkeydown = function(e) { if (e.code === 'Enter') t3ac(); };
+							daf.push(() =>
+							{
+								if (prevDd !== null)
+									document.querySelector('#ans-chk select').selectedIndex = prevDd;
+								document.querySelector('#ans-chk button').onclick = t3ac;
+								document.querySelector('#ans-chk input').onkeydown = function(e) { if (e.code === 'Enter') t3ac(); };
+							});
 							break;
 
 						case 4:
 							let bt = makePath(state.steps[state.step-3].v.b, 'hsl(120, 15%, 40%)'), fn = s.c.findIndex(c => c === null);
-							await makeItemWithLetter('c', 'c-e', 100, 100, '', {}, vis, fn < 0 ? s.c.length : fn);
+							makeItemWithLetter('c', 'c-e', 100, 100, '', {}, vis, fn < 0 ? s.c.length : fn);
 							for (let i = 0; i < s.c.length; i++)
 								if (s.c[i] !== null)
 								{
@@ -700,14 +652,14 @@
 									{
 										let r = s.c[i].r, dx = [0, 1, 1, 1, 0, -1, -1, -1][r], dy = [-1, -1, 0, 1, 1, 1, 0, -1][r], x = edxx(s.c[i].i)+dx, y = edyy(s.c[i].i)+dy;
 										while (x >= 0 && x < w && y >= 0 && y < h && !sc.n.includes(x+w*y) && !sc.d.includes(x+w*y)) { x += dx; y += dy; }
-										mkArrow(`c-${i}-a`, [[edx(s.c[i].i)+50, edy(s.c[i].i)+50], [sqxx(x)+50, sqyy(y)+50]], `hsl(${ccs[i%9]}, 80%, 80%)`, 25, { opacity: .5 });
+										mkArrow(`c-${i}-a`, [[edx(s.c[i].i)+50, edy(s.c[i].i)+50], [sqxx(x)+50, sqyy(y)+50]], `hsl(${ccs[i%9]}, 80%, 80%)`, 25, { 'class': 'anim-none', opacity: .5 });
 									}
-									await makeItemWithLetter('c', `c-${i}`, edx(s.c[i].i) ?? 100, edy(s.c[i].i) ?? 100, '', { '*class': `movable${mouseI === i ? ' sel' : ''}` }, vis, i, s.c[i].r);
+									makeItemWithLetter('c', `c-${i}`, edx(s.c[i].i) ?? 100, edy(s.c[i].i) ?? 100, '', { '*class': `movable${mouseI === i ? ' sel' : ''}` }, vis, i, s.c[i].r);
 								}
 							for (let i = 0; i < sc.n.length; i++)
-								await makeItemWithLetter('n', `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
+								makeItemWithLetter('n', `n-${i}-t`, sqx(sc.n[i]), sqy(sc.n[i]), sc.l[i]);
 							for (let i = 0; i < sc.d.length; i++)
-								await makeItemWithLetter('d', `d-${i}-t`, sqx(sc.d[i]), sqy(sc.d[i]));
+								makeItemWithLetter('d', `d-${i}-t`, sqx(sc.d[i]), sqy(sc.d[i]));
 							break;
 
 						case 26:
@@ -724,28 +676,31 @@
 									mk(`rh-${y}`, 'text', { y: sqyy(y)+55, x: 385, 'font-size': 32, 'font-family': 'Proxima', 'text-anchor': 'end', fill: 'hsl(220, 15%, 60%)' }, [y + 1]);
 							}
 
-							g = Array(6).fill(null).map((_, ix) => mk(`g${ix}`, 'g', { 'class': 'at' }));
-							for (let ai = 0, k = 0; k < sc.a.length; ai += sc[sc.a[k]].length, k++)
-								for (let i = 0, cn = sc[sc.a[k]], n = s[sc.a[k]]; i < cn.length; i++)
-								{
-									let cx = sqx(cn[i]), cy = sqy(cn[i]);
-									let dx = cx, dy = cy, l = (s.l ?? sc.l)[ai+i], sel = mouseK === sc.a[k] && mouseI === i;
-									if (n && n[i] !== cn[i])
+							for (let g = 0; g < 6; g++)
+								for (let ai = 0, k = 0; k < sc.a.length; ai += sc[sc.a[k]].length, k++)
+									for (let i = 0, cn = sc[sc.a[k]], n = s[sc.a[k]]; i < cn.length; i++)
 									{
-										await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-f`, cx, cy, l, { opacity: .25, 'class': 'anim-none' }, g[0]);
-										dx = sqx(n[i]); dy = sqy(n[i]);
-										let d = [[cx+50, cy+50], [dx+50, dy+50]], c = null, x, y;
-										if (sc.w && sel)
-											[d, c, x, y] = makePathFollow(sc.w, cn[i], n[i]);
-										mkArrow(`${sc.a[k]}-${i}-a`, d, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' }, g[sel ? 3 : 1]);
-										if (c !== null && sel)
+										let cx = sqx(cn[i]), cy = sqy(cn[i]);
+										let dx = cx, dy = cy, l = (s.l ?? sc.l)[ai+i], sel = mouseK === sc.a[k] && mouseI === i;
+										if (n && n[i] !== cn[i])
 										{
-											mk(`${sc.a[k]}-${i}-o`, 'rect', { '*x': x-25, '*y': y-25, rx: 20, ry: 20, width: 50, height: 50, fill: 'white', stroke: 'black', 'stroke-width': 5 }, null, g[5]);
-											mk(`${sc.a[k]}-${i}-n`, 'text', { '*x': x, '*y': y+13, 'font-family': 'Proxima', 'font-size': 38, fill: 'black', 'text-anchor': 'middle' }, [c], g[5]);
+											if (g === 0)
+												makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-f`, cx, cy, l, { opacity: .25, 'class': 'anim-none' });
+											dx = sqx(n[i]); dy = sqy(n[i]);
+											let d = [[cx+50, cy+50], [dx+50, dy+50]], c = null, x, y;
+											if (sc.w && sel)
+												[d, c, x, y] = makePathFollow(sc.w, cn[i], n[i]);
+											if (g === (sel ? 3 : 1))
+												mkArrow(`${sc.a[k]}-${i}-a`, d, sel ? 'hsl(120, 80%, 80%)' : 'hsl(220, 20%, 80%)', 30, { '*opacity': sel ? .7 : .2, 'class': 'anim-none' });
+											if (c !== null && sel && g === 5)
+											{
+												mk(`${sc.a[k]}-${i}-o`, 'rect', { '*x': x-25, '*y': y-25, rx: 20, ry: 20, width: 50, height: 50, fill: 'white', stroke: 'black', 'stroke-width': 5, 'class': 'anim-none' });
+												mk(`${sc.a[k]}-${i}-n`, 'text', { '*x': x, '*y': y+13, 'font-family': 'Proxima', 'font-size': 38, fill: 'black', 'text-anchor': 'middle', 'class': 'anim-none' }, [c]);
+											}
 										}
+										if (g === (sel ? 4 : 2))
+											makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-t`, dx, dy, l, { 'class': 'movable' });
 									}
-									await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-t`, dx, dy, l, { 'class': 'movable' }, g[sel ? 4 : 2]);
-								}
 
 							let [o, p] = 'o' in s ? [s.o, false] : state.step > 0 && 'o' in state.steps[state.step-1].v ? [state.steps[state.step-1].v.o, true] : [null, null];
 							if (o !== null)
@@ -779,10 +734,10 @@
 								if (v & 2)
 									sgm.push({ c: [i, i+w], d1: 0, d2: 2 });
 							}
-							mk('loop', 'path', { fill: 'none', '*stroke': 'hsl(120, 60%, 75%)', 'stroke-width': 15, '*d': joinSegments(sgm, c => `${sqxx(c%w)+50} ${sqyy((c/w)|0)+50}`) });
+							mk('loop', 'path', { 'class': 'anim-sw', fill: 'none', '*stroke': 'hsl(120, 60%, 75%)', 'stroke-width': 15, '*d': joinSegments(sgm, c => `${sqxx(c%w)+50} ${sqyy((c/w)|0)+50}`) });
 							for (let k = 0, ai = 0; k < sc.a.length; ai += sc[sc.a[k]].length, k++)
 								for (let i = 0, n = sc[sc.a[k]]; i < n.length; i++)
-									await makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-t`, sqx(n[i]), sqy(n[i]), sc.l[ai+i]);
+									makeItemWithLetter(sc.a[k], `${sc.a[k]}-${i}-t`, sqx(n[i]), sqy(n[i]), sc.l[ai+i]);
 
 							if (sc.subtype === 1)
 							{
@@ -819,14 +774,16 @@
 							break;
 
 						case 47:
-							await render(step - 1);
+							render(step - 1);
 							let mIx = state.steps.slice(0, step).filter(sp => sp.type === 47).length, mg = mk(`mom-${mIx}`, 'g');
 							mk(`mom-${mIx}-r`, '*path', { d: `M${350 + 250*mIx} 1225h250v250h-250z`, fill: 'hsl(38, 100%, 40%)', 'fill-opacity': .5, stroke: 'hsl(38, 85%, 70%)', 'stroke-width': 10, 'paint-order': 'stroke' }, null, mg);
-							mk(`mom-${mIx}-t`, '*text', { x: 475 + 250*mIx, y: 1441, fill: 'hsl(38, 100%, 90%)', 'font-family': 'Proxima', 'font-size': 271, 'text-anchor': 'middle' }, [s.b], mg);
-							await document.fonts.ready;
-							let cursorX = s.b.length > 0 ? (bb => bb.x+bb.width+20)(document.getElementById(`mom-${mIx}-t`).getBBox()) : 475 + 250*mIx;
+							let mt = mk(`mom-${mIx}-t`, '*text', { x: 475 + 250*mIx, y: 1441, fill: 'hsl(38, 100%, 90%)', 'font-family': 'Proxima', 'font-size': 271, 'text-anchor': 'middle' }, [s.b], mg);
 							if (step === state.steps.length-1)
-								mk('mom-l', 'path', { '*d': `M${cursorX} 1250v200`, stroke: 'hsl(38, 100%, 90%)', 'stroke-width': 10, 'style': 'animation: .74s infinite blinking-cursor;' });
+							{
+								let ml = mk('mom-l', 'path', { '*d': `M${475 + 250*mIx} 1250v200`, stroke: 'hsl(38, 100%, 90%)', 'stroke-width': 10, 'style': 'animation: .74s infinite blinking-cursor;' });
+								if (s.b.length > 0)
+									daf.push(() => { ml.setAttribute('d', `M${(bb => bb.x+bb.width+20)(mt.getBBox())} 1250v200`); });
+							}
 							break;
 
 						case 5:
@@ -834,18 +791,17 @@
 								mk(inf.id, 'text', { 'font-family': "Work Sans", 'font-weight': 700, 'paint-order': 'stroke', 'stroke-width': 10, 'text-anchor': "middle", '*x': inf.x, '*y': inf.y-175, '*font-size': 120, '*fill': inf.h ? 'hsl(60, 80%, 75%)': 'hsl(0, 0%, 85%)', stroke: 'black' }, [inf.l]);
 
 							mk('me-inp', '*path', { fill: sc.f ? 'hsl(120, 100%, 40%)' : 'hsl(38, 100%, 40%)', 'fill-opacity': .5, stroke: sc.f ? 'hsl(120, 100%, 70%)' : 'hsl(38, 85%, 70%)', 'stroke-width': 10, 'paint-order': 'stroke', '*d': 'M350 1050h1000v250h-1000z' });
-							mk('me-inp-t', '*text', { x: 850, y: 1266, fill: sc.f ? 'hsl(120, 100%, 90%)' : 'hsl(38, 100%, 90%)', 'font-family': 'Proxima', 'font-size': 271, 'text-anchor': 'middle' }, [sc.f ? sc.b : s.b]);
-							if (!sc.f)
+							let mp = mk('me-inp-t', '*text', { x: 850, y: 1266, fill: sc.f ? 'hsl(120, 100%, 90%)' : 'hsl(38, 100%, 90%)', 'font-family': 'Proxima', 'font-size': 271, 'text-anchor': 'middle' }, [sc.f ? sc.b : s.b]);
+							if (!sc.f && step === state.steps.length-1)
 							{
-								await document.fonts.ready;
-								let csrX = s.b.length > 0 ? (bb => bb.x+bb.width+20)(document.getElementById('me-inp-t').getBBox()) : 850;
-								if (step === state.steps.length-1)
-									mk('me-inp-l', 'path', { '*d': `M${csrX} 1075v200`, stroke: 'hsl(38, 100%, 90%)', 'stroke-width': 10, 'style': 'animation: .74s infinite blinking-cursor;' });
+								let ml = mk('me-inp-l', 'path', { '*d': 'M850 1075v200', stroke: 'hsl(38, 100%, 90%)', 'stroke-width': 10, 'style': 'animation: .74s infinite blinking-cursor;' });
+								if (s.b.length > 0)
+									daf.push(() => { ml.setAttribute('d', `M${(bb => bb.x+bb.width+20)(mp.getBBox())} 1075v200`); });
 							}
 							break;
 					}
 				}
-				await render(state.step);
+				render(state.step);
 
 				for (let sIx = 0, mIx = 0; sIx < state.step; sIx++)
 					if (state.steps[sIx].type === 47)
@@ -911,25 +867,24 @@
 					mk('steps-bar', 'path', { fill: 'hsl(220, 10%, 20%)', d: 'M1450 0h1222v100H1450z' });
 					for (let i = 0; i < state.steps.length; i++)
 					{
-						mk(`step-${i}-btn`, 'g', { '*class': `step-btn${i === state.step ? ' sel' : ''}`, 'transform-origin': `${1490 + 54.5*i} 50` }, `
+						let d = mk(`step-${i}-btn`, 'g', { '*class': `step-btn${i === state.step ? ' sel' : ''}`, 'transform-origin': `${1490 + 54.5*i} 50` }, `
 							<circle cx='${1490 + 54.5*i}' cy='50' r='30' style='fill: hsl(var(--hue), 50%, 40%)' />
 							<circle cx='${1490 + 54.5*i}' cy='50' r='20' style='fill: hsl(var(--hue), 60%, 80%)' />
 							<circle cx='${1490 + 54.5*i}' cy='50' r='10' style='fill: hsl(var(--hue), 50%, 30%)' />`, input);
-						document.getElementById(`step-${i}-btn`).onclick = (st => async () => { await setupStepMaybe(await loadStep(st)); })(i);
+						d.onclick = (st => async () => { await setupStepMaybe(await loadStep(st)); })(i);
 					}
 				}
 
 				if (sc.type !== 5)
 				{
-					let th1 = mk('th1', 'g', { 'class': 'at' });
 					for (let thIx = 0; thIx < stepsWithThumbnails.length; thIx++)
 						if (state.step >= stepsWithThumbnails[thIx])
 						{
+							ensureThumbnail(thIx);
 							let th = stepsWithThumbnails[thIx], mx = 850, my = 600, tx = 1600, ty = 225 + 225*thIx, x1 = 375, y1 = 125, x2 = x1+950, y2 = y1+950, f = thIx === 4 ? 11 : 9;
 							if (thIx === 4) { x1 -= 100; y1 -= 100; x2 += 100; y2 += 100; }
 							let x3 = (x1-mx)*2/f+tx, y3 = (y1-my)*2/f+ty, x4 = (x2-mx)*2/f+tx, y4 = (y2-my)*2/f+ty;
-							await ensureThumbnail(thIx);
-							mk(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, transform: `translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` }, null, th1);
+							mk(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, transform: `translate(${tx}, ${ty}) scale(${2/f}) translate(${-mx}, ${-my})` });
 							mk(`show-thumbnail-${thIx}`, 'g', { style: `opacity: 0; transition: opacity .147s, transform .347s; transform: scale(.9); transform-origin: ${(x3+x4)/2}px ${(y3+y4)/2}px;`, 'data-transform': `scale(.9)`, 'class': 'anim-none' }, `
 								<use	opacity='.9'	href='#thumbnail-${thIx}-r' />
 								<path	opacity='.1'	d='M${x1} ${y1} ${x3} ${y3} ${x3} ${y4} ${x1} ${y2}z'	fill='white'	/> <!-- left -->
@@ -941,57 +896,162 @@
 						}
 				}
 
-				function process(elem)
+				function createAppearAnim(elem)
 				{
-					if (elem.classList.contains('aa') || elem.classList.contains('at'))
-						for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
-							process(subelem);
-					else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd') && elem.classList.contains('anim-none'))
-						elem.remove();
-					else if (elem.id && !updated.has(elem.id) && !elem.classList.contains('nd'))
+					if (elem.classList.contains('anim-none'))
+						return elem;
+
+					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+					g.classList.add('aa');
+					g.appendChild(elem);
+
+					function animDone()
 					{
-						let ei = elem.id, sw = elem.classList.contains('anim-sw');
-						elem.removeAttribute('id');
-						let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-						g.classList.add('nd');
-						g.classList.add('da');
-						das.appendChild(g);
-						g.appendChild(elem.parentNode && elem.parentNode.classList.contains('aa') ? elem.parentNode : elem);
-						let bb = g.getBBox();
-						g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
-						let b = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-						let fgbid = `fgb-${getCounter()}`;
-						b.id = fgbid;
-						b.setAttribute('x', '-100%');
-						b.setAttribute('y', '-100%');
-						b.setAttribute('width', '300%');
-						b.setAttribute('height', '300%');
-						let b2 = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-						b2.setAttribute('result', 'fbSourceGraphic');
-						b2.setAttribute('stdDeviation', '0 0');
-						b.appendChild(b2);
-						defs.appendChild(b);
-						g.setAttribute('filter', `url(#${fgbid})`);
-						let fn = t => {
-							b2.setAttribute('stdDeviation', `${t.b} ${t.b}`);
-							g.setAttribute('opacity', t.o);
-							g.setAttribute('transform', `scale(${t.s})`);
-						};
-						fn({ b: 0, o: 1, s: 1 });
-						coroutine(null, [
-							{ d: lastRemoved !== document.timeline.currentTime ? 0 : Math.random()*.47 },
-							{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, sw ? 1 : 1.2] }, e: Easing.OutQuad,	fn: fn },
-							() => { elem.PPPDisappear = true; g.remove(); b.remove(); }
-						]);
-						lastRemoved = document.timeline.currentTime;
+						if (!elem.PPPDisappear)
+							g.parentElement.insertBefore(elem, g);
+						g.remove();
 					}
-					else if (elem.id && !elem.classList.contains('nd'))
-						for (let subelem of Array.from(elem.querySelectorAll(':scope>*')))
-							process(subelem);
+
+					if (elem.classList.contains('anim-sw'))
+					{
+						let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { x: 0, y: 0, width: 2672, height: 1503, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse' }, null, defs, true);
+						let fi = make(null, 'feImage', { result: 'lingrad' }, null, f, true);
+						make(null, 'feBlend', { 'in': 'lingrad', in2: 'SourceGraphic', result: 'resgrad', mode: 'screen' }, null, f, true);
+						make(null, 'feComposite', { 'in': 'resgrad', in2: 'SourceGraphic', operator: 'in' }, null, f, true);
+						let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { x1: -86, y1: 234, x2: 2758, y2: 1270, gradientUnits: 'userSpaceOnUse' }, null, defs, true);
+						let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
+						let msid = `swfm-${getCounter()}`, ms = make(msid, 'mask', { maskUnits: 'userSpaceOnUse' }, null, defs, true);
+						make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms, true);
+						g.setAttribute('filter', `url(#${fid})`);
+						g.setAttribute('mask', `url(#${msid})`);
+						let fn = t => {
+							fi.setAttribute('href', `data:image/svg+xml,
+								%3Csvg width%3D'2672' height%3D'1503' xmlns%3D'http%3A//www.w3.org/2000/svg'%3E
+								%3Cdefs%3E
+									%3ClinearGradient id%3D'grad' x1%3D'-86' y1%3D'234' x2%3D'2758' y2%3D'1270' gradientUnits%3D'userSpaceOnUse'%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'0%25'/%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
+										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'100%25'/%3E
+									%3C/linearGradient%3E
+								%3C/defs%3E%0A
+								%3Crect x%3D'0' y%3D'0' width%3D'2672' height%3D'1503' fill%3D'url(%23grad)'/%3E
+								%3C/svg%3E`);
+							lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
+							lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
+						};
+						coroutine(null, [
+							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+							{ d: 3,	v: { v: [-20, 120] }, fn: fn },
+							() => {
+								animDone();
+								f.remove(); ms.remove(); lg.remove();
+							}
+						]);
+					}
+					else
+					{
+						let fn = t => { g.setAttribute('transform', `scale(${t.s})`); g.setAttribute('opacity', t.o); };
+						fn({ s: 1, o: 0 });
+						coroutine(null, [
+							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+							() => {
+								let bb = g.getBBox();
+								g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+							},
+							{ d: .2,	v: { s: [0.9, 1], o: [0, 1] }, e: Easing.OutQuad,	fn: fn },
+							animDone
+						]);
+					}
+					lastMade = document.timeline.currentTime;
+					return g;
 				}
 
-				for (let subelem of Array.from(document.querySelectorAll('#input>*,#vis>*')))
-					process(subelem);
+				function createDisappearAnim(elem)
+				{
+					if (elem.classList.contains('nd'))
+						return;
+					if (elem.classList.contains('anim-none'))
+					{
+						elem.remove();
+						return;
+					}
+
+					let ei = elem.id, sw = elem.classList.contains('anim-sw');
+					elem.removeAttribute('id');
+					let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+					g.classList.add('da');
+					das.appendChild(g);
+					g.appendChild(elem.parentNode && elem.parentNode.classList.contains('aa') ? elem.parentNode : elem);
+					let bb = g.getBBox();
+					g.setAttribute('transform-origin', `${bb.x+bb.width/2} ${bb.y+bb.height/2}`);
+					let b = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+					let fgbid = `fgb-${getCounter()}`;
+					b.id = fgbid;
+					b.setAttribute('x', '-100%');
+					b.setAttribute('y', '-100%');
+					b.setAttribute('width', '300%');
+					b.setAttribute('height', '300%');
+					let b2 = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+					b2.setAttribute('result', 'fbSourceGraphic');
+					b2.setAttribute('stdDeviation', '0 0');
+					b.appendChild(b2);
+					defs.appendChild(b);
+					g.setAttribute('filter', `url(#${fgbid})`);
+					let fn = t => {
+						b2.setAttribute('stdDeviation', `${t.b} ${t.b}`);
+						g.setAttribute('opacity', t.o);
+						g.setAttribute('transform', `scale(${t.s})`);
+					};
+					fn({ b: 0, o: 1, s: 1 });
+					coroutine(null, [
+						{ d: lastRemoved !== document.timeline.currentTime ? 0 : Math.random()*.47 },
+						{ d: 1,	v: { b: [0, 10], o: [1, 0], s: [1, sw ? 1 : 1.2] }, e: Easing.OutQuad,	fn: fn },
+						() => { elem.PPPDisappear = true; g.remove(); b.remove(); }
+					]);
+					lastRemoved = document.timeline.currentTime;
+				}
+
+				function re(e) { return e.classList.contains('aa') ? e.firstElementChild : e; }
+				function rp(e) { return e.parentElement && e.parentElement.classList.contains('aa') ? e.parentElement : e; }
+
+				for (let parid of Object.keys(updates))
+				{
+					let wo = updates[parid], wi = 0, p = document.getElementById(parid), ao = p.firstElementChild;
+					while (wi < wo.length && ao !== null)
+					{
+						if (rp(wo[wi]) === ao) { ao = ao.nextElementSibling; wi++; continue; }
+						if (rp(wo[wi]).parentElement !== p) { p.insertBefore(createAppearAnim(wo[wi++]), ao); continue; }
+						let rbs = wo.indexOf(re(ao));
+						if (rbs < 0)
+						{
+							let n = ao.nextElementSibling;
+							createDisappearAnim(re(ao));
+							ao = n;
+							continue;
+						}
+						let lbe = wi+1, rbe = rbs+1;
+						while (lbe < wo.length && rp(wo[lbe]) === rp(wo[lbe-1]).nextElementSibling) lbe++;
+						while (rbe < wo.length && rp(wo[rbe]) === rp(wo[rbe-1]).nextElementSibling) rbe++;
+						if (rbe-rbs > lbe-wi)
+							for (; wi < lbe; wi++)
+								p.insertBefore(rp(wo[wi]), ao);
+						else
+							ao = rp(wo[rbe-1]).nextElementSibling;
+					}
+					while (ao !== null)
+					{
+						let n = ao.nextElementSibling;
+						createDisappearAnim(re(ao));
+						ao = n;
+					}
+					for (; wi < wo.length; wi++)
+						p.appendChild(rp(wo[wi]).parentElement === p ? rp(wo[wi]) : createAppearAnim(wo[wi]));
+				}
+
+				await document.fonts.ready;
+				for (let f of daf)
+					f();
 			}
 
 			async function fw()
@@ -1062,10 +1122,10 @@
 					document.getElementById('input').innerHTML = '';
 					document.getElementById('ui').style.visibility = 'hidden';
 					document.getElementById('fo').style.visibility = 'hidden';
-					let t1 = make(null, 'text', { '*opacity': 0, x: 1336, y: 750, 'font-family': 'Book Antiqua', 'font-size': 256, fill: 'white', 'text-anchor': 'middle' }, ['GREETINGS.']);
-					let t2 = make(null, 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 192, fill: 'white', 'text-anchor': 'middle' }, ['Welcome to...']);
-					let t3 = make(null, 'text', { '*opacity': 0, x: 1652, y: 770, 'font-family': 'Book Antiqua', 'font-size': 64, fill: 'white', 'text-anchor': 'middle' }, ['...whatever this is']);
-					let t4 = make('lets-start', 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 47, fill: 'white', 'text-anchor': 'middle' }, ['Let’s start you off with a little crossword.']);
+					let t1 = make(null, 'text', { '*opacity': 0, x: 1336, y: 750, 'font-family': 'Book Antiqua', 'font-size': 256, fill: 'white', 'text-anchor': 'middle' }, ['GREETINGS.'], vis);
+					let t2 = make(null, 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 192, fill: 'white', 'text-anchor': 'middle' }, ['Welcome to...'], vis);
+					let t3 = make(null, 'text', { '*opacity': 0, x: 1652, y: 770, 'font-family': 'Book Antiqua', 'font-size': 64, fill: 'white', 'text-anchor': 'middle' }, ['...whatever this is'], vis);
+					let t4 = make('lets-start', 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 47, fill: 'white', 'text-anchor': 'middle' }, ['Let’s start you off with a little crossword.'], vis);
 					await coroutine('intro', [
 						{ d: .47 },
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t1.setAttribute('opacity', t.o); } },
@@ -1077,10 +1137,10 @@
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t3.setAttribute('opacity', t.o); } },
 						{ d: .47 },
 						{ d: 1.47, v: { o: [1, 0] }, e: Easing.InQuad, fn: t => { for (let s of [t2, t3]) s.setAttribute('opacity', t.o); } },
+						() => { for (let s of [t1, t2, t3]) s.remove(); },
 						{ d: 1.47 },
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t4.setAttribute('opacity', t.o); } },
-						{ d: 1.47 },
-						() => { for (let s of [t1, t2, t3]) s.remove(); }
+						{ d: 1.47 }
 					]);
 					state.j = true;
 					document.getElementById('ui').style.visibility = 'visible';
@@ -1197,9 +1257,12 @@
 					ifGood = async function()
 					{
 						document.getElementById('input').innerHTML = '';
+						document.getElementById('ths').innerHTML = '';
 						div.innerHTML = '';
-						let g = document.getElementById('g2'), th = document.getElementById('th1'), sb = document.getElementById('steps-bar'), me;
+						let sb = document.getElementById('steps-bar'), me;
 						let ts = ['n-6', 'n-8', 'n-9', 'd-1', 'd-2', 'd-3', 'c-1'].map(j => document.getElementById(`${j}-t-l`));
+						for (let ti = 0; ti < 6; ti++)
+							document.getElementById(`thumbnail-${ti}-u`).remove();
 						await coroutine('check-fm', [
 							{ d: 1.47 },
 							() => {
@@ -1209,25 +1272,25 @@
 							{ d: 3.47, v: { o: [1, 0], f: [70, 120], y: [0, -175] }, e: Easing.InOutQuad, fn: t => {
 								for (let e of document.querySelectorAll('#vis *'))
 								{
-									if (/^(sq-\d+|frame1|loop|g0|g1)$/.test(e.id)
-										|| (!/^[ndc]-\d+-t(-l)?$/.test(e.id) && g.contains(e) && e !== g))
+									if (/^(sq-\d+|frame1|loop|[ndc]-\d+-(t-p2|t-[lr]a[12]|t-[lr]h|t-m2))$/.test(e.id))
 										e.setAttribute('opacity', t.o);
+									if (/^([ndc]-\d+-f)$/.test(e.id))
+										e.setAttribute('opacity', t.o/4);
+									if (/^([ndc]-\d+-a)$/.test(e.id))
+										e.setAttribute('opacity', t.o/5);
 									if (/^[ndc]-\d+-t-l$/.test(e.id))
 										e.setAttribute('font-size', t.f);
 								}
 								vis.setAttribute('transform', `translate(0, ${t.y})`);
-								th.setAttribute('transform', `translate(0, ${-t.y})`);
-								th.setAttribute('opacity', t.o);
 								sb.setAttribute('transform', `translate(0, ${-t.y})`);
 							} },
-							() => { th.remove(); },
 							{ d: 1.47, v: { y: [0, -275], h: [0, 60], s: [0, 80], l: [85, 75] }, e: Easing.InOutQuad, fn: t => {
 								for (let mg = 0; mg < 4; mg++)
 									document.getElementById(`mom-${mg}`).setAttribute('transform', `translate(0, ${t.y})`);
 								for (let s of ts)
 									s.setAttribute('fill', `hsl(${t.h}, ${t.s}%, ${t.l}%)`);
 							} },
-							() => { me = make('me-inp', 'path', { fill: 'hsl(38, 100%, 40%)', 'fill-opacity': .5, stroke: 'hsl(38, 85%, 70%)', 'stroke-width': 10, 'paint-order': 'stroke' }); },
+							() => { me = make('me-inp', 'path', { fill: 'hsl(38, 100%, 40%)', 'fill-opacity': .5, stroke: 'hsl(38, 85%, 70%)', 'stroke-width': 10, 'paint-order': 'stroke' }, null, vis); },
 							{ d: .47, v: { y: [1350, 1225], v: [0, 250] }, e: Easing.InOutQuad, fn: t => {
 								me.setAttribute('d', `M845 ${t.y}h10v${t.v}h-10z`);
 							} },
@@ -1239,11 +1302,12 @@
 				}
 				else if (sc.type === 5)
 				{
+					let msg = make(null, '*text', { x: 850, y: 1050, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle', 'transform-origin': '850 1050', 'class': 'nd' }, ['\u00a0'], vis);
+					await document.fonts.ready;
 					let r = document.getElementById('me-inp'), tx = document.getElementById('me-inp-t');
 					r.setAttribute('fill',	'hsl(0, 0%, 40%)');
 					r.setAttribute('stroke',	'hsl(0, 0%, 70%)');
 					tx.setAttribute('fill',	'hsl(0, 0%, 90%)');
-					let msg = make(null, '*text', { x: 850, y: 1050, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle', 'transform-origin': '850 1050' });
 					ifGood = async function()
 					{
 						msg.remove();
@@ -1273,11 +1337,12 @@
 				else if (sc.type === 47)
 				{
 					let mIx = state.steps.slice(0, state.step).filter(sp => sp.type === 47).length;
+					let msg = make('mom-msg', '*text', { x: 475 + 250*mIx, y: 1245, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle', 'class': 'nd' }, ['\u00a0'], vis);
+					await document.fonts.ready;
 					let r = document.getElementById(`mom-${mIx}-r`), tx = document.getElementById(`mom-${mIx}-t`);
 					r.setAttribute('fill',	'hsl(0, 0%, 40%)');
 					r.setAttribute('stroke',	'hsl(0, 0%, 70%)');
 					tx.setAttribute('fill',	'hsl(0, 0%, 90%)');
-					let msg = make('mom-msg', '*text', { x: 475 + 250*mIx, y: 1245, fill: 'hsl(0, 100%, 90%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 92, 'text-anchor': 'middle' }, ['\u00a0']);
 					ifGood = async function()
 					{
 						msg.textContent = 'GOOD!';
@@ -1296,7 +1361,8 @@
 								tx.setAttribute('font-size',	t.fs);
 								tx.setAttribute('y',	t.fy);
 								msg.setAttribute('opacity',	t.o);
-							} }
+							} },
+							() => { msg.remove(); }
 						]);
 					};
 					ifWrong = async function()
@@ -1369,8 +1435,8 @@
 				if (thIx >= 0)
 				{
 					await ensureThumbnail(thIx);
-					let tt = make(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r`, 'class': 'anim-none' }), sp = thIx === 4;
-					let re = make(`thumbnail-${thIx}-x`, 'rect', { 'class': 'anim-none', x: sp ? 275 : 375, y: sp ? 25 : 125, width: sp ? 1150 : 950, height: sp ? 1150 : 950, fill: 'white', '*fill-opacity': 0 });
+					let tt = make(`thumbnail-${thIx}-u`, 'use', { href: `#thumbnail-${thIx}-r` }, null, vis), sp = thIx === 4;
+					let re = make(`thumbnail-${thIx}-x`, 'rect', { x: sp ? 275 : 375, y: sp ? 25 : 125, width: sp ? 1150 : 950, height: sp ? 1150 : 950, fill: 'white', '*fill-opacity': 0 }, null, vis);
 					await coroutine('swoop-thumbnail', [
 						{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuart, fn: t => { re.setAttribute('fill-opacity', t.o); } },
 						{ d: .87, v: { x: [850, 1600], y: [600, 225 + 225*thIx], s: [1, 2/(thIx === 4 ? 11 : 9)] }, e: Easing.OutQuart,
@@ -1620,6 +1686,7 @@
 				}
 				state.undoptr = ptr;
 				localStorage.setItem('ppp-state', JSON.stringify(state));
+				last = JSON.stringify(state.steps[state.step].v);
 				if (s !== state.step)
 					await setupStepMaybe(await loadStep(state.step ?? 0));
 				else
@@ -2061,8 +2128,8 @@
 					}
 					document.body.removeChild(textArea);
 				}
-				let msg = make(null, '*text', { x: 175, y: 1413, fill: 'hsl(220, 10%, 70%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 70, 'text-anchor': 'start' }, ['copied']);
-				coroutine('check-mom', [
+				let msg = make(null, '*text', { x: 175, y: 1413, fill: 'hsl(220, 10%, 70%)', 'font-family': 'Proxima', 'font-weight': 600, 'font-size': 70, 'text-anchor': 'start' }, ['copied'], vis);
+				coroutine('copied', [
 					{ d: .47 },
 					{ d: .47, v: { o: [1, 0] }, e: Easing.OutQuad, fn: t => { msg.setAttribute('opacity',	t.o); } },
 					() => { msg.remove(); }
