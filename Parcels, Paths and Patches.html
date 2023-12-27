@@ -56,7 +56,7 @@
 			if (!('steps' in state) || !Array.isArray(state.steps)) state.steps = [];
 
 			let mouseX = null, mouseY = null, mouseE = null, mouseStartX = null, mouseStartY = null, mouseStartE = null;
-			let mouseI = null, mouseM = null, mouseK = null, mouseB = 0;
+			let mouseI = null, mouseM = null, mouseK = null, mouseB = 0, mouseC = false;
 			let lastMade = 0, lastRemoved = 0, fetchCache = {}, last;
 
 			await setupStepMaybe(await loadStep(state.step ?? 0));
@@ -1816,6 +1816,7 @@
 						}
 						break;
 				}
+				mouseC = true;
 				await maybeUpdateView(changes);
 			}
 			async function drag(origX, origY, origE, fromX, fromY, fromE, x, y, e, btns)
@@ -1885,6 +1886,8 @@
 						}
 						break;
 				}
+				if (x !== origX || y !== origY || e !== origE)
+					mouseC = false;
 				await maybeUpdateView(changes);
 			}
 			async function endDrag(origX, origY, origE, x, y, e)
@@ -1943,12 +1946,13 @@
 						changes = i !== oi;
 						break;
 				}
-				if (x === origX && y === origY && e === origE)
+				if (mouseC && x === origX && y === origY && e === origE)
 					changes = click(mouseX, mouseY, mouseE, mouseB) || changes;
 				mouseI = mouseM = mouseK = null;
 				await maybeUpdateView(changes);
 				if (sc.type === 26 && 'w' in sc)
 					await checkBtnPress();
+				mouseC = false;
 			}
 
 			document.body.addEventListener('mousedown', async function(e)
