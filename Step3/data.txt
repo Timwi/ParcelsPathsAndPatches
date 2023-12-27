@@ -21,5 +21,5 @@
 <p class='kbd'>
 	<span><kbd>left-drag</kbd> <span>move nun</span></span>
 	<span><kbd>right-click</kbd> <span>move back</span></span>
-	<span><kbd>middle-click</kbd> <span>change letter</span></span>
+	<span><kbd>middle-click</kbd>+<kbd>A</kbd>–<kbd>Z</kbd> <span>change letter</span></span>
 </p>
