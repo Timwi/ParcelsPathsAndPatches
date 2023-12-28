@@ -49,7 +49,7 @@
 				das = document.getElementById('das'),
 				ths = document.getElementById('ths');
 
-			let state, stateRaw = localStorage.getItem('ppp-state');
+			let state, stateRaw = localStorage.getItem('ss2023-rubrica');
 			try { state = JSON.parse(stateRaw); } catch { }
 			if (Object.prototype.toString.call(state) !== "[object Object]")
 				state = { step: 0, undo: [], undoptr: -1 };
@@ -286,6 +286,37 @@
 				return elem;
 			}
 
+			function createSwAnim(g)
+			{
+				let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { x: 0, y: 0, width: 2672, height: 1503, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse' }, null, defs);
+				let fi = make(null, 'feImage', { result: 'lingrad' }, null, f);
+				make(null, 'feBlend', { 'in': 'lingrad', in2: 'SourceGraphic', result: 'resgrad', mode: 'screen' }, null, f);
+				make(null, 'feComposite', { 'in': 'resgrad', in2: 'SourceGraphic', operator: 'in' }, null, f);
+				let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { x1: -86, y1: 234, x2: 2758, y2: 1270, gradientUnits: 'userSpaceOnUse' }, null, defs);
+				let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
+				let msid = `swfm-${getCounter()}`, ms = make(msid, 'mask', { maskUnits: 'userSpaceOnUse' }, null, defs);
+				make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms);
+				g.setAttribute('filter', `url(#${fid})`);
+				g.setAttribute('mask', `url(#${msid})`);
+				let fn = t => {
+					fi.setAttribute('href', `data:image/svg+xml,
+						%3Csvg width%3D'2672' height%3D'1503' xmlns%3D'http%3A//www.w3.org/2000/svg'%3E
+						%3Cdefs%3E
+							%3ClinearGradient id%3D'grad' x1%3D'-86' y1%3D'234' x2%3D'2758' y2%3D'1270' gradientUnits%3D'userSpaceOnUse'%3E
+								%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'0%25'/%3E
+								%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
+								%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
+								%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'100%25'/%3E
+							%3C/linearGradient%3E
+						%3C/defs%3E%0A
+						%3Crect x%3D'0' y%3D'0' width%3D'2672' height%3D'1503' fill%3D'url(%23grad)'/%3E
+						%3C/svg%3E`);
+					lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
+					lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
+				};
+				return [f, ms, lg, fn];
+			}
+
 			function sqxx(x)	{ return 400 + 100*x;	}
 			function sqx(i)	{ return i < 0 ? 100 : sqxx(i%w);	}
 			function sqyy(y)	{ return 150 + 100*y;	}
@@ -490,9 +521,9 @@
 								else
 									c.classList.remove('hl');
 							});
-							mk('cw-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1210 }, ['For future reference:']);
-							mk('cw-ffr2', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1310 }, ['← You can click here to reset the current puzzle.']);
-							mk('cw-ffr3', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 160, y: 1410 }, ['← You can click here to copy the game state into the clipboard as JSON, and later press Ctrl+V to go back to it.']);
+							mk('cw-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 30, x: 160, y: 1210 }, ['For future reference:']);
+							mk('cw-ffr2', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 30, x: 160, y: 1310 }, ['← Click here for Subpuzzle InstaReset™.']);
+							mk('cw-ffr3', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 30, x: 160, y: 1410 }, ['← Click here for JSON-To-Clipboard™. Use Ctrl+V later to go back to the copied game state. (No undo for Ctrl+V!)']);
 							break;
 
 						case 1:
@@ -511,8 +542,14 @@
 										[d.n]);
 							if (state.step === 1)
 							{
-								mk('cl-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1410, y: 57, 'text-anchor': 'end' }, ['For future reference: you can view previous stages by clicking these dots. →']);
+								mk('cl-ffr1', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1410, y: 57, 'text-anchor': 'end' }, ['For future reference: click here for HistoReview™. →']);
 								mk('cl-ffr2', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1370, y: 95, 'text-anchor': 'end' }, ['(or press Home/PgUp/PgDown/End)']);
+								mk('cl-ffr3', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1600, y: 375, 'text-anchor': 'middle' }, ['↑']);
+								mk('cl-ffr4', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1550, y: 420, 'text-anchor': 'middle' }, ['For future reference:']);
+								mk('cl-ffr5', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1550, y: 460, 'text-anchor': 'middle' }, ['Hover here to activate']);
+								mk('cl-ffr6', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1550, y: 500, 'text-anchor': 'middle' }, ['ProjectorVision™']);
+								mk('cl-ffr7', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1550, y: 540, 'text-anchor': 'middle' }, ['and hold mouse button']);
+								mk('cl-ffr8', 'text', { fill: 'hsl(220, 5%, 50%)', 'font-size': 32, x: 1550, y: 580, 'text-anchor': 'middle' }, ['for BrightLight™.']);
 							}
 							break;
 
@@ -914,39 +951,11 @@
 
 					if (elem.classList.contains('anim-sw'))
 					{
-						let fid = `swf-${getCounter()}`, f = make(fid, 'filter', { x: 0, y: 0, width: 2672, height: 1503, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse' }, null, defs, true);
-						let fi = make(null, 'feImage', { result: 'lingrad' }, null, f, true);
-						make(null, 'feBlend', { 'in': 'lingrad', in2: 'SourceGraphic', result: 'resgrad', mode: 'screen' }, null, f, true);
-						make(null, 'feComposite', { 'in': 'resgrad', in2: 'SourceGraphic', operator: 'in' }, null, f, true);
-						let lgid = `swfg-${getCounter()}`, lg = make(lgid, 'linearGradient', { x1: -86, y1: 234, x2: 2758, y2: 1270, gradientUnits: 'userSpaceOnUse' }, null, defs, true);
-						let lgss = Array(4).fill(null).map((_, ix) => make(null, 'stop', { 'stop-color': 'white', 'stop-opacity': ix < 2 ? 1 : 0 }, null, lg, true));
-						let msid = `swfm-${getCounter()}`, ms = make(msid, 'mask', { maskUnits: 'userSpaceOnUse' }, null, defs, true);
-						make(null, 'rect', { x: 0, y: 0, width: 2672, height: 1503, fill: `url(#${lgid})` }, null, ms, true);
-						g.setAttribute('filter', `url(#${fid})`);
-						g.setAttribute('mask', `url(#${msid})`);
-						let fn = t => {
-							fi.setAttribute('href', `data:image/svg+xml,
-								%3Csvg width%3D'2672' height%3D'1503' xmlns%3D'http%3A//www.w3.org/2000/svg'%3E
-								%3Cdefs%3E
-									%3ClinearGradient id%3D'grad' x1%3D'-86' y1%3D'234' x2%3D'2758' y2%3D'1270' gradientUnits%3D'userSpaceOnUse'%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'0%25'/%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'0' offset%3D'${Math.min(100, Math.max(0, t.v))}%25'/%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'${Math.min(100, Math.max(0, t.v+10))}%25'/%3E
-										%3Cstop stop-color%3D'white' stop-opacity%3D'1' offset%3D'100%25'/%3E
-									%3C/linearGradient%3E
-								%3C/defs%3E%0A
-								%3Crect x%3D'0' y%3D'0' width%3D'2672' height%3D'1503' fill%3D'url(%23grad)'/%3E
-								%3C/svg%3E`);
-							lgss[1].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+10))}%`);
-							lgss[2].setAttribute('offset', `${Math.min(100, Math.max(0, t.v+20))}%`);
-						};
+						let [f, ms, lg, fn] = createSwAnim(g);
 						coroutine(null, [
 							{ d: lastMade !== document.timeline.currentTime ? 0 : Math.random()*.47 },
 							{ d: 3,	v: { v: [-20, 120] }, fn: fn },
-							() => {
-								animDone();
-								f.remove(); ms.remove(); lg.remove();
-							}
+							() => { animDone(); f.remove(); ms.remove(); lg.remove(); }
 						]);
 					}
 					else
@@ -1117,15 +1126,35 @@
 
 				if (step === 0 && !('j' in state))
 				{
+					main.style.background = '';
 					inputBlocked = true;
 					document.getElementById('vis').innerHTML = '';
 					document.getElementById('input').innerHTML = '';
 					document.getElementById('ui').style.visibility = 'hidden';
 					document.getElementById('fo').style.visibility = 'hidden';
+					document.body.classList.add('dk');
 					let t1 = make(null, 'text', { '*opacity': 0, x: 1336, y: 750, 'font-family': 'Book Antiqua', 'font-size': 256, fill: 'white', 'text-anchor': 'middle' }, ['GREETINGS.'], vis);
-					let t2 = make(null, 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 192, fill: 'white', 'text-anchor': 'middle' }, ['Welcome to...'], vis);
-					let t3 = make(null, 'text', { '*opacity': 0, x: 1652, y: 770, 'font-family': 'Book Antiqua', 'font-size': 64, fill: 'white', 'text-anchor': 'middle' }, ['...whatever this is'], vis);
-					let t4 = make('lets-start', 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 47, fill: 'white', 'text-anchor': 'middle' }, ['Let’s start you off with a little crossword.'], vis);
+					let t2 = make(null, 'text', { '*opacity': 0, x: 200, y: 300, 'font-family': 'Book Antiqua', 'font-size': 128, fill: 'white', 'text-anchor': 'start' }, ['Welcome to...'], vis);
+					let t3 = make(null, 'g', {}, `
+						<g transform='translate(300 80) scale(1.25)'>
+							<g filter='url(#title-filter1)'>
+								<text x='100' y='600' font-family='Work Sans' font-weight='700' font-size='256' fill='hsl(38, 80%, 45%)' transform='rotate(-10)'>PARCELS,<${''}/text>
+							<${''}/g>
+							<g filter='url(#title-filter2)'>
+								<text x='750' y='680' font-family='Book Antiqua' font-weight='700' font-size='180' fill='hsl(120, 50%, 50%)' transform='rotate(-5)'>PATHS<${''}/text>
+							<${''}/g>
+							<g filter='url(#title-filter3)'>
+								<text x='600' y='800' font-family='Proxima' font-weight='700' font-size='256' fill='hsl(200, 80%, 65%)' letter-spacing='10'>PATCHES<${''}/text>
+							<${''}/g>
+							<g filter='url(#title-filter4)'>
+								<text x='350' y='800' font-family='Proxima' font-weight='700' font-size='320' fill='hsl(260, 50%, 60%)'>&amp;<${''}/text>
+							<${''}/g>
+						<${''}/g>
+					`, vis);
+					let [f, ms, lg, fn] = createSwAnim(t3);
+					let t4 = make(null, 'text', { '*opacity': 0, x: 2080, y: 1250, 'font-family': 'Book Antiqua', 'font-size': 48, fill: 'hsl(220, 30%, 70%)', 'text-anchor': 'end' }, ['...or whatever this is'], vis);
+					let t5 = make('lets-start1', 'text', { '*opacity': 0, x: 1336, y: 700, 'font-family': 'Book Antiqua', 'font-size': 47, fill: 'white', 'text-anchor': 'middle' }, ['Let’s start you off with a crossword.'], vis);
+					let t6 = make('lets-start2', 'text', { '*opacity': 0, x: 1336, y: 775, 'font-family': 'Book Antiqua', 'font-size': 28, fill: 'white', 'text-anchor': 'middle' }, ['(but don’t think you’re off the hook after that)'], vis);
 					await coroutine('intro', [
 						{ d: .47 },
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t1.setAttribute('opacity', t.o); } },
@@ -1133,14 +1162,18 @@
 						{ d: 1.47, v: { o: [1, 0] }, e: Easing.InQuad, fn: t => { t1.setAttribute('opacity', t.o); } },
 						{ d: .47 },
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t2.setAttribute('opacity', t.o); } },
+						{ d: 3.47,	v: { v: [-20, 120] }, fn: fn },
 						{ d: .47 },
-						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t3.setAttribute('opacity', t.o); } },
-						{ d: .47 },
-						{ d: 1.47, v: { o: [1, 0] }, e: Easing.InQuad, fn: t => { for (let s of [t2, t3]) s.setAttribute('opacity', t.o); } },
-						() => { for (let s of [t1, t2, t3]) s.remove(); },
-						{ d: 1.47 },
 						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t4.setAttribute('opacity', t.o); } },
-						{ d: 1.47 }
+						{ d: 1.47 },
+						{ d: 1.47, v: { o: [1, 0] }, e: Easing.InQuad, fn: t => { for (let s of [t2, t3, t4]) s.setAttribute('opacity', t.o); } },
+						() => { for (let s of [t1, t2, t3, t4]) s.remove(); },
+						{ d: 1.47 },
+						() => { document.body.classList.remove('dk'); },
+						{ d: 1.47, v: { o: [0, 1] }, e: Easing.OutQuad, fn: t => { t5.setAttribute('opacity', t.o); } },
+						{ d: .47, v: { o: [0, .2] }, e: Easing.OutQuad, fn: t => { t6.setAttribute('opacity', t.o); } },
+						{ d: 1.8472 },
+						() => { f.remove(); ms.remove(); lg.remove(); }
 					]);
 					state.j = true;
 					document.getElementById('ui').style.visibility = 'visible';
@@ -1197,7 +1230,7 @@
 						break;
 				}
 
-				localStorage.setItem('ppp-state', JSON.stringify(state));
+				localStorage.setItem('ss2023-rubrica', JSON.stringify(state));
 				await updateView();
 			}
 
@@ -1687,7 +1720,7 @@
 						state.steps[state.step].v = JSON.parse(JSON.stringify(state.undo[p].v));
 				}
 				state.undoptr = ptr;
-				localStorage.setItem('ppp-state', JSON.stringify(state));
+				localStorage.setItem('ss2023-rubrica', JSON.stringify(state));
 				last = JSON.stringify(state.steps[state.step].v);
 				if (s !== state.step)
 					await setupStepMaybe(await loadStep(state.step ?? 0));
@@ -1703,7 +1736,7 @@
 				state.undoptr++;
 				state.undo.splice(state.undoptr);
 				state.undo.push(o);
-				localStorage.setItem('ppp-state', JSON.stringify(state));
+				localStorage.setItem('ss2023-rubrica', JSON.stringify(state));
 			}
 
 			async function maybeUpdateView(changes)
@@ -2048,8 +2081,6 @@
 			{
 				if (!inputBlocked && e.target.classList.contains('thumbnail'))
 					return setThumbnailOverlay(e.target.id, .5);
-				if (!('x' in e.target.dataset) && !('e' in e.target.dataset))
-					return true;
 				if (inputBlocked || Array.from(document.querySelectorAll('foreignObject')).some(fo => fo.contains(e.target)))
 					return true;
 				await endDrag(mouseStartX, mouseStartY, mouseStartE, mouseX, mouseY, mouseE);
@@ -2146,6 +2177,8 @@
 			{
 				fetchCache = {};
 				state.steps.splice(state.step);
+				if (state.step === 0)
+					delete state['j'];
 				await setupStepMaybe(await loadStep(state.step));
 			};
 
@@ -2161,7 +2194,7 @@
 						{
 							let undo = Array.isArray(j.undo) ? j.undo : [{s: 0}];
 							state = { steps: j.steps, step: Math.max(0, Math.min(j.steps.length-1, j.step|0)), undo: undo, undoptr: Math.max(0, Math.min(undo.length-1, j.undoptr|0)), j: 'j' in j && !!j.j };
-							localStorage.setItem('ppp-state', JSON.stringify(state));
+							localStorage.setItem('ss2023-rubrica', JSON.stringify(state));
 							await setupStepMaybe(await loadStep(state.step));
 						}
 					}
@@ -2464,6 +2497,57 @@
 			<g id='thumbnail-3-r'></g>
 			<g id='thumbnail-4-r'></g>
 			<g id='thumbnail-5-r'></g>
+			<filter id='title-filter1' x='161' y='126' width='1266' height='510' filterUnits='userSpaceOnUse'>
+				<feGaussianBlur stdDeviation='3' in='SourceGraphic' result='blur1' />
+				<feSpecularLighting surfaceScale='5' specularConstant='.75' specularExponent='30' lighting-color='white' in='blur1' result='lighting1'>
+					<fePointLight x='500' y='-100' z='500' />
+				</feSpecularLighting>
+				<feComposite operator='arithmetic' k1='0' k2='1' k3='1' k4='0' in='SourceGraphic' in2='lighting1' result='comp1' />
+				<feMorphology operator='dilate' radius='10' in='SourceGraphic' result='dilated1' />
+				<feGaussianBlur stdDeviation='3' in='dilated1' result='dilated2' />
+				<feComposite operator='in' in='comp1' in2='dilated2' result='res2' />
+			</filter>
+			<filter id='title-filter2' x='791' y='391' width='648' height='270' filterUnits='userSpaceOnUse'>
+				<feMorphology operator='dilate' radius='6' in='SourceGraphic' result='dilatedA2' />
+				<feTurbulence baseFrequency=".001 .2" type="fractalNoise" numOctaves="3" seed="0" result="turbulenceA2" />
+				<feDisplacementMap scale="17" in2="turbulenceA2" result="layerB2" in="dilatedA2" />
+				<feColorMatrix in='layerB2' result='colorA2' values='.5 0 0 0 0  0 .5 0 0 0  0 0 .5 0 0  0 0 0 1 0' />
+				<feMorphology operator='dilate' radius='2' in='SourceGraphic' result='dilatedB2' />
+				<feTurbulence baseFrequency=".001 .2" type="fractalNoise" numOctaves="3" seed="0" result="turbulenceB2" />
+				<feDisplacementMap scale="17" in2="turbulenceB2" result="layerB2" in="dilatedB2" />
+				<feColorMatrix in='layerB2' result='colorB2' values='.1 0 0 0 0  0 .1 0 0 0  0 0 .1 0 0  0 0 0 1 0' />
+				<feTurbulence baseFrequency=".001 .2" type="fractalNoise" numOctaves="3" seed="0" result="turbulenceC2" />
+				<feDisplacementMap scale="17" in2="turbulenceC2" result="layerC2" in="SourceGraphic" />
+				<feMerge>
+					<feMergeNode in='colorA2' />
+					<feMergeNode in='colorB2' />
+					<feMergeNode in='layerC2' />
+				</feMerge>
+			</filter>
+			<filter id='title-filter3' x='590' y='564' width='830' height='313' filterUnits='userSpaceOnUse'>
+				<feFlood result='color3' flood-color='hsl(200, 30%, 30%)' />
+				<feMorphology operator='dilate' radius='15' in='SourceAlpha' result='dilated3' />
+				<feConvolveMatrix order='8,8' divisor='1' kernelMatrix='1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1' in='dilated3' result='extrude3' />
+				<feOffset dx='4' dy='4' in='extrude3' result='offset3' />
+				<feComposite in='offset3' in2='dilated3' operator='out' result='out3' />
+				<feComposite in='color3' in2='out3' result='comp3' operator='in' />
+				<feMerge>
+					<feMergeNode in='comp3' />
+					<feMergeNode in='SourceGraphic' />
+				</feMerge>
+			</filter>
+			<filter id='title-filter4' x='340' y='505' width='185' height='392' filterUnits='userSpaceOnUse'>
+				<feFlood result='color4' flood-color='hsl(260, 30%, 30%)' />
+				<feMorphology operator='dilate' radius='15' in='SourceAlpha' result='dilated4' />
+				<feConvolveMatrix order='8,8' divisor='1' kernelMatrix='1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1' in='dilated4' result='extrude4' />
+				<feOffset dx='4' dy='4' in='extrude4' result='offset4' />
+				<feComposite in='offset4' in2='dilated4' operator='out' result='out4' />
+				<feComposite in='color4' in2='out4' result='comp4' operator='in' />
+				<feMerge>
+					<feMergeNode in='comp4' />
+					<feMergeNode in='SourceGraphic' />
+				</feMerge>
+			</filter>
 		</defs>
 		<g id='fw'></g>
 		<g id='ui'>

@@ -27,14 +27,19 @@
 @font-face { font-family: 'Work Sans';	font-weight: 800;	src: url(WorkSans-ExtraBold.otf);	}
 @font-face { font-family: 'Work Sans';	font-weight: 900;	src: url(WorkSans-Black.otf);	}
 
-* { pointer-events: none; }
 #input { user-select: none; }
 #input *, #div *, #ui *, foreignObject * { pointer-events: all; }
 
 body, svg {
 	font-family: 'Book Antiqua';
 	background: hsl(220, 10%, 30%);
+	transition: background 8.47s;
 	color: #dbdee1;
+}
+body.dk, body.dk svg {
+	background: hsl(216, 10%, 10%);
+}
+svg * {
 	pointer-events: none;
 }
 #main {
