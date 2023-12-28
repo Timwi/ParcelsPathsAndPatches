@@ -21,7 +21,8 @@
 </ul>
 <p class='fl'>I’m tellin’ ya... gee, linseed is so hard to find these days!</p>
 <p class='kbd'>
-	<span><kbd>middle-click</kbd> + <kbd>0</kbd>–<kbd>9</kbd> + <kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd><kbd>←</kbd> <span>set nun digit and direction</span></span>
+	<span><kbd>middle-click</kbd> + <kbd>0</kbd>–<kbd>9</kbd>	<span>set nun digit</span></span>
+	<span><kbd>left-click</kbd> + <kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd><kbd>←</kbd>	<span>set nun direction</span></span>
 	<span><kbd>left-click</kbd>	<span>place drum kit</span></span>
 	<span><kbd>left-drag</kbd>	<span>draw path</span></span>
 	<span><kbd>right-click/drag</kbd>	<span>mark with dot</span></span>
